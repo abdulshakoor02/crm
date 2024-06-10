@@ -14,9 +14,9 @@ const navigation = (): VerticalNavItemsType => {
       path: '/home'
     },
     {
-      title: 'Second Page',
+      title: 'User',
       icon: EmailOutline,
-      path: '/second-page'
+      path: '/user'
     },
     {
       title: 'Access Control',
