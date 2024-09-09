@@ -72,6 +72,13 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
+    console.log('login called')
+    axios
+      .post('/api/login', params)
+      .then(res => console.log(res.data))
+      .catch(err => console.log(err))
+
+    // axios.post(`${process.env.baseUrl}${authConfig.loginEndpoint2}`, params).then(respnse => console.log(respnse))
     axios
       .post(authConfig.loginEndpoint, params)
       .then(async res => {
