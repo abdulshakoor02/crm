@@ -60,7 +60,7 @@ const SecondPage = () => {
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card>
-          <DataGridTable rows={data} columns={columns} total={data.length} />
+          <DataGridTable rows={data} columns={columns} total={data.length} onView={id => console.log('view', id)} onEdit={id => console.log("edit", id)} onDelete={id => console.log("delete",id)} />
         </Card>
       </Grid>
     </Grid>
