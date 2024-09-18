@@ -47,17 +47,12 @@ const AuthProvider = ({ children }: Props) => {
       const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!
       if (storedToken) {
         setLoading(true)
-        await axios
-          .get(authConfig.meEndpoint, {
-            headers: {
-              Authorization: storedToken
-            }
-          })
-          .then(async response => {
+        await axios.post('/api/auth',{},{headers:{token:storedToken}})
+        .then(res=>{
             setLoading(false)
-            setUser({ ...response.data.userData })
+            setUser({ ...res.data })
           })
-          .catch(() => {
+        .catch(()=>{
             localStorage.removeItem('userData')
             localStorage.removeItem('refreshToken')
             localStorage.removeItem('accessToken')
@@ -75,36 +70,21 @@ const AuthProvider = ({ children }: Props) => {
     console.log('login called')
     axios
       .post('/api/login', params)
-      .then(res => console.log(res.data))
-      .catch(err => console.log(err))
-
-    // axios.post(`${process.env.baseUrl}${authConfig.loginEndpoint2}`, params).then(respnse => console.log(respnse))
-    axios
-      .post(authConfig.loginEndpoint, params)
-      .then(async res => {
-        window.localStorage.setItem(authConfig.storageTokenKeyName, res.data.accessToken)
-      })
-      .then(() => {
-        axios
-          .get(authConfig.meEndpoint, {
-            headers: {
-              Authorization: window.localStorage.getItem(authConfig.storageTokenKeyName)!
-            }
-          })
-          .then(async response => {
+      .then(res => {
             const returnUrl = router.query.returnUrl
 
-            setUser({ ...response.data.userData })
-            await window.localStorage.setItem('userData', JSON.stringify(response.data.userData))
+            window.localStorage.setItem(authConfig.storageTokenKeyName, res.data.token)
+            setUser({ ...res.data.userData })
+            window.localStorage.setItem('userData', JSON.stringify(res.data.userData))
 
             const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
 
             router.replace(redirectURL as string)
-          })
-      })
+
+        } )
       .catch(err => {
         if (errorCallback) errorCallback(err)
-      })
+        })
   }
 
   const handleLogout = () => {

@@ -2,9 +2,16 @@ import { DataGrid, GridColumns, GridRenderCellParams, GridSortModel, GridToolbar
 import { useTheme } from '@mui/material/styles'
 import Toolbar from './Toolbar'
 
-const DataGridTable = (props: { rows: any; columns: GridColumns; total: number }) => {
+const DataGridTable = (props: {
+  rows: any
+  columns: GridColumns
+  total: number
+  pageSize: number
+  changePageSize: any
+  changePage: any
+}) => {
   const theme = useTheme()
-  const { rows, columns, total } = props
+  const { rows, columns, total, pageSize, changePageSize, changePage } = props
 
   return (
     <DataGrid
@@ -13,6 +20,11 @@ const DataGridTable = (props: { rows: any; columns: GridColumns; total: number }
       disableColumnFilter
       disableColumnMenu
       disableSelectionOnClick
+      rowsPerPageOptions={[10, 25, 50]}
+      pageSize={pageSize}
+      onPageSizeChange={changePageSize}
+      onPageChange={changePage}
+      paginationMode='server'
       rows={rows}
       columns={columns}
       rowCount={total}
