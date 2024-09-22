@@ -106,8 +106,8 @@ const schema = yup.object().shape({
 })
 
 const defaultValues = {
-  password: 'admin',
-  email: 'admin@materio.com'
+  password: 'test@123',
+  email: 'test@test.com'
 }
 
 interface FormData {
@@ -284,7 +284,7 @@ const LoginPage = () => {
                       onBlur={onBlur}
                       onChange={onChange}
                       error={Boolean(errors.email)}
-                      placeholder='admin@materio.com'
+                      placeholder='test@test.com'
                     />
                   )}
                 />

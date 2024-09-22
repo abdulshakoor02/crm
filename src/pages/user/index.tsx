@@ -8,8 +8,12 @@ import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import { DataGrid, GridColumns, GridRenderCellParams, GridSortModel, GridToolbarContainer } from '@mui/x-data-grid'
 import DataGridTable from '../components/Datagrid'
+import { useState } from 'react'
+import { Button, IconButton, TextField } from '@mui/material'
+import { AlphaXCircle, Box } from 'mdi-material-ui'
+import Modal from '../components/Model/Model'
 
-const data = [
+const initialData = [
   { id: 1, name: 'Alice', age: 30, city: 'New York' },
   { id: 2, name: 'Bob', age: 25, city: 'London' },
   { id: 3, name: 'Charlie', age: 42, city: 'Paris' },
@@ -56,13 +60,138 @@ const columns: GridColumns = [
 const SecondPage = () => {
   const theme = useTheme()
 
+  // Pagination state
+  const [pageSize, setPageSize] = useState(10)
+  const [page, setPage] = useState(0);
+  const [data, setData] = useState(initialData);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
+  const [selectedRow, setSelectedRow] = useState<any>(null);
+  const [formValues, setFormValues] = useState({ name: '', age: 0, city: '' });
+  const [errors, setErrors] = useState({ name: '', age: '', city: '' });
+
+  const handleOpenModal = (id: number, mode: 'view' | 'edit') => {
+    const rowData = data.find(row => row.id === id);
+    setSelectedRow(rowData);
+    setFormValues(rowData ? {
+      name: rowData.name,
+      age: rowData.age, // Ensure age is a string
+      city: rowData.city
+    } : { name: '', age: 0, city: '' });
+    setModalMode(mode);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedRow(null);
+    setErrors({ name: '', age: '', city: '' }); // Reset errors
+  };
+
+  const handleSubmit = () => {
+    let validationErrors = { name: '', age: '', city: '' };
+    let isValid = true;
+  
+    // Validation logic
+    if (!formValues.name) {
+      validationErrors.name = 'Name is required';
+      isValid = false;
+    }
+    if (!formValues.age || isNaN(Number(formValues.age))) {
+      validationErrors.age = 'Valid age is required';
+      isValid = false;
+    }
+    if (!formValues.city) {
+      validationErrors.city = 'City is required';
+      isValid = false;
+    }
+  
+    if (!isValid) {
+      setErrors(validationErrors);
+      return;
+    }
+  
+    if (modalMode === 'edit') {
+      setData(prevData => 
+        prevData.map(row => (row.id === selectedRow.id ? { ...row, ...formValues } : row))
+      );
+    }
+  
+    handleCloseModal();
+  };
+
+  const handleDelete = (id: number) => {
+    setData(prevData => prevData.filter(row => row.id !== id));
+  };
+
+  // Handlers for page size and page change
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize)
+  }
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage)
+  }
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card>
-          <DataGridTable rows={data} columns={columns} total={data.length} onView={id => console.log('view', id)} onEdit={id => console.log("edit", id)} onDelete={id => console.log("delete",id)} />
+          <DataGridTable
+            rows={data}
+            columns={columns}
+            total={data.length}
+            onView={id => handleOpenModal(id, 'view')}
+            onEdit={id => handleOpenModal(id, 'edit')}
+            onDelete={id => handleDelete(id)}
+            changePage={handlePageChange}
+            changePageSize={handlePageSizeChange}
+            pageSize={pageSize}
+          />
         </Card>
       </Grid>
+
+      {/* Modal */}
+      <Modal isOpen={modalOpen} onClose={handleCloseModal} title={modalMode === 'edit' ? 'Edit Row' : 'View Row'} onSubmit={handleSubmit} mode={modalMode}>
+          {modalMode === 'edit' ? (
+            <>
+              <TextField
+                fullWidth
+                label="Name"
+                value={formValues.name}
+                onChange={(e) => setFormValues({ ...formValues, name: e.target.value })}
+                error={!!errors.name}
+                helperText={errors.name}
+                margin="normal"
+              />
+              <TextField
+                fullWidth
+                label="Age"
+                type="number"
+                value={formValues.age}
+                onChange={(e) => setFormValues({ ...formValues, age: Number(e.target.value) })}
+                error={!!errors.age}
+                helperText={errors.age}
+                margin="normal"
+              />
+              <TextField
+                fullWidth
+                label="City"
+                value={formValues.city}
+                onChange={(e) => setFormValues({ ...formValues, city: e.target.value })}
+                error={!!errors.city}
+                helperText={errors.city}
+                margin="normal"
+              />
+            </>
+          ) : (
+            <>
+              <Typography variant="body1"><strong>Name:</strong> {selectedRow?.name}</Typography>
+              <Typography variant="body1"><strong>Age:</strong> {selectedRow?.age}</Typography>
+              <Typography variant="body1"><strong>City:</strong> {selectedRow?.city}</Typography>
+              </>
+          )}
+      </Modal>
     </Grid>
   )
 }
