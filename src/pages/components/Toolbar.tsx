@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
@@ -21,12 +21,14 @@ const StyledGridToolbarContainer = styled(GridToolbarContainer)(({ theme }) => (
 
 interface ToolbarProps {
   searchValue: string;
-  onSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearchChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSearch: () => void;
   onClearSearch: () => void;
   onAddRow?: () => void; // Optional Add Row handler
   disableExport?: boolean; // Option to disable export button
 }
+
+console.log("toolbar ")
 
 const Toolbar: React.FC<ToolbarProps> = ({
   searchValue,
@@ -63,7 +65,10 @@ const Toolbar: React.FC<ToolbarProps> = ({
       <TextField
         variant="standard"
         value={searchValue}
-        onChange={onSearchChange}
+        onChange={(e) => {
+          console.log("event toolbar e: ",e.target.value)
+          onSearchChange(e)
+        }}
         placeholder="Search"
         InputProps={{
           onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {

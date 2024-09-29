@@ -12,22 +12,28 @@ import { IconButton, Tooltip } from '@mui/material'
 import { Visibility, Edit, Delete } from '@mui/icons-material'
 import Box from '@mui/material/Box'
 import { DeleteOutline, EyeOutline, PencilOutline } from 'mdi-material-ui'
-import { useState } from 'react'
+import React from 'react'
 
-const DataGridTable = (props: {
+console.log("data grid ")
+
+const DataGridTable = React.memo(({rows, columns, total, onView, onEdit, onDelete, pageSize, changePageSize, changePage, onAddRow, onClearSearch, onSearch, onSearchChange, searchValue }: {
   rows: any
   columns: GridColumns
   total: number
   onView?: (id: any) => void
   onEdit?: (id: any) => void
   onDelete?: (id: any) => void
+  onAddRow?: () => void
+  onSearch: () => void
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+  onClearSearch: () => void
+  searchValue: any
   pageSize: number
   changePageSize: any
   changePage: any
 }) => {
   const theme = useTheme()
-  const { rows, columns, total, onView, onEdit, onDelete, pageSize, changePageSize, changePage } = props
-
+  // const { } = props
   
   // Add an action column with optional buttons
   const actionColumn = {
@@ -66,6 +72,7 @@ const DataGridTable = (props: {
   const columnsWithActions = onView || onEdit || onDelete ? [...columns, actionColumn] : columns
 
   return (
+    
     <DataGrid
       autoHeight
       pagination
@@ -84,16 +91,19 @@ const DataGridTable = (props: {
       components={{
         Toolbar: () => (
           <Toolbar
-            onAddRow={() => console.log('row add')}
-            onSearch={() => console.log('search...')}
-            onSearchChange={() => console.log('on serach change...')}
-            onClearSearch={() => console.log('clear search...')}
-            searchValue={''}
+            onAddRow={onAddRow}
+            onSearch={onSearch}
+            onSearchChange={(e) => {
+              console.log("event data grid e: ",e.target.value)
+              onSearchChange(e)
+            }}
+            onClearSearch={onClearSearch}
+            searchValue={searchValue}
           />
         )
       }}
     />
   )
-}
+})
 
 export default DataGridTable

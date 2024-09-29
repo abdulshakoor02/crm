@@ -10,7 +10,6 @@ import { DataGrid, GridColumns, GridRenderCellParams, GridSortModel, GridToolbar
 import DataGridTable from '../components/Datagrid'
 import { useState } from 'react'
 import { Button, IconButton, TextField } from '@mui/material'
-import { AlphaXCircle, Box } from 'mdi-material-ui'
 import Modal from '../components/Model/Model'
 
 const initialData = [
@@ -57,6 +56,7 @@ const columns: GridColumns = [
     )
   }
 ]
+
 const SecondPage = () => {
   const theme = useTheme()
 
@@ -65,12 +65,15 @@ const SecondPage = () => {
   const [page, setPage] = useState(0);
   const [data, setData] = useState(initialData);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
+  const [modalMode, setModalMode] = useState<'view' | 'edit' | 'add'>('view');
   const [selectedRow, setSelectedRow] = useState<any>(null);
   const [formValues, setFormValues] = useState({ name: '', age: 0, city: '' });
   const [errors, setErrors] = useState({ name: '', age: '', city: '' });
+  const [searchValue, setSearchValue] = useState("");
 
-  const handleOpenModal = (id: number, mode: 'view' | 'edit') => {
+  console.log("data ", data)
+
+  const handleOpenModal = (id: number, mode: 'view' | 'edit' | 'add') => {
     const rowData = data.find(row => row.id === id);
     setSelectedRow(rowData);
     setFormValues(rowData ? {
@@ -116,6 +119,15 @@ const SecondPage = () => {
         prevData.map(row => (row.id === selectedRow.id ? { ...row, ...formValues } : row))
       );
     }
+
+    if (modalMode === 'add') {
+      // Assuming formValues contains all the necessary data for the new row
+      const newRow = {
+        id: data.length + 1, // or another unique ID generation method
+        ...formValues
+      };
+      setData(prevData => [...prevData, newRow]);
+    }
   
     handleCloseModal();
   };
@@ -133,6 +145,31 @@ const SecondPage = () => {
     setPage(newPage)
   }
 
+  // Function to handle search input change
+  const onSearchChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    console.log(event.target.value);
+    setSearchValue(event.target.value); // Only updates searchValue, no search triggered yet
+  };
+
+   // Function to handle search when the Enter key is pressed or search button is clicked
+  // const onSearch = () => {
+  //   if (searchValue.trim()) {
+  //     const filteredData = initialData.filter(
+  //       (item) =>
+  //         item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+  //         item.city.toLowerCase().includes(searchValue.toLowerCase()) ||
+  //         item.age.toString().includes(searchValue)
+  //     );
+  //     setData(filteredData);
+  //   }
+  // };
+
+  // Handler for clearing the search
+  const handleClearSearch = () => {
+    setSearchValue(""); // Clear search input
+    setData(initialData); // Reset data to original state
+  };
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -144,16 +181,24 @@ const SecondPage = () => {
             onView={id => handleOpenModal(id, 'view')}
             onEdit={id => handleOpenModal(id, 'edit')}
             onDelete={id => handleDelete(id)}
+            onAddRow={() => handleOpenModal(0, 'add')}
             changePage={handlePageChange}
             changePageSize={handlePageSizeChange}
             pageSize={pageSize}
+            searchValue={searchValue}
+            onSearch={() => console.log("searched !")}
+            onSearchChange={(e) => {
+              console.log("event index e: ", e.target.value)
+              onSearchChange(e)
+            }}
+            onClearSearch={handleClearSearch}
           />
         </Card>
       </Grid>
 
       {/* Modal */}
       <Modal isOpen={modalOpen} onClose={handleCloseModal} title={modalMode === 'edit' ? 'Edit Row' : 'View Row'} onSubmit={handleSubmit} mode={modalMode}>
-          {modalMode === 'edit' ? (
+          {
             <>
               <TextField
                 fullWidth
@@ -162,6 +207,7 @@ const SecondPage = () => {
                 onChange={(e) => setFormValues({ ...formValues, name: e.target.value })}
                 error={!!errors.name}
                 helperText={errors.name}
+                disabled={modalMode === 'view'}
                 margin="normal"
               />
               <TextField
@@ -172,6 +218,7 @@ const SecondPage = () => {
                 onChange={(e) => setFormValues({ ...formValues, age: Number(e.target.value) })}
                 error={!!errors.age}
                 helperText={errors.age}
+                disabled={modalMode === 'view'}
                 margin="normal"
               />
               <TextField
@@ -181,16 +228,11 @@ const SecondPage = () => {
                 onChange={(e) => setFormValues({ ...formValues, city: e.target.value })}
                 error={!!errors.city}
                 helperText={errors.city}
+                disabled={modalMode === 'view'}
                 margin="normal"
               />
             </>
-          ) : (
-            <>
-              <Typography variant="body1"><strong>Name:</strong> {selectedRow?.name}</Typography>
-              <Typography variant="body1"><strong>Age:</strong> {selectedRow?.age}</Typography>
-              <Typography variant="body1"><strong>City:</strong> {selectedRow?.city}</Typography>
-              </>
-          )}
+          }
       </Modal>
     </Grid>
   )
