@@ -84,6 +84,7 @@ const DataGridTable = React.memo(({rows, columns, total, onView, onEdit, onDelet
       pageSize={pageSize}
       onPageSizeChange={changePageSize}
       onPageChange={changePage}
+      paginationMode='server'
       rows={rows}
       columns={columnsWithActions}
       rowCount={total}
