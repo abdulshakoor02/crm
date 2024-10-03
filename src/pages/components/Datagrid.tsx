@@ -31,7 +31,8 @@ const DataGridTable = React.memo(
     onClearSearch,
     onSearch,
     onSearchChange,
-    searchValue
+    searchValue,
+    checkBox
   }: {
     rows: any
     columns: GridColumns
@@ -47,6 +48,7 @@ const DataGridTable = React.memo(
     pageSize: number
     changePageSize: any
     changePage: any
+    checkBox: boolean
   }) => {
     const theme = useTheme()
     // const { } = props
@@ -94,7 +96,7 @@ const DataGridTable = React.memo(
         disableColumnFilter
         disableColumnMenu
         disableSelectionOnClick
-        checkboxSelection
+        checkboxSelection={checkBox}
         rowsPerPageOptions={[1, 5, 10, 25, 50]}
         pageSize={pageSize}
         onPageSizeChange={changePageSize}

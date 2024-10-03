@@ -65,11 +65,11 @@ const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode }: 
 
         {/* Modal Footer */}
         <Box display='flex' justifyContent='space-between' mt={3}>
-          {mode == 'edit' || 'add' && (
-            <Button variant='contained' onClick={onSubmit}>
-              Submit
-            </Button>
-          )}
+        {(mode == 'edit' || mode == 'add') && (
+          <Button variant='contained' onClick={onSubmit}>
+            Submit
+          </Button>
+        )}
           <Button variant='outlined' color='secondary' onClick={handleClose}>
             Cancel
           </Button>

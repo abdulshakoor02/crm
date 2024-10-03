@@ -149,17 +149,17 @@ const SecondPage = () => {
   };
 
    // Function to handle search when the Enter key is pressed or search button is clicked
-  // const onSearch = () => {
-  //   if (searchValue.trim()) {
-  //     const filteredData = initialData.filter(
-  //       (item) =>
-  //         item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-  //         item.city.toLowerCase().includes(searchValue.toLowerCase()) ||
-  //         item.age.toString().includes(searchValue)
-  //     );
-  //     setData(filteredData);
-  //   }
-  // };
+  const onSearch = () => {
+    if (searchValue.trim()) {
+      const filteredData = initialData.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+          item.city.toLowerCase().includes(searchValue.toLowerCase()) ||
+          item.age.toString().includes(searchValue)
+      );
+      setData(filteredData);
+    }
+  };
 
   // Handler for clearing the search
   const handleClearSearch = () => {
@@ -183,11 +183,12 @@ const SecondPage = () => {
             changePageSize={handlePageSizeChange}
             pageSize={pageSize}
             searchValue={searchValue}
-            onSearch={() => console.log("searched !")}
+            onSearch={onSearch}
             onSearchChange={(e) => {
               onSearchChange(e)
             }}
             onClearSearch={handleClearSearch}
+            checkBox={true}
           />
         </Card>
       </Grid>
@@ -204,6 +205,14 @@ const SecondPage = () => {
                 error={!!errors.name}
                 helperText={errors.name}
                 disabled={modalMode === 'view'}
+                sx={{
+                  "& .MuiInputBase-input.Mui-disabled": {
+                    WebkitTextFillColor: "#000000", //Adjust text color here
+                  },
+                  "& .MuiInputLabel-root.Mui-disabled": {
+                    color: "rgba(0, 0, 0, 0.87)", // Darker label color
+                  },
+                 }}
                 margin="normal"
               />
               <TextField
@@ -215,6 +224,14 @@ const SecondPage = () => {
                 error={!!errors.age}
                 helperText={errors.age}
                 disabled={modalMode === 'view'}
+                sx={{
+                  "& .MuiInputBase-input.Mui-disabled": {
+                    WebkitTextFillColor: "#000000", //Adjust text color here
+                  },
+                  "& .MuiInputLabel-root.Mui-disabled": {
+                    color: "rgba(0, 0, 0, 0.87)", // Darker label color
+                  },
+                 }}
                 margin="normal"
               />
               <TextField
@@ -225,6 +242,14 @@ const SecondPage = () => {
                 error={!!errors.city}
                 helperText={errors.city}
                 disabled={modalMode === 'view'}
+               sx={{
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor: "#000000", //Adjust text color here
+                },
+                "& .MuiInputLabel-root.Mui-disabled": {
+                  color: "rgba(0, 0, 0, 0.87)", // Darker label color
+                },
+               }}
                 margin="normal"
               />
             </>
