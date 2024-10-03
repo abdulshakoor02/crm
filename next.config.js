@@ -12,6 +12,9 @@ const withTM = require('next-transpile-modules')([
 ])
 
 module.exports = withTM({
+  env: {
+    baseUrl: process.env.BASE_URL
+  },
   trailingSlash: true,
   reactStrictMode: false,
   experimental: {

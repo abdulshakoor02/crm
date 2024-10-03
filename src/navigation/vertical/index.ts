@@ -2,6 +2,7 @@
 import HomeOutline from 'mdi-material-ui/HomeOutline'
 import EmailOutline from 'mdi-material-ui/EmailOutline'
 import ShieldOutline from 'mdi-material-ui/ShieldOutline'
+import FolderSpecialIcon from '@mui/icons-material/FolderSpecial'
 
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
@@ -14,9 +15,9 @@ const navigation = (): VerticalNavItemsType => {
       path: '/home'
     },
     {
-      title: 'Second Page',
+      title: 'User',
       icon: EmailOutline,
-      path: '/second-page'
+      path: '/user'
     },
     {
       title: 'Access Control',
@@ -24,6 +25,16 @@ const navigation = (): VerticalNavItemsType => {
       path: '/acl',
       action: 'read',
       subject: 'acl-page'
+    },
+    {
+      title: 'Masters',
+      icon: FolderSpecialIcon,
+      children: [
+        {
+          title: 'countries',
+          path: '/master/countries'
+        }
+      ]
     }
   ]
 }
