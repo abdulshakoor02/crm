@@ -71,8 +71,6 @@ const SecondPage = () => {
   const [errors, setErrors] = useState({ name: '', age: '', city: '' });
   const [searchValue, setSearchValue] = useState("");
 
-  console.log("data ", data)
-
   const handleOpenModal = (id: number, mode: 'view' | 'edit' | 'add') => {
     const rowData = data.find(row => row.id === id);
     setSelectedRow(rowData);
@@ -94,7 +92,7 @@ const SecondPage = () => {
   const handleSubmit = () => {
     let validationErrors = { name: '', age: '', city: '' };
     let isValid = true;
-  
+
     // Validation logic
     if (!formValues.name) {
       validationErrors.name = 'Name is required';
@@ -108,14 +106,14 @@ const SecondPage = () => {
       validationErrors.city = 'City is required';
       isValid = false;
     }
-  
+
     if (!isValid) {
       setErrors(validationErrors);
       return;
     }
-  
+
     if (modalMode === 'edit') {
-      setData(prevData => 
+      setData(prevData =>
         prevData.map(row => (row.id === selectedRow.id ? { ...row, ...formValues } : row))
       );
     }
@@ -128,7 +126,7 @@ const SecondPage = () => {
       };
       setData(prevData => [...prevData, newRow]);
     }
-  
+
     handleCloseModal();
   };
 
@@ -147,7 +145,6 @@ const SecondPage = () => {
 
   // Function to handle search input change
   const onSearchChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    console.log(event.target.value);
     setSearchValue(event.target.value); // Only updates searchValue, no search triggered yet
   };
 
@@ -188,7 +185,6 @@ const SecondPage = () => {
             searchValue={searchValue}
             onSearch={() => console.log("searched !")}
             onSearchChange={(e) => {
-              console.log("event index e: ", e.target.value)
               onSearchChange(e)
             }}
             onClearSearch={handleClearSearch}
