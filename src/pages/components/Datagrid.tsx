@@ -18,6 +18,7 @@ console.log('data grid ')
 
 const DataGridTable = React.memo(
   ({
+    loading,
     rows,
     columns,
     total,
@@ -34,6 +35,7 @@ const DataGridTable = React.memo(
     searchValue,
     checkBox
   }: {
+    loading: boolean
     rows: any
     columns: GridColumns
     total: number
@@ -91,6 +93,7 @@ const DataGridTable = React.memo(
 
     return (
       <DataGrid
+        loading={loading}
         autoHeight
         pagination
         disableColumnFilter
