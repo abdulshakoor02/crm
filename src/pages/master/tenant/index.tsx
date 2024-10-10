@@ -7,28 +7,23 @@ import { MenuItem, TextField } from '@mui/material'
 import { GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState, AppDispatch } from '../../store'
+import { RootState, AppDispatch } from '../../../store'
 
-import { getEmployeesData, updateEmployeesData, createEmployeesData } from '../../store/apps/user'
-import { getCountriesData } from '../../store/apps/countries'
-import DataGridTable from '../components/Datagrid'
+import { getTenantData, createTenantData, updateTenantData } from '../../../store/apps/tenant'
+import { getCountriesData } from '../../../store/apps/countries'
+import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
 import uuid from 'react-uuid'
 
-type User = {
+type Tenant = {
   id: string
-  first_name: string
-  last_name: string
-  password?: string
+  name: string
   phone: string
   email: string
+  website: string
   country_id: string
-  created_by?: string
-  modified_by?: string
-  tenant_id: string
   status: string
 }
 
@@ -37,23 +32,11 @@ const columns: GridColumns = [
     flex: 0.1,
     minWidth: 150,
     sortable: false,
-    field: 'first_name',
-    headerName: 'First Name',
+    field: 'name',
+    headerName: 'Name',
     renderCell: (params: GridRenderCellParams) => (
       <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.['first_name']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'last_name',
-    headerName: 'Last Name',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.['last_name']}
+        {params?.row?.['name']}
       </Typography>
     )
   },
@@ -82,6 +65,17 @@ const columns: GridColumns = [
   {
     flex: 0.1,
     minWidth: 150,
+    field: 'website',
+    headerName: 'Website',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {params?.row?.['website']}
+      </Typography>
+    )
+  },
+  {
+    flex: 0.1,
+    minWidth: 150,
     field: 'country',
     headerName: 'Country',
     renderCell: (params: GridRenderCellParams) => (
@@ -103,7 +97,7 @@ const columns: GridColumns = [
   }
 ]
 
-const UserComponent = () => {
+const TenantComponent = () => {
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
   const [pageSize, setPageSize] = useState<number>(10)
@@ -111,65 +105,57 @@ const UserComponent = () => {
   const [searchValue, setSearchValue] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'view' | 'edit' | 'add'>('view')
-  const [formValues, setFormValues] = useState<User>({
+  const [formValues, setFormValues] = useState<Tenant>({
     id: '',
-    first_name: '',
-    last_name: '',
-    password: '',
+    name: '',
     phone: '',
     email: '',
+    website: '',
     country_id: '',
-    tenant_id: '',
     status: ''
   })
-  const [errors, setErrors] = useState<User>({
+  const [errors, setErrors] = useState<Tenant>({
     id: '',
-    first_name: '',
-    last_name: '',
-    password: '',
+    name: '',
     phone: '',
     email: '',
+    website: '',
     country_id: '',
-    tenant_id: '',
     status: ''
   })
 
-  const user = useSelector((state: any) => state.user)
+  const tenant = useSelector((state: any) => state.tenant)
   const countries = useSelector((state: any) => state.country)
 
   useEffect(() => {
-    dispatch(getEmployeesData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
+    dispatch(getTenantData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
     dispatch(getCountriesData({}))
   }, [pageSize, page])
 
   const handleOpenModal = async (id: string | null, mode: 'view' | 'edit' | 'add') => {
     let rowData = undefined
     if (id) {
-      rowData = user?.rows?.find((row: User) => row.id === id) as unknown as User
+      rowData = tenant?.rows?.find((row: Tenant) => row.id === id) as unknown as Tenant
     }
 
     setFormValues(
       rowData
         ? {
             id: rowData.id,
-            first_name: rowData.first_name,
-            last_name: rowData.last_name,
-            password: '',
+            name: rowData.name,
             phone: rowData.phone,
             email: rowData.email,
-            tenant_id: rowData.tenant_id,
+            website: rowData.website,
             country_id: rowData.country_id,
             status: rowData.status
           }
         : {
             id: '',
-            first_name: '',
-            last_name: '',
-            password: '',
+            name: '',
             phone: '',
             email: '',
+            website: '',
             country_id: '',
-            tenant_id: '',
             status: ''
           }
     )
@@ -179,35 +165,12 @@ const UserComponent = () => {
 
   const handleCloseModal = () => {
     setModalOpen(false)
-    setErrors({
-      id: '',
-      first_name: '',
-      last_name: '',
-      password: '',
-      phone: '',
-      email: '',
-      tenant_id: '',
-      country_id: '',
-      status: ''
-    }) // Reset errors
+    setErrors({ id: '', name: '', phone: '', email: '', website: '', country_id: '', status: '' }) // Reset errors
   }
 
   const handleSubmit = async () => {
     const data = []
-    delete formValues.id
-    formValues.tenant_id = '09734e65-feda-4d46-bbf7-692dcdcbfbd4'
-    console.log(formValues)
-    const validationErrors: User = {
-      id: '',
-      first_name: '',
-      last_name: '',
-      password: '',
-      phone: '',
-      email: '',
-      tenant_id: '',
-      country_id: '',
-      status: ''
-    }
+    const validationErrors: Tenant = { id: '', name: '', phone: '', email: '', website: '', country_id: '', status: '' }
     let isValid = true
 
     // Validation logic
@@ -225,30 +188,31 @@ const UserComponent = () => {
     }
     try {
       if (modalMode == 'edit') {
-        const res = await dispatch(updateEmployeesData({ data: formValues, where: { id: formValues.id } }))
+        const res = await dispatch(updateTenantData({ data: formValues, where: { id: formValues.id } }))
         if (res.error) {
           toast.error(`failed to update tenant Try Again!`)
 
           return
         }
-        await dispatch(getEmployeesData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
+        await dispatch(
+          getTenantData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
         toast.success('Tenant updated successfully')
         handleCloseModal()
 
         return
       }
       data.push(formValues)
-      const res = await dispatch(createEmployeesData(data))
+      const res = await dispatch(createTenantData(data))
       if (res.error) {
-        toast.error(`failed to create user Try Again!`)
+        toast.error(`failed to create tenant Try Again!`)
 
         return
       }
-      await dispatch(getEmployeesData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
-      toast.success(`User created successfully`)
+      await dispatch(getTenantData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
+      toast.success(`Tenant created successfully`)
     } catch (error) {
       console.log(error)
-      toast.error(`failed to create user Try Again!`)
+      toast.error(`failed to create tenant Try Again!`)
     }
     handleCloseModal()
   }
@@ -259,23 +223,23 @@ const UserComponent = () => {
 
   const onClearSearch = async () => {
     setSearchValue('')
-    await dispatch(getEmployeesData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
+    await dispatch(getTenantData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
   }
   const handleSearch = async () => {
     const query = []
     if (searchValue != '') {
       query.push({
-        column: 'employees.name',
+        column: 'tenants.name',
         operator: 'like',
         value: `%${searchValue}%`
       })
       query.push({
-        column: 'employees.phone',
+        column: 'tenants.phone',
         operator: 'like',
         value: `%${searchValue}%`
       })
       query.push({
-        column: 'employees.email',
+        column: 'tenants.email',
         operator: 'like',
         value: `%${searchValue}%`
       })
@@ -286,8 +250,7 @@ const UserComponent = () => {
       })
     }
     await dispatch(
-      getEmployeesData({ limit: pageSize, offset: pageSize * page, where: query, joins: [{ column: 'Country' }] })
-    )
+      getTenantData({ limit: pageSize, offset: pageSize * page, where: query, joins: [{ column: 'Country' }] }))
   }
 
   return (
@@ -295,11 +258,11 @@ const UserComponent = () => {
       <Grid item xs={12}>
         <Card>
           <DataGridTable
-            loading={user?.loading}
+            loading={tenant?.loading}
             checkBox={false}
-            rows={user.rows}
+            rows={tenant.rows}
             columns={columns}
-            total={user.count}
+            total={tenant.count}
             pageSize={pageSize}
             changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
             changePage={(newPage: number) => setPage(newPage)}
@@ -310,7 +273,7 @@ const UserComponent = () => {
             onView={id => handleOpenModal(id, 'view')}
             onEdit={id => handleOpenModal(id, 'edit')}
             onDelete={id => handleDelete(id)}
-            onAddRow={() => handleOpenModal(null, 'add')}
+            onAddRow={() => handleOpenModal(0, 'add')}
           />
         </Card>
       </Grid>
@@ -319,7 +282,7 @@ const UserComponent = () => {
         width={700}
         isOpen={modalOpen}
         onClose={handleCloseModal}
-        title={`${modalMode} User`}
+        title={`${modalMode} Tenant`}
         onSubmit={handleSubmit}
         mode={modalMode}
       >
@@ -328,36 +291,11 @@ const UserComponent = () => {
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                label='First Name'
-                value={formValues.first_name}
-                onChange={e => setFormValues({ ...formValues, first_name: e.target.value })}
-                error={!!errors.first_name}
-                helperText={errors.first_name}
-                disabled={modalMode === 'view'}
-                margin='normal'
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label='Last Name'
-                value={formValues.last_name}
-                onChange={e => setFormValues({ ...formValues, last_name: e.target.value })}
-                error={!!errors.last_name}
-                helperText={errors.last_name}
-                disabled={modalMode === 'view'}
-                margin='normal'
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                type='password'
-                label='Password'
-                value={formValues.password}
-                onChange={e => setFormValues({ ...formValues, password: e.target.value })}
-                error={!!errors.password}
-                helperText={errors.password}
+                label='Name'
+                value={formValues.name}
+                onChange={e => setFormValues({ ...formValues, name: e.target.value })}
+                error={!!errors.name}
+                helperText={errors.name}
                 disabled={modalMode === 'view'}
                 margin='normal'
               />
@@ -383,6 +321,18 @@ const UserComponent = () => {
                 onChange={e => setFormValues({ ...formValues, email: e.target.value })}
                 error={!!errors.email}
                 helperText={errors.email}
+                disabled={modalMode === 'view'}
+                margin='normal'
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                fullWidth
+                label='Website'
+                value={formValues.website}
+                onChange={e => setFormValues({ ...formValues, website: e.target.value })}
+                error={!!errors.website}
+                helperText={errors.website}
                 disabled={modalMode === 'view'}
                 margin='normal'
               />
@@ -435,4 +385,4 @@ const UserComponent = () => {
   )
 }
 
-export default UserComponent
+export default TenantComponent

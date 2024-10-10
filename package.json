@@ -72,6 +72,7 @@
     "react-popper": "2.2.5",
     "react-redux": "^9.1.2",
     "react-to-pdf": "0.0.14",
+    "react-toastify": "^10.0.5",
     "react-uuid": "^2.0.0",
     "recharts": "2.1.6",
     "stylis": "4.0.10",
