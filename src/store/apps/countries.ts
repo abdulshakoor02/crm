@@ -1,27 +1,8 @@
-import { Dispatch } from 'redux'
 import { createSlice, createAsyncThunk, isRejectedWithValue } from '@reduxjs/toolkit'
 
 import axios from '../axios'
-
-interface Redux {
-  getState: any
-  dispatch: Dispatch<any>
-}
-
-interface Country {
-  id: string
-  name: string
-  code: string
-  currency: string
-  currency_name: string
-}
-
-interface CountryState {
-  count: number
-  rows: Country[]
-  loading: boolean
-  error: string | null
-}
+import { Redux } from 'src/types/redux'
+import { Country, CountryState } from 'src/types/redux/country.types'
 
 export const getCountriesData: any = createAsyncThunk(
   'country/find',

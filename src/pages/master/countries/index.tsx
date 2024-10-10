@@ -16,6 +16,9 @@ import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
 import { TextField } from '@mui/material'
 import FormTextField from 'src/pages/components/FormtextField'
+import { validateFormValues } from 'src/validation/validation'
+import { Countries as ICountries } from 'src/types/components/countries.types'
+
 
 const columns: GridColumns = [
   {
@@ -75,8 +78,8 @@ const Countries = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'view' | 'edit' | 'add'>('view')
   const [selectedRow, setSelectedRow] = useState<any>(null)
-  const [formValues, setFormValues] = useState({ name: '', code: '', currency: '', currency_name: '' })
-  const [errors, setErrors] = useState({ name: '', code: '', currency: '', currency_name: '' })
+  const [formValues, setFormValues] = useState<ICountries>({ name: '', code: '', currency: '', currency_name: '' })
+  const [errors, setErrors] = useState<Partial<ICountries>>({ name: '', code: '', currency: '', currency_name: '' })
 
   const country = useSelector((state: RootState) => state.country)
 
@@ -108,31 +111,45 @@ const Countries = () => {
   }
 
   const handleSubmit = async () => {
-    let validationErrors = { name: '', code: '', currency: '', currency_name: '' }
-    let isValid = true
+    // let validationErrors = { name: '', code: '', currency: '', currency_name: '' }
+    let isValid = true;
 
-    // Validation logic
-    if (!formValues.name) {
-      validationErrors.name = 'Name is required'
-      isValid = false
-    }
-    if (!formValues.code) {
-      validationErrors.code = 'Valid code is required'
-      isValid = false
-    }
-    if (!formValues.currency) {
-      validationErrors.currency = 'Currency is required'
-      isValid = false
-    }
-    if (!formValues.currency_name) {
-      validationErrors.currency_name = 'Currency name is required'
-      isValid = false
+    const validationRules: Record<keyof ICountries, string> = {
+      name: 'Name is required',
+      code: 'Valid code is required',
+      currency: 'Currency is required',
+      currency_name: 'Currency name is required',
+    };
+
+    const { hasError, errors: validationErrors } = validateFormValues(formValues,validationRules);
+    if(hasError){
+      setErrors(validationErrors); // Update the errors state
+      return;
     }
 
-    if (!isValid) {
-      setErrors(validationErrors)
-      return
-    }
+
+    // // Validation logic
+    // if (!formValues.name) {
+    //   validationErrors.name = 'Name is required'
+    //   isValid = false
+    // }
+    // if (!formValues.code) {
+    //   validationErrors.code = 'Valid code is required'
+    //   isValid = false
+    // }
+    // if (!formValues.currency) {
+    //   validationErrors.currency = 'Currency is required'
+    //   isValid = false
+    // }
+    // if (!formValues.currency_name) {
+    //   validationErrors.currency_name = 'Currency name is required'
+    //   isValid = false
+    // }
+
+    // if (!isValid) {
+    //   setErrors(validationErrors)
+    //   return
+    // }
 
     try {
       let result
