@@ -93,8 +93,8 @@ const DataGridTable = React.memo(
 
     return (
       <DataGrid
-        autoHeight
         loading={loading}
+        autoHeight
         pagination
         disableColumnFilter
         disableColumnMenu

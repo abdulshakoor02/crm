@@ -68,6 +68,7 @@ const columns: GridColumns = [
 const Countries = () => {
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
+  const [isLoading, setLoading] = useState(true)
   const [pageSize, setPageSize] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
   const [searchValue, setSearchValue] = useState('')
