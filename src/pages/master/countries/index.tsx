@@ -5,7 +5,7 @@ import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast';
+import toast from 'react-hot-toast'
 
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
@@ -15,7 +15,7 @@ import { createCountryData, getCountriesData, updateCountryData } from '../../..
 import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
 import { TextField } from '@mui/material'
-
+import FormTextField from 'src/pages/components/FormtextField'
 
 const columns: GridColumns = [
   {
@@ -69,212 +69,175 @@ const Countries = () => {
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
   const [pageSize, setPageSize] = useState<number>(10)
-  const [page, setPage] = useState<number>(0);
-  const [searchValue, setSearchValue] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'view' | 'edit' | 'add'>('view');
-  const [selectedRow, setSelectedRow] = useState<any>(null);
-  const [formValues, setFormValues] = useState({ name: '', code: '', currency: '', currency_name: '' });
-  const [errors, setErrors] = useState({ name: '', code: '', currency: '', currency_name: '' });
+  const [page, setPage] = useState<number>(0)
+  const [searchValue, setSearchValue] = useState('')
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState<'view' | 'edit' | 'add'>('view')
+  const [selectedRow, setSelectedRow] = useState<any>(null)
+  const [formValues, setFormValues] = useState({ name: '', code: '', currency: '', currency_name: '' })
+  const [errors, setErrors] = useState({ name: '', code: '', currency: '', currency_name: '' })
 
   const country = useSelector((state: RootState) => state.country)
 
   useEffect(() => {
-    dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue }}))
-  }, [pageSize, page]);
+    dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } }))
+  }, [pageSize, page])
 
   const handleOpenModal = (id: string, mode: 'view' | 'edit' | 'add') => {
-    const rowData = country.rows.find(row => row.id === id);
-    setSelectedRow(rowData);
-    setFormValues(rowData ? {
-      name: rowData.name,
-      code: rowData.code,
-      currency: rowData.currency,
-      currency_name: rowData.currency_name
-    } : { name: '', code: '', currency: '', currency_name: '' });
-    setModalMode(mode);
-    setModalOpen(true);
-  };
+    const rowData = country.rows.find(row => row.id === id)
+    setSelectedRow(rowData)
+    setFormValues(
+      rowData
+        ? {
+            name: rowData.name,
+            code: rowData.code,
+            currency: rowData.currency,
+            currency_name: rowData.currency_name
+          }
+        : { name: '', code: '', currency: '', currency_name: '' }
+    )
+    setModalMode(mode)
+    setModalOpen(true)
+  }
 
   const handleCloseModal = () => {
-    setModalOpen(false);
-    setSelectedRow(null);
-    setErrors({ name: '', code: '', currency: '', currency_name: '' }); // Reset errors
-  };
+    setModalOpen(false)
+    setSelectedRow(null)
+    setErrors({ name: '', code: '', currency: '', currency_name: '' }) // Reset errors
+  }
 
   const handleSubmit = async () => {
-    let validationErrors = { name: '', code: '', currency: '', currency_name: '' };
-    let isValid = true;
-  
+    let validationErrors = { name: '', code: '', currency: '', currency_name: '' }
+    let isValid = true
+
     // Validation logic
     if (!formValues.name) {
-      validationErrors.name = 'Name is required';
-      isValid = false;
+      validationErrors.name = 'Name is required'
+      isValid = false
     }
     if (!formValues.code) {
-      validationErrors.code = 'Valid code is required';
-      isValid = false;
+      validationErrors.code = 'Valid code is required'
+      isValid = false
     }
     if (!formValues.currency) {
-      validationErrors.currency = 'Currency is required';
-      isValid = false;
+      validationErrors.currency = 'Currency is required'
+      isValid = false
     }
     if (!formValues.currency_name) {
-      validationErrors.currency_name = 'Currency name is required';
-      isValid = false;
+      validationErrors.currency_name = 'Currency name is required'
+      isValid = false
     }
-  
-    if (!isValid) {
-      setErrors(validationErrors);
-      return;
-    }
-  
-    try {
-      let result;
 
-      console.log("form values", formValues, selectedRow?.id);
-      if (modalMode === 'edit') {
-        result = await dispatch(updateCountryData({ where: { id: selectedRow.id }, data: { ...formValues, id: selectedRow.id } })).unwrap();
-        if (result) 
-          toast.success('Country updated successfully!');
-      } else if (modalMode === 'add') {
-        result = await dispatch(createCountryData([formValues])).unwrap();
-        if (result) 
-          toast.success('Country added successfully!');
-       
-      }
-  
-  
-      // Refetch countries data after successful operation
-      await dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page }));
-    } catch (error) {
-      console.error("Operation failed:", error);
-      toast.error('Operation failed, please try again.');
-    } finally {
-      handleCloseModal();
+    if (!isValid) {
+      setErrors(validationErrors)
+      return
     }
-  };
-  
+
+    try {
+      let result
+
+      console.log('form values', formValues, selectedRow?.id)
+      if (modalMode === 'edit') {
+        result = await dispatch(
+          updateCountryData({ where: { id: selectedRow.id }, data: { ...formValues, id: selectedRow.id } })
+        ).unwrap()
+        if (result) toast.success('Country updated successfully!')
+      } else if (modalMode === 'add') {
+        result = await dispatch(createCountryData([formValues])).unwrap()
+        if (result) toast.success('Country added successfully!')
+      }
+
+      // Refetch countries data after successful operation
+      await dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page }))
+    } catch (error) {
+      console.error('Operation failed:', error)
+      toast.error('Operation failed, please try again.')
+    } finally {
+      handleCloseModal()
+    }
+  }
 
   const handleDelete = (id: number) => {
     // setData(prevData => prevData.filter(row => row.id !== id));
-  };
+  }
 
   const handleOnSearch = () => {
-    dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue} }));
+    if (page !== 0) setPage(0); // Reset to first page on search
+    dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } }))
   }
 
   const handleOnSearchClear = () => {
-    setSearchValue("");
-    dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page }));
+    setSearchValue('')
+    dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page }))
   }
 
   return (
     <>
-      
-    <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <Card>
-          <DataGridTable
-            rows={country.rows}
-            columns={columns}
-            total={country.count}
-            pageSize={pageSize}
-            loading={country.loading}
-            changePageSize={(newPageSize:number) => setPageSize(newPageSize)}
-            changePage={(newPage:number) => setPage(newPage)}
-            searchValue={searchValue}
-            onSearchChange={(e) => setSearchValue(e.target.value)}
-            onSearch={handleOnSearch}
-            onClearSearch={handleOnSearchClear}
-            onView={id => handleOpenModal(id, 'view')}
-            onEdit={id => handleOpenModal(id, 'edit')}
-            onDelete={id => handleDelete(id)}
-            onAddRow={() => handleOpenModal("", 'add')}
-          />
-        </Card>
-      </Grid>
+      <Grid container spacing={6}>
+        <Grid item xs={12}>
+          <Card>
+            <DataGridTable
+              rows={country.rows}
+              columns={columns}
+              total={country.count}
+              pageSize={pageSize}
+              loading={country.loading}
+              changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
+              changePage={(newPage: number) => setPage(newPage)}
+              searchValue={searchValue}
+              onSearchChange={e => setSearchValue(e.target.value)}
+              onSearch={handleOnSearch}
+              onClearSearch={handleOnSearchClear}
+              onView={id => handleOpenModal(id, 'view')}
+              onEdit={id => handleOpenModal(id, 'edit')}
+              onDelete={id => handleDelete(id)}
+              onAddRow={() => handleOpenModal('', 'add')}
+            />
+          </Card>
+        </Grid>
 
-       {/* Modal */}
-       <Modal isOpen={modalOpen} onClose={handleCloseModal} title={modalMode === 'edit' ? 'Edit Row' : 'View Row'} onSubmit={handleSubmit} mode={modalMode}>
+        {/* Modal */}
+        <Modal
+          isOpen={modalOpen}
+          onClose={handleCloseModal}
+          title={modalMode === 'edit' ? 'Edit Row' : 'View Row'}
+          onSubmit={handleSubmit}
+          mode={modalMode}
+        >
           {
             <>
-              <TextField
-                fullWidth
-                label="Name"
+              <FormTextField
+                label={'Name'}
                 value={formValues.name}
-                onChange={(e) => setFormValues({ ...formValues, name: e.target.value })}
-                error={!!errors.name}
-                helperText={errors.name}
+                onChange={e => setFormValues({ ...formValues, name: e.target.value })}
+                error={errors.name}
                 disabled={modalMode === 'view'}
-                margin="normal"
-                sx={{
-                  "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "#000000",
-                  },
-                  "& .MuiInputLabel-root.Mui-disabled": {
-                    color: "#000000", // Darker label color
-                  },
-                }}
               />
-              <TextField
-                fullWidth
-                label="Code"
+              <FormTextField
+                label={'Code'}
                 value={formValues.code}
-                onChange={(e) => setFormValues({ ...formValues, code: e.target.value })}
-                error={!!errors.code}
-                helperText={errors.code}
+                onChange={e => setFormValues({ ...formValues, code: e.target.value })}
+                error={errors.code}
                 disabled={modalMode === 'view'}
-                margin="normal"
-                sx={{
-                  "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "#000000",
-                  },
-                  "& .MuiInputLabel-root.Mui-disabled": {
-                    color: "#000000", // Darker label color
-                  },
-                }}
               />
-              <TextField
-                fullWidth
-                label="Currency"
+              <FormTextField
+                label={'Currency'}
                 value={formValues.currency}
-                onChange={(e) => setFormValues({ ...formValues, currency: e.target.value })}
-                error={!!errors.currency}
-                helperText={errors.currency}
+                onChange={e => setFormValues({ ...formValues, currency: e.target.value })}
+                error={errors.currency}
                 disabled={modalMode === 'view'}
-                margin="normal"
-                sx={{
-                  "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "#000000",
-                  },
-                  "& .MuiInputLabel-root.Mui-disabled": {
-                    color: "#000000", // Darker label color
-                  },
-                }}
               />
-               <TextField
-                fullWidth
-                label="Currency Name"
+              <FormTextField
+                label={'Currency Name'}
                 value={formValues.currency_name}
-                onChange={(e) => setFormValues({ ...formValues, currency_name: e.target.value })}
-                error={!!errors.currency_name}
-                helperText={errors.currency_name}
+                onChange={e => setFormValues({ ...formValues, currency_name: e.target.value })}
+                error={errors.currency_name}
                 disabled={modalMode === 'view'}
-                margin="normal"
-                sx={{
-                  "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "#000000",
-                  },
-                  "& .MuiInputLabel-root.Mui-disabled": {
-                    color: "#000000", // Darker label color
-                  },
-                }}
               />
             </>
           }
-      </Modal>
-    </Grid>
+        </Modal>
+      </Grid>
     </>
   )
 }
