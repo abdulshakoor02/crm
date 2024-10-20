@@ -132,7 +132,7 @@ const BranchComponent = () => {
   const [page, setPage] = useState<number>(0)
   const [searchValue, setSearchValue] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
-  const [modalMode, setModalMode] = useState<'view' | 'edit' | 'add'>('view')
+  const [modalMode, setModalMode] = useState<'View' | 'Edit' | 'Add'>('View')
   const [formValues, setFormValues] = useState<Branch>({
     id: '',
     name: '',
@@ -168,7 +168,7 @@ const BranchComponent = () => {
     dispatch(getRegionData({}))
   }, [pageSize, page])
 
-  const handleOpenModal = async (id: string | null, mode: 'view' | 'edit' | 'add') => {
+  const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {
     let rowData = undefined
     if (id) {
       rowData = branch?.rows?.find((row: Branch) => row.id == id) as unknown as Branch
@@ -251,7 +251,7 @@ const BranchComponent = () => {
     }
 
     try {
-      if (modalMode == 'edit') {
+      if (modalMode == 'Edit') {
         formValues.tax = Number(formValues.tax)
         const res = await dispatch(updateBranchData({ data: formValues, where: { id: formValues.id } }))
         if (res.error) {
@@ -350,10 +350,10 @@ const BranchComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
-            onView={id => handleOpenModal(id, 'view')}
-            onEdit={id => handleOpenModal(id, 'edit')}
+            onView={id => handleOpenModal(id, 'View')}
+            onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
-            onAddRow={() => handleOpenModal(0, 'add')}
+            onAddRow={() => handleOpenModal(0, 'Add')}
           />
         </Card>
       </Grid>
@@ -376,7 +376,7 @@ const BranchComponent = () => {
                 onChange={e => setFormValues({ ...formValues, name: e.target.value })}
                 error={!!errors.name}
                 helperText={errors.name}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 margin='normal'
               />
             </Grid>
@@ -389,7 +389,7 @@ const BranchComponent = () => {
                 onChange={e => setFormValues({ ...formValues, mobile: e.target.value })}
                 error={!!errors.mobile}
                 helperText={errors.mobile}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 margin='normal'
               />
             </Grid>
@@ -401,7 +401,7 @@ const BranchComponent = () => {
                 onChange={e => setFormValues({ ...formValues, email: e.target.value })}
                 error={!!errors.email}
                 helperText={errors.email}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 margin='normal'
               />
             </Grid>
@@ -413,7 +413,7 @@ const BranchComponent = () => {
                 onChange={e => setFormValues({ ...formValues, website: e.target.value })}
                 error={!!errors.website}
                 helperText={errors.website}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 margin='normal'
               />
             </Grid>
@@ -427,7 +427,7 @@ const BranchComponent = () => {
                 error={!!errors.country_id}
                 helperText={errors.country_id}
                 onChange={e => setFormValues({ ...formValues, country_id: e.target.value })}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 sx={{ mt: 4 }}
               >
                 {countries?.rows?.map((items: any) => (
@@ -447,7 +447,7 @@ const BranchComponent = () => {
                 error={!!errors.region_id}
                 helperText={errors.region_id}
                 onChange={e => setFormValues({ ...formValues, region_id: e.target.value })}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 sx={{ mt: 4 }}
               >
                 {region?.rows?.map((items: any) => (
@@ -467,7 +467,7 @@ const BranchComponent = () => {
                 error={!!errors.status}
                 helperText={errors.status}
                 onChange={e => setFormValues({ ...formValues, status: e.target.value })}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 sx={{ mt: 4 }}
               >
                 <MenuItem key={uuid()} value='Active'>
@@ -487,7 +487,7 @@ const BranchComponent = () => {
                 onChange={e => setFormValues({ ...formValues, tax: e.target.value })}
                 error={!!errors.tax}
                 helperText={errors.tax}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 margin='normal'
               />
             </Grid>

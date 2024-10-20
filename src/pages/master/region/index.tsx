@@ -9,14 +9,15 @@ import toast from 'react-hot-toast'
 
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState, AppDispatch } from '../../../store'
+import { AppDispatch } from '../../../store'
 
 import { getRegionData, createRegionData, updateRegionData } from '../../../store/apps/region'
 import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
-import uuid from 'react-uuid'
+import { appendTenantId, appendTenantToQuery } from 'src/pages/utils/tenantAppend'
 
 type Region = {
+  id?: string
   name: string
   created_by?: string
   modified_by?: string
@@ -69,7 +70,7 @@ const RegionComponent = () => {
   const region = useSelector((state: any) => state.region)
 
   useEffect(() => {
-    dispatch(getRegionData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
+    dispatch(getRegionData({ limit: pageSize, offset: pageSize * page }))
   }, [pageSize, page])
 
   const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {
@@ -81,14 +82,14 @@ const RegionComponent = () => {
     setFormValues(
       rowData
         ? {
-          id: rowData.id,
-    name: rowData.name,
-    status: rowData.status
-  }
+            id: rowData.id,
+            name: rowData.name,
+            status: rowData.status
+          }
         : {
-    name: '',
-    status: ''
-  }
+            name: '',
+            status: ''
+          }
     )
     setModalMode(mode)
     setModalOpen(true)
@@ -97,24 +98,23 @@ const RegionComponent = () => {
   const handleCloseModal = () => {
     setModalOpen(false)
     setErrors({
-    name: '',
-    status: ''
-  }) // Reset errors
+      name: '',
+      status: ''
+    }) // Reset errors
   }
 
   const handleSubmit = async () => {
     const data = []
-    formValues.tenant_id = 'a61c2d3d-f0c1-4559-a7a5-3ad865fef54f'
     const validationErrors: Region = {
-    name: '',
-    status: ''
-  }
+      name: '',
+      status: ''
+    }
     let isValid = true
 
     // Validation logic
-    for (let i in validationErrors) {
-      if (!formValues[i]) {
-        validationErrors[i] = `Valid ${i} is required`
+    for (const i in validationErrors) {
+      if (!formValues[i as keyof Region]) {
+        validationErrors[i as keyof Region] = `Valid ${i} is required`
         isValid = false
       }
     }
@@ -138,6 +138,7 @@ const RegionComponent = () => {
 
         return
       }
+      appendTenantId(formValues)
       data.push(formValues)
       const res = await dispatch(createRegionData(data))
       if (res.error) {
@@ -164,9 +165,13 @@ const RegionComponent = () => {
   }
   const handleSearch = async () => {
     if (searchValue != '') {
-    await dispatch(
-      getRegionData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } })
-    )
+      const query: any = []
+      query.push({
+        column: '"regions".name',
+        operator: 'like',
+        value: `%${searchValue}%`
+      })
+      await dispatch(getRegionData({ limit: pageSize, offset: pageSize * page, where: query }))
     }
   }
 
@@ -230,10 +235,10 @@ const RegionComponent = () => {
                 disabled={modalMode === 'View'}
                 sx={{ mt: 4 }}
               >
-                <MenuItem key="Active" value='Active'>
+                <MenuItem key='Active' value='Active'>
                   Active
                 </MenuItem>
-                <MenuItem key="inActive" value='inActive'>
+                <MenuItem key='inActive' value='inActive'>
                   In Active
                 </MenuItem>
               </TextField>

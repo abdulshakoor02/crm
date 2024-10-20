@@ -9,6 +9,7 @@ interface Redux {
 }
 
 export const getRegionData: any = createAsyncThunk('region/find', async (data: any, { getState, dispatch }: Redux) => {
+  data = { ...data, column: 'regions' }
   const response = await axios.post(`/api/backend/region/find`, data)
 
   return response.data

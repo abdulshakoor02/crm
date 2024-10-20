@@ -9,6 +9,7 @@ interface Redux {
 }
 
 export const getBranchData: any = createAsyncThunk('branch/find', async (data: any, { getState, dispatch }: Redux) => {
+  data = { ...data, column: 'Region' }
   const response = await axios.post(`/api/backend/branch/findAssociated`, data)
 
   return response.data

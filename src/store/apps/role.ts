@@ -9,28 +9,23 @@ interface Redux {
 }
 
 export const getRoleData: any = createAsyncThunk('role/find', async (data: any, { getState, dispatch }: Redux) => {
+  data = { ...data, column: 'roles' }
   const response = await axios.post(`/api/backend/role/find`, data)
 
   return response.data
 })
 
-export const createRoleData: any = createAsyncThunk(
-  'role/create',
-  async (data: any, { getState, dispatch }: Redux) => {
-    const response = await axios.post(`/api/backend/role/create`, data)
+export const createRoleData: any = createAsyncThunk('role/create', async (data: any, { getState, dispatch }: Redux) => {
+  const response = await axios.post(`/api/backend/role/create`, data)
 
-    return response.data
-  }
-)
+  return response.data
+})
 
-export const updateRoleData: any = createAsyncThunk(
-  'role/update',
-  async (data: any, { getState, dispatch }: Redux) => {
-    const response = await axios.post(`/api/backend/role/update`, data)
+export const updateRoleData: any = createAsyncThunk('role/update', async (data: any, { getState, dispatch }: Redux) => {
+  const response = await axios.post(`/api/backend/role/update`, data)
 
-    return response.data
-  }
-)
+  return response.data
+})
 
 export const rolelice = createSlice({
   name: 'role',

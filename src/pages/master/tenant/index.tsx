@@ -3,21 +3,48 @@ import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import { MenuItem, TextField } from '@mui/material'
+import { MenuItem, TextField, Button } from '@mui/material'
 import { GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import { styled } from '@mui/material/styles'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import axios from 'src/store/axios'
+
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState, AppDispatch } from '../../../store'
+import { AppDispatch, RootState } from '../../../store'
 
 import { getTenantData, createTenantData, updateTenantData } from '../../../store/apps/tenant'
 import { getCountriesData } from '../../../store/apps/countries'
 import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
 import uuid from 'react-uuid'
-import { Tenant } from 'src/types/components/tenant.types'
+// import { Tenant } from 'src/types/components/tenant.types'
 import { validateFormValues } from 'src/validation/validation'
+
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1
+})
+
+type Tenant = {
+  id: string
+  name: string
+  phone: string
+  email: string
+  website: string
+  country_id: string
+  status: string
+  logo?: string
+}
 
 const columns: GridColumns = [
   {
@@ -89,6 +116,7 @@ const columns: GridColumns = [
   }
 ]
 
+
 const TenantComponent = () => {
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
@@ -96,16 +124,19 @@ const TenantComponent = () => {
   const [page, setPage] = useState<number>(0)
   const [searchValue, setSearchValue] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
-  const [modalMode, setModalMode] = useState<'view' | 'edit' | 'add'>('view')
+  const [file, setFile] = useState<any>()
+  const [modalMode, setModalMode] = useState<'View' | 'Edit' | 'Add'>('View')
   const [formValues, setFormValues] = useState<Tenant>({
+    id: '',
     name: '',
     phone: '',
     email: '',
     website: '',
     country_id: '',
-    status: ''
+    status: '',
   })
-  const [errors, setErrors] = useState<Tenant>({
+  const [errors, setErrors] = useState<Partial<Tenant>>({
+    id: '',
     name: '',
     phone: '',
     email: '',
@@ -122,20 +153,41 @@ const TenantComponent = () => {
     dispatch(getCountriesData({}))
   }, [pageSize, page])
 
-  const handleOpenModal = async (id: string | null, mode: 'view' | 'edit' | 'add') => {
-    let rowData =  tenant.rows.find(row => row.id === id)
+  const handleLogo = async () => {
+    const resp = await axios.post(`${process.env.baseUrl}/fileDownload`,{url:formValues.logo})
+
+   // Create a URL for the blob data
+        const url = window.URL.createObjectURL(new Blob([resp.data]));
+
+        // Create a link element to download the image
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'image.jpg'); // Specify the file name
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+  }
+
+  const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {
+    let rowData = undefined
+    if (id) {
+      rowData = tenant?.rows?.find((row: Tenant) => row.id === id) as unknown as Tenant
+    }
 
     setFormValues(
       rowData
         ? {
+          id: rowData.id,
             name: rowData.name,
             phone: rowData.phone,
             email: rowData.email,
             website: rowData.website,
             country_id: rowData.country_id,
-            status: rowData.status
+            status: rowData.status,
+            logo: rowData.logo
           }
         : {
+          id: '',
             name: '',
             phone: '',
             email: '',
@@ -148,58 +200,100 @@ const TenantComponent = () => {
     setModalOpen(true)
   }
 
+  const handleFileChange = (event: any) => {
+        setFile(event.target.files);
+    };
+
   const handleCloseModal = () => {
     setModalOpen(false)
-    setErrors({name: '', phone: '', email: '', website: '', country_id: '', status: '' }) // Reset errors
+    setErrors({ id: '', name: '', phone: '', email: '', website: '', country_id: '', status: '' }) // Reset errors
   }
 
   const handleSubmit = async () => {
-    const data = []
+  const data = []
 
-    
-    const validationRules: Record<keyof Tenant, string> = {
-      name: 'Name is required',
-      phone: 'Valid phone number is required',
-      email: 'Email is required',
-      website: 'Website is required',
-      country_id: 'Country is required',
-      status: 'Status is required'
-    };
+  
+  const validationRules: Partial<Record<keyof Tenant, string>> = {
+    id: 'Id is required',
+    name: 'Name is required',
+    phone: 'Valid phone number is required',
+    email: 'Email is required',
+    website: 'Website is required',
+    country_id: 'Country is required',
+    status: 'Status is required'
+  };
 
-    const { hasError, errors: validationErrors } = validateFormValues(formValues,validationRules);
-    if(hasError){
-      setErrors(validationErrors); // Update the errors state
-      return;
-    }
-    try {
-      if (modalMode == 'edit') {
-        const res = await dispatch(updateTenantData({ data: formValues, where: { id: formValues.id } }))
-        if (res.error) {
-          toast.error(`failed to update tenant Try Again!`)
+  const { hasError, errors: validationErrors } = validateFormValues(formValues,validationRules);
+  if(hasError){
+    setErrors(validationErrors); // Update the errors state
+    return;
+  }
 
-          return
-        }
-        await dispatch(
-          getTenantData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
-        toast.success('Tenant updated successfully')
-        handleCloseModal()
+  // const validationErrors: Tenant = { id: '', name: '', phone: '', email: '', website: '', country_id: '', status: '' }
+  // let isValid = true
 
-        return
-      }
-      data.push(formValues)
-      const res = await dispatch(createTenantData(data))
+  // // Validation logic
+  // for (let i in validationErrors) {
+  //   if (!formValues[i]) {
+  //     validationErrors[i] = `Valid ${i} is required`
+  //     isValid = false
+  //   }
+  // }
+
+  // if (!isValid) {
+  //   setErrors(validationErrors)
+
+  //   return
+  // }
+
+  try {
+    if (modalMode == 'Edit') {
+      const res = await dispatch(updateTenantData({ data: formValues, where: { id: formValues.id } }))
       if (res.error) {
-        toast.error(`failed to create tenant Try Again!`)
+        toast.error(`failed to update tenant Try Again!`)
 
         return
       }
+      if (file[0]) {
+        const formdata = new FormData()
+        formdata.append('file',file[0])
+        try {
+          console.log(formValues.id)
+        const response = await axios.post(`${process.env.baseUrl}/fileUpload`, formdata,{headers:{
+        'Content-Type': 'multipart/form-data',
+        filename:file[0].name,
+        folder:'crm',
+        tenant_id: formValues.id
+        }})
+        toast.success('file uploaded successfully')
+        } catch (error) {
+          toast.error('failed to uplaod the file')
+        }
+
+      }
+
       await dispatch(getTenantData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
-      toast.success(`Tenant created successfully`)
-    } catch (error) {
-      console.log(error)
-      toast.error(`failed to create tenant Try Again!`)
+
+      toast.success('Tenant updated successfully')
+      handleCloseModal()
+
+      return
     }
-    handleCloseModal()
+    data.push(formValues)
+    const res = await dispatch(createTenantData(data))
+    if (res.error) {
+      toast.error(`failed to create tenant Try Again!`)
+
+      return
+    }
+    await dispatch(getTenantData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
+    toast.success(`Tenant created successfully`)
+  } catch (error) {
+    console.log(error)
+    toast.error(`failed to create tenant Try Again!`)
+  }
+
+  // handleCloseModal()
   }
 
   const handleDelete = (id: number) => {
@@ -235,7 +329,8 @@ const TenantComponent = () => {
       })
     }
     await dispatch(
-      getTenantData({ limit: pageSize, offset: pageSize * page, where: query, joins: [{ column: 'Country' }] }))
+      getTenantData({ limit: pageSize, offset: pageSize * page, where: query, joins: [{ column: 'Country' }] })
+    )
   }
 
   return (
@@ -255,10 +350,10 @@ const TenantComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
-            onView={id => handleOpenModal(id, 'view')}
-            onEdit={id => handleOpenModal(id, 'edit')}
+            onView={id => handleOpenModal(id, 'View')}
+            onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
-            onAddRow={() => handleOpenModal(0, 'add')}
+            onAddRow={() => handleOpenModal("", 'Add')}
           />
         </Card>
       </Grid>
@@ -281,7 +376,7 @@ const TenantComponent = () => {
                 onChange={e => setFormValues({ ...formValues, name: e.target.value })}
                 error={!!errors.name}
                 helperText={errors.name}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 margin='normal'
               />
             </Grid>
@@ -294,7 +389,7 @@ const TenantComponent = () => {
                 onChange={e => setFormValues({ ...formValues, phone: e.target.value })}
                 error={!!errors.phone}
                 helperText={errors.phone}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 margin='normal'
               />
             </Grid>
@@ -306,7 +401,7 @@ const TenantComponent = () => {
                 onChange={e => setFormValues({ ...formValues, email: e.target.value })}
                 error={!!errors.email}
                 helperText={errors.email}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 margin='normal'
               />
             </Grid>
@@ -318,7 +413,7 @@ const TenantComponent = () => {
                 onChange={e => setFormValues({ ...formValues, website: e.target.value })}
                 error={!!errors.website}
                 helperText={errors.website}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 margin='normal'
               />
             </Grid>
@@ -332,7 +427,7 @@ const TenantComponent = () => {
                 error={!!errors.country_id}
                 helperText={errors.country_id}
                 onChange={e => setFormValues({ ...formValues, country_id: e.target.value })}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 sx={{ mt: 4 }}
               >
                 {countries?.rows?.map((items: any) => (
@@ -352,7 +447,7 @@ const TenantComponent = () => {
                 error={!!errors.status}
                 helperText={errors.status}
                 onChange={e => setFormValues({ ...formValues, status: e.target.value })}
-                disabled={modalMode === 'view'}
+                disabled={modalMode === 'View'}
                 sx={{ mt: 4 }}
               >
                 <MenuItem key={uuid()} value='Active'>
@@ -362,6 +457,25 @@ const TenantComponent = () => {
                   In Active
                 </MenuItem>
               </TextField>
+            </Grid>
+            <Grid item xs={6}>
+              <Button
+                component='label'
+                role={undefined}
+                variant='contained'
+                tabIndex={-1}
+                startIcon={<CloudUploadIcon />}
+              >
+                Upload files
+                <VisuallyHiddenInput type='file' onChange={handleFileChange} />
+              </Button>
+            </Grid>
+            <Grid item xs={6}>
+            { formValues.logo !== "" &&
+            <Button onClick={handleLogo}>
+            Download Logo
+            </Button>
+            }
             </Grid>
           </Grid>
         }
