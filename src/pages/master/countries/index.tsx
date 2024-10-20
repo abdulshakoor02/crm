@@ -17,7 +17,7 @@ import Modal from 'src/pages/components/Model/Model'
 import { TextField } from '@mui/material'
 import FormTextField from 'src/pages/components/FormtextField'
 import { validateFormValues } from 'src/validation/validation'
-import { Countries as ICountries } from 'src/types/components/countries.types'
+import { Countries as ICountries } from 'src/types/components/country.types'
 
 
 const columns: GridColumns = [

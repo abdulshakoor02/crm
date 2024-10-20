@@ -16,16 +16,8 @@ import { getCountriesData } from '../../../store/apps/countries'
 import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
 import uuid from 'react-uuid'
-
-type Tenant = {
-  id: string
-  name: string
-  phone: string
-  email: string
-  website: string
-  country_id: string
-  status: string
-}
+import { Tenant } from 'src/types/components/tenant.types'
+import { validateFormValues } from 'src/validation/validation'
 
 const columns: GridColumns = [
   {
@@ -106,7 +98,6 @@ const TenantComponent = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'view' | 'edit' | 'add'>('view')
   const [formValues, setFormValues] = useState<Tenant>({
-    id: '',
     name: '',
     phone: '',
     email: '',
@@ -115,7 +106,6 @@ const TenantComponent = () => {
     status: ''
   })
   const [errors, setErrors] = useState<Tenant>({
-    id: '',
     name: '',
     phone: '',
     email: '',
@@ -124,8 +114,8 @@ const TenantComponent = () => {
     status: ''
   })
 
-  const tenant = useSelector((state: any) => state.tenant)
-  const countries = useSelector((state: any) => state.country)
+  const tenant = useSelector((state: RootState) => state.tenant)
+  const countries = useSelector((state: RootState) => state.country)
 
   useEffect(() => {
     dispatch(getTenantData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
@@ -133,15 +123,11 @@ const TenantComponent = () => {
   }, [pageSize, page])
 
   const handleOpenModal = async (id: string | null, mode: 'view' | 'edit' | 'add') => {
-    let rowData = undefined
-    if (id) {
-      rowData = tenant?.rows?.find((row: Tenant) => row.id === id) as unknown as Tenant
-    }
+    let rowData =  tenant.rows.find(row => row.id === id)
 
     setFormValues(
       rowData
         ? {
-            id: rowData.id,
             name: rowData.name,
             phone: rowData.phone,
             email: rowData.email,
@@ -150,7 +136,6 @@ const TenantComponent = () => {
             status: rowData.status
           }
         : {
-            id: '',
             name: '',
             phone: '',
             email: '',
@@ -165,26 +150,26 @@ const TenantComponent = () => {
 
   const handleCloseModal = () => {
     setModalOpen(false)
-    setErrors({ id: '', name: '', phone: '', email: '', website: '', country_id: '', status: '' }) // Reset errors
+    setErrors({name: '', phone: '', email: '', website: '', country_id: '', status: '' }) // Reset errors
   }
 
   const handleSubmit = async () => {
     const data = []
-    const validationErrors: Tenant = { id: '', name: '', phone: '', email: '', website: '', country_id: '', status: '' }
-    let isValid = true
 
-    // Validation logic
-    for (let i in validationErrors) {
-      if (!formValues[i]) {
-        validationErrors[i] = `Valid ${i} is required`
-        isValid = false
-      }
-    }
+    
+    const validationRules: Record<keyof Tenant, string> = {
+      name: 'Name is required',
+      phone: 'Valid phone number is required',
+      email: 'Email is required',
+      website: 'Website is required',
+      country_id: 'Country is required',
+      status: 'Status is required'
+    };
 
-    if (!isValid) {
-      setErrors(validationErrors)
-
-      return
+    const { hasError, errors: validationErrors } = validateFormValues(formValues,validationRules);
+    if(hasError){
+      setErrors(validationErrors); // Update the errors state
+      return;
     }
     try {
       if (modalMode == 'edit') {

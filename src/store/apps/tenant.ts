@@ -2,11 +2,8 @@ import { Dispatch } from 'redux'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 import axios from '../axios'
-
-interface Redux {
-  getState: any
-  dispatch: Dispatch<any>
-}
+import { Redux } from 'src/types/redux'
+import { Tenant, TenantState } from 'src/types/redux/tenant.types'
 
 export const getTenantData: any = createAsyncThunk('tenant/find', async (data: any, { getState, dispatch }: Redux) => {
   const response = await axios.post(`/api/backend/tenants/findAssociated`, data)
@@ -36,9 +33,9 @@ export const tenantSlice = createSlice({
   name: 'tenant',
   initialState: {
     count: 0,
-    rows: [],
+    rows: [] as Tenant[],
     loading: false
-  },
+  } as TenantState,
   reducers: {},
   extraReducers: builders => {
     builders.addCase(getTenantData.fulfilled, (state: any, action: any) => {
