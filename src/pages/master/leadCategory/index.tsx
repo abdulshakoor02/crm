@@ -2,23 +2,24 @@
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { MenuItem, TextField } from '@mui/material'
+import { TextField } from '@mui/material'
 import { GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState, AppDispatch } from '../../../store'
+import { AppDispatch } from '../../../store'
 
-import { getFeaturesData, createFeaturesData, updateFeaturesData } from '../../../store/apps/feature'
+import { getLeadCategoryData, createLeadCategoryData, updateLeadCategoryData } from '../../../store/apps/leadCategory'
 import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
-import uuid from 'react-uuid'
+import { appendTenantId } from 'src/pages/utils/tenantAppend'
 
-type Features = {
-  id?: string,
+type LeadCategory = {
+  id?: string
   name: string
+  tenant_id?: string
 }
 
 const columns: GridColumns = [
@@ -36,41 +37,41 @@ const columns: GridColumns = [
   }
 ]
 
-const FeaturesComponent = () => {
+const LeadCategoryComponent = () => {
   const dispatch = useDispatch<AppDispatch>()
   const [pageSize, setPageSize] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
   const [searchValue, setSearchValue] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'View' | 'Edit' | 'Add'>('View')
-  const [formValues, setFormValues] = useState<Features>({
+  const [formValues, setFormValues] = useState<LeadCategory>({
     name: '',
   })
-  const [errors, setErrors] = useState<Features>({
+  const [errors, setErrors] = useState<LeadCategory>({
     name: '',
   })
 
-  const features = useSelector((state: any) => state.features)
+  const leadCategory = useSelector((state: any) => state.leadCategory)
 
   useEffect(() => {
-    dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page }))
+    dispatch(getLeadCategoryData({ limit: pageSize, offset: pageSize * page }))
   }, [pageSize, page])
 
   const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {
     let rowData = undefined
     if (id) {
-      rowData = features?.rows?.find((row: Features) => row.id === id) as unknown as Features
+      rowData = leadCategory?.rows?.find((row: LeadCategory) => row.id === id) as unknown as LeadCategory
     }
 
     setFormValues(
       rowData
         ? {
-          id: rowData.id,
-    name: rowData.name,
-  }
+            id: rowData.id,
+            name: rowData.name,
+          }
         : {
-    name: '',
-  }
+            name: '',
+          }
     )
     setModalMode(mode)
     setModalOpen(true)
@@ -79,22 +80,21 @@ const FeaturesComponent = () => {
   const handleCloseModal = () => {
     setModalOpen(false)
     setErrors({
-    name: '',
-  }) // Reset errors
+      name: '',
+    })
   }
 
   const handleSubmit = async () => {
     const data = []
-    formValues.tenant_id = 'a61c2d3d-f0c1-4559-a7a5-3ad865fef54f'
-    const validationErrors: Features = {
-    name: '',
-  }
+    const validationErrors: LeadCategory = {
+      name: '',
+    }
     let isValid = true
 
     // Validation logic
-    for (let i in validationErrors) {
-      if (!formValues[i]) {
-        validationErrors[i] = `Valid ${i} is required`
+    for (const i in validationErrors) {
+      if (!formValues[i as keyof LeadCategory]) {
+        validationErrors[i as keyof LeadCategory] = `Valid ${i} is required`
         isValid = false
       }
     }
@@ -106,27 +106,28 @@ const FeaturesComponent = () => {
     }
     try {
       if (modalMode == 'Edit') {
-        const res = await dispatch(updateFeaturesData({ data: formValues, where: { id: formValues.id } }))
+        const res = await dispatch(updateLeadCategoryData({ data: formValues, where: { id: formValues.id } }))
         if (res.error) {
-          toast.error(`failed to update Features Try Again!`)
+          toast.error(`failed to update LeadCategory Try Again!`)
 
           return
         }
-        await dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page }))
-        toast.success('Features updated successfully')
+        await dispatch(getLeadCategoryData({ limit: pageSize, offset: pageSize * page }))
+        toast.success('LeadCategory updated successfully')
         handleCloseModal()
 
         return
       }
+      appendTenantId(formValues)
       data.push(formValues)
-      const res = await dispatch(createFeaturesData(data))
+      const res = await dispatch(createLeadCategoryData(data))
       if (res.error) {
-        toast.error(`failed to create features Try Again!`)
+        toast.error(`failed to create leadCategory Try Again!`)
 
         return
       }
-      await dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page }))
-      toast.success(`Features created successfully`)
+      await dispatch(getLeadCategoryData({ limit: pageSize, offset: pageSize * page }))
+      toast.success(`LeadCategory created successfully`)
     } catch (error) {
       console.log(error)
       toast.error(`failed to create user Try Again!`)
@@ -140,13 +141,17 @@ const FeaturesComponent = () => {
 
   const onClearSearch = async () => {
     setSearchValue('')
-    await dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page }))
+    await dispatch(getLeadCategoryData({ limit: pageSize, offset: pageSize * page }))
   }
   const handleSearch = async () => {
     if (searchValue != '') {
-    await dispatch(
-      getFeaturesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } })
-    )
+      const query: any = []
+      query.push({
+        column: '"leadCategory".name',
+        operator: 'like',
+        value: `%${searchValue}%`
+      })
+      await dispatch(getLeadCategoryData({ limit: pageSize, offset: pageSize * page, where: query }))
     }
   }
 
@@ -155,11 +160,11 @@ const FeaturesComponent = () => {
       <Grid item xs={12}>
         <Card>
           <DataGridTable
-            loading={features?.loading}
+            loading={leadCategory?.loading}
             checkBox={false}
-            rows={features?.rows}
+            rows={leadCategory.rows}
             columns={columns}
-            total={features?.count}
+            total={leadCategory.count}
             pageSize={pageSize}
             changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
             changePage={(newPage: number) => setPage(newPage)}
@@ -179,7 +184,7 @@ const FeaturesComponent = () => {
         width={700}
         isOpen={modalOpen}
         onClose={handleCloseModal}
-        title={`${modalMode} Features`}
+        title={`${modalMode} LeadCategory`}
         onSubmit={handleSubmit}
         mode={modalMode}
       >
@@ -204,4 +209,4 @@ const FeaturesComponent = () => {
   )
 }
 
-export default FeaturesComponent
+export default LeadCategoryComponent

@@ -20,6 +20,11 @@ const navigation = (): VerticalNavItemsType => {
       path: '/user'
     },
     {
+      title: 'Leads',
+      icon: EmailOutline,
+      path: '/leads'
+    },
+    {
       title: 'Access Control',
       icon: ShieldOutline,
       path: '/acl',
@@ -49,6 +54,18 @@ const navigation = (): VerticalNavItemsType => {
         {
           title: 'Role',
           path: '/master/role'
+        },
+        {
+          title: 'Features',
+          path: '/master/features'
+        },
+        {
+          title: 'Products',
+          path: '/master/products'
+        },
+        {
+          title: 'LeadCategory',
+          path: '/master/leadCategory'
         }
       ]
     }

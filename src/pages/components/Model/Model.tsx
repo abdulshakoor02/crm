@@ -11,9 +11,10 @@ interface ModalProps {
   children: React.ReactNode
   className?: string
   width: number
+  height?: string
 }
 
-const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode, width }: ModalProps) => {
+const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode, width, height = '70vh' }: ModalProps) => {
   const [isRendered, setIsRendered] = useState(isOpen)
 
   useEffect(() => {
@@ -40,7 +41,7 @@ const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode, wi
           boxShadow: 24,
           p: 4,
           width: width || 500,
-          maxHeight: '80vh',
+          maxHeight: height,
           overflowY: 'auto'
         }}
         className={className} // You can still use the custom className if needed

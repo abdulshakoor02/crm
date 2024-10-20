@@ -9,16 +9,18 @@ import toast from 'react-hot-toast'
 
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState, AppDispatch } from '../../../store'
+import { AppDispatch } from '../../../store'
 
-import { getFeaturesData, createFeaturesData, updateFeaturesData } from '../../../store/apps/feature'
+import { getProductData, createProductData, updateProductData } from '../../../store/apps/product'
 import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
-import uuid from 'react-uuid'
+import { appendTenantId } from 'src/pages/utils/tenantAppend'
 
-type Features = {
-  id?: string,
+type Product = {
+  id?: string
   name: string
+  price: string | number
+  tenant_id?: string
 }
 
 const columns: GridColumns = [
@@ -33,44 +35,59 @@ const columns: GridColumns = [
         {params?.row?.['name']}
       </Typography>
     )
+  },
+  {
+    flex: 0.1,
+    minWidth: 150,
+    field: 'price',
+    headerName: 'Price',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {params?.row?.['price']}
+      </Typography>
+    )
   }
 ]
 
-const FeaturesComponent = () => {
+const ProductComponent = () => {
   const dispatch = useDispatch<AppDispatch>()
   const [pageSize, setPageSize] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
   const [searchValue, setSearchValue] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'View' | 'Edit' | 'Add'>('View')
-  const [formValues, setFormValues] = useState<Features>({
+  const [formValues, setFormValues] = useState<Product>({
     name: '',
+    price: ''
   })
-  const [errors, setErrors] = useState<Features>({
+  const [errors, setErrors] = useState<Product>({
     name: '',
+    price: ''
   })
 
-  const features = useSelector((state: any) => state.features)
+  const products = useSelector((state: any) => state.products)
 
   useEffect(() => {
-    dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page }))
+    dispatch(getProductData({ limit: pageSize, offset: pageSize * page }))
   }, [pageSize, page])
 
   const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {
     let rowData = undefined
     if (id) {
-      rowData = features?.rows?.find((row: Features) => row.id === id) as unknown as Features
+      rowData = products?.rows?.find((row: Product) => row.id === id) as unknown as Product
     }
 
     setFormValues(
       rowData
         ? {
-          id: rowData.id,
-    name: rowData.name,
-  }
+            id: rowData.id,
+            name: rowData.name,
+            price: rowData.price
+          }
         : {
-    name: '',
-  }
+            name: '',
+            price: ''
+          }
     )
     setModalMode(mode)
     setModalOpen(true)
@@ -79,22 +96,23 @@ const FeaturesComponent = () => {
   const handleCloseModal = () => {
     setModalOpen(false)
     setErrors({
-    name: '',
-  }) // Reset errors
+      name: '',
+      price: ''
+    }) // Reset errors
   }
 
   const handleSubmit = async () => {
     const data = []
-    formValues.tenant_id = 'a61c2d3d-f0c1-4559-a7a5-3ad865fef54f'
-    const validationErrors: Features = {
-    name: '',
-  }
+    const validationErrors: Product = {
+      name: '',
+      price: ''
+    }
     let isValid = true
 
     // Validation logic
-    for (let i in validationErrors) {
-      if (!formValues[i]) {
-        validationErrors[i] = `Valid ${i} is required`
+    for (const i in validationErrors) {
+      if (!formValues[i as keyof Product]) {
+        validationErrors[i as keyof Product] = `Valid ${i} is required`
         isValid = false
       }
     }
@@ -104,29 +122,31 @@ const FeaturesComponent = () => {
 
       return
     }
+    formValues.price = Number(formValues.price)
     try {
       if (modalMode == 'Edit') {
-        const res = await dispatch(updateFeaturesData({ data: formValues, where: { id: formValues.id } }))
+        const res = await dispatch(updateProductData({ data: formValues, where: { id: formValues.id } }))
         if (res.error) {
-          toast.error(`failed to update Features Try Again!`)
+          toast.error(`failed to update Product Try Again!`)
 
           return
         }
-        await dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page }))
-        toast.success('Features updated successfully')
+        await dispatch(getProductData({ limit: pageSize, offset: pageSize * page }))
+        toast.success('Product updated successfully')
         handleCloseModal()
 
         return
       }
+      appendTenantId(formValues)
       data.push(formValues)
-      const res = await dispatch(createFeaturesData(data))
+      const res = await dispatch(createProductData(data))
       if (res.error) {
-        toast.error(`failed to create features Try Again!`)
+        toast.error(`failed to create products Try Again!`)
 
         return
       }
-      await dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page }))
-      toast.success(`Features created successfully`)
+      await dispatch(getProductData({ limit: pageSize, offset: pageSize * page }))
+      toast.success(`Product created successfully`)
     } catch (error) {
       console.log(error)
       toast.error(`failed to create user Try Again!`)
@@ -140,13 +160,17 @@ const FeaturesComponent = () => {
 
   const onClearSearch = async () => {
     setSearchValue('')
-    await dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page }))
+    await dispatch(getProductData({ limit: pageSize, offset: pageSize * page }))
   }
   const handleSearch = async () => {
     if (searchValue != '') {
-    await dispatch(
-      getFeaturesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } })
-    )
+      const query: any = []
+      query.push({
+        column: '"products".name',
+        operator: 'like',
+        value: `%${searchValue}%`
+      })
+      await dispatch(getProductData({ limit: pageSize, offset: pageSize * page, where: query }))
     }
   }
 
@@ -155,11 +179,11 @@ const FeaturesComponent = () => {
       <Grid item xs={12}>
         <Card>
           <DataGridTable
-            loading={features?.loading}
+            loading={products?.loading}
             checkBox={false}
-            rows={features?.rows}
+            rows={products.rows}
             columns={columns}
-            total={features?.count}
+            total={products.count}
             pageSize={pageSize}
             changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
             changePage={(newPage: number) => setPage(newPage)}
@@ -179,7 +203,7 @@ const FeaturesComponent = () => {
         width={700}
         isOpen={modalOpen}
         onClose={handleCloseModal}
-        title={`${modalMode} Features`}
+        title={`${modalMode} Product`}
         onSubmit={handleSubmit}
         mode={modalMode}
       >
@@ -197,6 +221,18 @@ const FeaturesComponent = () => {
                 margin='normal'
               />
             </Grid>
+            <Grid item xs={6}>
+              <TextField
+                fullWidth
+                label='Name'
+                value={formValues.price}
+                onChange={e => setFormValues({ ...formValues, price: e.target.value })}
+                error={!!errors.price}
+                helperText={errors.price}
+                disabled={modalMode === 'View'}
+                margin='normal'
+              />
+            </Grid>
           </Grid>
         }
       </Modal>
@@ -204,4 +240,4 @@ const FeaturesComponent = () => {
   )
 }
 
-export default FeaturesComponent
+export default ProductComponent

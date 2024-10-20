@@ -9,12 +9,15 @@ import toast from 'react-hot-toast'
 
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState, AppDispatch } from '../../../store'
+import {  AppDispatch } from '../../../store'
 
 import { getRoleData, createRoleData, updateRoleData } from '../../../store/apps/role'
+import { getFeaturesData } from '../../../store/apps/feature'
 import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
-import uuid from 'react-uuid'
+import RoleCard from 'src/pages/components/RoleCard'
+import PageHeader from 'src/@core/components/page-header'
+import { appendTenantId } from 'src/pages/utils/tenantAppend'
 
 type Role = {
   id?: string,
@@ -68,9 +71,11 @@ const RoleComponent = () => {
   })
 
   const role = useSelector((state: any) => state.role)
+  const features = useSelector((state: any) => state.features)
 
   useEffect(() => {
-    dispatch(getRoleData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
+    dispatch(getRoleData({ limit: pageSize, offset: pageSize * page }))
+    dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
   }, [pageSize, page])
 
   const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {
@@ -105,7 +110,6 @@ const RoleComponent = () => {
 
   const handleSubmit = async () => {
     const data = []
-    formValues.tenant_id = 'a61c2d3d-f0c1-4559-a7a5-3ad865fef54f'
     const validationErrors: Role = {
     name: '',
     status: ''
@@ -113,9 +117,9 @@ const RoleComponent = () => {
     let isValid = true
 
     // Validation logic
-    for (let i in validationErrors) {
-      if (!formValues[i]) {
-        validationErrors[i] = `Valid ${i} is required`
+    for (const i in validationErrors) {
+      if (!formValues[i as keyof Role]) {
+        validationErrors[i as keyof Role] = `Valid ${i} is required`
         isValid = false
       }
     }
@@ -139,6 +143,7 @@ const RoleComponent = () => {
 
         return
       }
+      appendTenantId(formValues)
       data.push(formValues)
       const res = await dispatch(createRoleData(data))
       if (res.error) {
@@ -173,6 +178,21 @@ const RoleComponent = () => {
 
   return (
     <Grid container spacing={6}>
+
+
+      <PageHeader
+        title={<Typography variant='h5'>Roles List</Typography>}
+        subtitle={
+          <Typography variant='body2'>
+            A role provided access to predefined menus and features so that depending on assigned role an administrator
+            can have access to what he need
+          </Typography>
+        }
+      />
+      <Grid item xs={12} sx={{ mb: 4 }}>
+        <RoleCard role={role} features={features} />
+      </Grid>
+
       <Grid item xs={12}>
         <Card>
           <DataGridTable

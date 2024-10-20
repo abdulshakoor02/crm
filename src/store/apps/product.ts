@@ -1,5 +1,6 @@
 import { Dispatch } from 'redux'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+
 import axios from '../axios'
 
 interface Redux {
@@ -7,36 +8,36 @@ interface Redux {
   dispatch: Dispatch<any>
 }
 
-export const getEmployeesData: any = createAsyncThunk(
-  'employees/find',
+export const getProductData: any = createAsyncThunk(
+  'products/find',
   async (data: any, { getState, dispatch }: Redux) => {
-    data = { ...data, column: 'employees' }
-    const response = await axios.post(`/api/backend/employees/findAssociated`, data)
+    data = { ...data, column: 'products' }
+    const response = await axios.post(`/api/backend/products/find`, data)
 
     return response.data
   }
 )
 
-export const createEmployeesData: any = createAsyncThunk(
-  'employees/create',
+export const createProductData: any = createAsyncThunk(
+  'products/create',
   async (data: any, { getState, dispatch }: Redux) => {
-    const response = await axios.post(`/api/backend/employees/create`, data)
+    const response = await axios.post(`/api/backend/products/create`, data)
 
     return response.data
   }
 )
 
-export const updateEmployeesData: any = createAsyncThunk(
-  'employees/update',
+export const updateProductData: any = createAsyncThunk(
+  'products/update',
   async (data: any, { getState, dispatch }: Redux) => {
-    const response = await axios.post(`/api/backend/employees/update`, data)
+    const response = await axios.post(`/api/backend/products/update`, data)
 
     return response.data
   }
 )
 
-export const employeesSlice = createSlice({
-  name: 'employees',
+export const productslice = createSlice({
+  name: 'products',
   initialState: {
     count: 0,
     rows: [],
@@ -44,24 +45,24 @@ export const employeesSlice = createSlice({
   },
   reducers: {},
   extraReducers: builders => {
-    builders.addCase(getEmployeesData.fulfilled, (state: any, action: any) => {
+    builders.addCase(getProductData.fulfilled, (state: any, action: any) => {
       state.rows = action.payload.data
       state.count = action.payload.count
       state.loading = false
     })
-    builders.addCase(getEmployeesData.pending, (state: any, action: any) => {
+    builders.addCase(getProductData.pending, (state: any, action: any) => {
       state.loading = true
     })
     builders
-      .addCase(createEmployeesData.rejected, (state: any, action: any) => {
+      .addCase(createProductData.rejected, (state: any, action: any) => {
         state.error = action.payload || 'failed to update Data'
         state.loading = false
       })
-      .addCase(updateEmployeesData.rejected, (state: any, action: any) => {
+      .addCase(updateProductData.rejected, (state: any, action: any) => {
         state.error = action.payload || 'failed to create Data'
         state.loading = false
       })
   }
 })
 
-export default employeesSlice.reducer
+export default productslice.reducer
