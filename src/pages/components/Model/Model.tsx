@@ -10,9 +10,11 @@ interface ModalProps {
   title: React.ReactNode
   children: React.ReactNode
   className?: string
+  width: number
+  height?: string
 }
 
-const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode }: ModalProps) => {
+const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode, width, height = '70vh' }: ModalProps) => {
   const [isRendered, setIsRendered] = useState(isOpen)
 
   useEffect(() => {
@@ -38,9 +40,8 @@ const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode }: 
           borderRadius: 2,
           boxShadow: 24,
           p: 4,
-          maxWidth: 500,
-          width: '100%',
-          maxHeight: '80vh',
+          width: width || 500,
+          maxHeight: height,
           overflowY: 'auto'
         }}
         className={className} // You can still use the custom className if needed
@@ -65,11 +66,11 @@ const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode }: 
 
         {/* Modal Footer */}
         <Box display='flex' justifyContent='space-between' mt={3}>
-        {(mode == 'edit' || mode == 'add') && (
-          <Button variant='contained' onClick={onSubmit}>
-            Submit
-          </Button>
-        )}
+          {(mode == 'edit' || mode == 'add') && (
+            <Button variant='contained' onClick={onSubmit}>
+              Submit
+            </Button>
+          )}
           <Button variant='outlined' color='secondary' onClick={handleClose}>
             Cancel
           </Button>
