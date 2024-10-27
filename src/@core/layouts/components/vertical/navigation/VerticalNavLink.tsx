@@ -108,6 +108,21 @@ const VerticalNavLink = ({
     } else return {}
   }
 
+  const checkAccess = () => {
+    if (item?.access) {
+      const { features } = JSON.parse(window.localStorage.getItem('userData'));
+      if (features.includes(item.access)) {
+
+      return true
+      } else {
+
+      return false
+      }
+    }
+
+    return true
+   }
+
   const isNavLinkActive = () => {
     if (router.pathname === item.path || handleURLQueries(router, item.path)) {
       return true
@@ -117,6 +132,7 @@ const VerticalNavLink = ({
   }
 
   return (
+  <>{ checkAccess() && (
     <CanViewNavLink navLink={item}>
       <ListItem
         disablePadding
@@ -198,8 +214,8 @@ const VerticalNavLink = ({
           </MenuNavLink>
         </Link>
       </ListItem>
-    </CanViewNavLink>
-  )
+    </CanViewNavLink>)
+  }</>)
 }
 
 export default VerticalNavLink

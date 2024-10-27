@@ -16,6 +16,19 @@ const CanViewNavLink = (props: Props) => {
   // ** Props
   const { children, navLink } = props
 
+  // const { features } = JSON.parse(window.localStorage.getItem('userData'))
+  // console.log('here',navLink)
+  // if (navLink?.access) {
+  //   console.log('here')
+  //   if (features.includes(navLink.access)) {
+  //     return <>{children}</>
+  //   } else {
+  //     return null
+  //   }
+  // }
+  //
+  // return <>{children}</>
+
   // ** Hook
   const ability = useContext(AbilityContext)
 

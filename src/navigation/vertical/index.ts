@@ -37,7 +37,8 @@ const navigation = (): VerticalNavItemsType => {
       children: [
         {
           title: 'Countries',
-          path: '/master/countries'
+          path: '/master/countries',
+          access:'countries'
         },
         {
           title: 'Tenant',

@@ -12,6 +12,10 @@ export const getLeadData: any = createAsyncThunk(
   'lead/find',
   async (data: any, { getState, dispatch }: Redux) => {
     data = { ...data, column: 'leads' }
+    const { features,id } = JSON.parse(window.localStorage.getItem('userData'))
+    if (features.includes('self')){
+      data = {...data , find: { employee_id: id}}
+    }
     const response = await axios.post(`/api/backend/lead/find`, data)
 
     return response.data
