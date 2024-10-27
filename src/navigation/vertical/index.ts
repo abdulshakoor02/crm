@@ -38,7 +38,7 @@ const navigation = (): VerticalNavItemsType => {
         {
           title: 'Countries',
           path: '/master/countries',
-          access:'countries'
+          access: 'countries'
         },
         {
           title: 'Tenant',
@@ -46,7 +46,8 @@ const navigation = (): VerticalNavItemsType => {
         },
         {
           title: 'Region',
-          path: '/master/region'
+          path: '/master/region',
+          access: 'region'
         },
         {
           title: 'Branch',

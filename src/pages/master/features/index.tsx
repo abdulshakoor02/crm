@@ -51,6 +51,7 @@ const FeaturesComponent = () => {
   })
 
   const features = useSelector((state: any) => state.features)
+  console.log(features)
 
   useEffect(() => {
     dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page }))
@@ -85,16 +86,15 @@ const FeaturesComponent = () => {
 
   const handleSubmit = async () => {
     const data = []
-    formValues.tenant_id = 'a61c2d3d-f0c1-4559-a7a5-3ad865fef54f'
     const validationErrors: Features = {
     name: '',
   }
     let isValid = true
 
     // Validation logic
-    for (let i in validationErrors) {
-      if (!formValues[i]) {
-        validationErrors[i] = `Valid ${i} is required`
+    for (const i in validationErrors) {
+      if (!formValues[i as keyof Features]) {
+        validationErrors[i as keyof Features] = `Valid ${i} is required`
         isValid = false
       }
     }
@@ -167,6 +167,9 @@ const FeaturesComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
+            edit={true}
+            view={true}
+            del={true}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}

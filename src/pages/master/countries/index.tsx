@@ -18,7 +18,7 @@ import { TextField } from '@mui/material'
 import FormTextField from 'src/pages/components/FormtextField'
 import { validateFormValues } from 'src/validation/validation'
 import { Countries as ICountries } from 'src/types/components/country.types'
-
+import AclGuard from 'src/pages/components/AclGuard/AclGuard'
 
 const columns: GridColumns = [
   {
@@ -71,7 +71,6 @@ const columns: GridColumns = [
 const Countries = () => {
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
-  const [isLoading, setLoading] = useState(true)
   const [pageSize, setPageSize] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
   const [searchValue, setSearchValue] = useState('')
@@ -179,40 +178,41 @@ const Countries = () => {
     // setData(prevData => prevData.filter(row => row.id !== id));
   }
 
-  const handleOnSearch = () => {
-    if (page !== 0) setPage(0); // Reset to first page on search
-    dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } }))
-  }
-
   const handleOnSearchClear = () => {
     setSearchValue('')
     dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page }))
   }
 
+  const handleOnSearch = () => {
+    if (page !== 0) setPage(0); // Reset to first page on search
+    dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } }))
+  }
+
   return (
-    <>
-      <Grid container spacing={6}>
-        <Grid item xs={12}>
-          <Card>
-            <DataGridTable
-              rows={country.rows}
-              columns={columns}
-              total={country.count}
-              pageSize={pageSize}
-              loading={country.loading}
-              changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
-              changePage={(newPage: number) => setPage(newPage)}
-              searchValue={searchValue}
-              onSearchChange={e => setSearchValue(e.target.value)}
-              onSearch={handleOnSearch}
-              onClearSearch={handleOnSearchClear}
-              onView={id => handleOpenModal(id, 'view')}
-              onEdit={id => handleOpenModal(id, 'edit')}
-              onDelete={id => handleDelete(id)}
-              onAddRow={() => handleOpenModal('', 'add')}
-            />
-          </Card>
-        </Grid>
+  <AclGuard feature='countries'>
+    <Grid container spacing={6}>
+      <Grid item xs={12}>
+        <Card>
+          <DataGridTable
+            checkBox={false}
+            loading={country.loading}
+            rows={country.rows}
+            columns={columns}
+            total={country.count}
+            pageSize={pageSize}
+            changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
+            changePage={(newPage: number) => setPage(newPage)}
+            searchValue={searchValue}
+            onSearchChange={e => setSearchValue(e.target.value)}
+            onSearch={() => console.log('searched!')}
+            onClearSearch={handleOnSearchClear}
+            onView={id => handleOpenModal(id, 'view')}
+            onEdit={id => handleOpenModal(id, 'edit')}
+            onDelete={id => handleDelete(id)}
+            onAddRow={() => handleOpenModal('', 'add')}
+          />
+        </Card>
+      </Grid>
 
         {/* Modal */}
         <Modal
@@ -254,9 +254,9 @@ const Countries = () => {
               />
             </>
           }
-        </Modal>
-      </Grid>
-    </>
+      </Modal>
+    </Grid>
+  </AclGuard>
   )
 }
 

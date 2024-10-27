@@ -72,10 +72,11 @@ const RoleComponent = () => {
 
   const role = useSelector((state: any) => state.role)
   const features = useSelector((state: any) => state.features)
+  console.log(features)
 
   useEffect(() => {
     dispatch(getRoleData({ limit: pageSize, offset: pageSize * page }))
-    dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
+    dispatch(getFeaturesData({}))
   }, [pageSize, page])
 
   const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {

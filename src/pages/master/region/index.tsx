@@ -14,7 +14,9 @@ import { AppDispatch } from '../../../store'
 import { getRegionData, createRegionData, updateRegionData } from '../../../store/apps/region'
 import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
-import { appendTenantId, appendTenantToQuery } from 'src/pages/utils/tenantAppend'
+import AclGuard from 'src/pages/components/AclGuard/AclGuard'
+import { appendTenantId } from 'src/pages/utils/tenantAppend'
+import { checkAccess } from 'src/pages/utils/accessCheck'
 
 type Region = {
   id?: string
@@ -176,6 +178,7 @@ const RegionComponent = () => {
   }
 
   return (
+  <AclGuard feature='region'>
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card>
@@ -192,6 +195,9 @@ const RegionComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
+            edit={checkAccess('regionEdit')}
+            view={checkAccess('regionView')}
+            del={checkAccess('regionDelete')}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
@@ -247,6 +253,7 @@ const RegionComponent = () => {
         }
       </Modal>
     </Grid>
+    </AclGuard>
   )
 }
 
