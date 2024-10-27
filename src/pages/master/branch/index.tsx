@@ -10,30 +10,26 @@ import toast from 'react-hot-toast'
 
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch } from '../../store'
+import { AppDispatch } from '../../../store'
 
-import { getEmployeesData, updateEmployeesData, createEmployeesData } from '../../store/apps/user'
-import { getCountriesData } from '../../store/apps/countries'
-import { getBranchData } from '../../store/apps/branch'
-import { getRoleData } from '../../store/apps/role'
-import DataGridTable from '../components/Datagrid'
+import { getBranchData, createBranchData, updateBranchData } from '../../../store/apps/branch'
+import { getCountriesData } from '../../../store/apps/countries'
+import { getRegionData } from '../../../store/apps/region'
+import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
 import uuid from 'react-uuid'
-import { appendTenantId } from 'src/pages/utils/tenantAppend'
 
-type User = {
-  id?: string
-  first_name: string
-  last_name: string
-  password?: string
-  phone: string
+type Branch = {
+  id: string
+  name: string
+  mobile: string
   email: string
+  region_id: string
+  website: string
   country_id: string
+  tax: string
   created_by?: string
   modified_by?: string
-  role_id: string
-  branch_id: string
-  tenant_id?: string
   status: string
 }
 
@@ -42,23 +38,11 @@ const columns: GridColumns = [
     flex: 0.1,
     minWidth: 150,
     sortable: false,
-    field: 'first_name',
-    headerName: 'First Name',
+    field: 'name',
+    headerName: 'Name',
     renderCell: (params: GridRenderCellParams) => (
       <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.['first_name']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'last_name',
-    headerName: 'Last Name',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.['last_name']}
+        {params?.row?.['name']}
       </Typography>
     )
   },
@@ -69,7 +53,7 @@ const columns: GridColumns = [
     headerName: 'Phone',
     renderCell: (params: GridRenderCellParams) => (
       <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.['phone']}
+        {params?.row?.['mobile']}
       </Typography>
     )
   },
@@ -87,6 +71,17 @@ const columns: GridColumns = [
   {
     flex: 0.1,
     minWidth: 150,
+    field: 'website',
+    headerName: 'Website',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {params?.row?.['website']}
+      </Typography>
+    )
+  },
+  {
+    flex: 0.1,
+    minWidth: 150,
     field: 'country_id',
     headerName: 'Country',
     renderCell: (params: GridRenderCellParams) => (
@@ -98,22 +93,22 @@ const columns: GridColumns = [
   {
     flex: 0.1,
     minWidth: 150,
-    field: 'role_id',
-    headerName: 'Role',
+    field: 'region_id',
+    headerName: 'Region',
     renderCell: (params: GridRenderCellParams) => (
       <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.role?.['role_name']}
+        {params?.row?.region?.['region_name']}
       </Typography>
     )
   },
   {
     flex: 0.1,
     minWidth: 150,
-    field: 'branch_id',
-    headerName: 'Branch',
+    field: 'tax',
+    headerName: 'Tax',
     renderCell: (params: GridRenderCellParams) => (
       <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.branch?.['branch_name']}
+        {params?.row?.['tax']}
       </Typography>
     )
   },
@@ -130,7 +125,7 @@ const columns: GridColumns = [
   }
 ]
 
-const UserComponent = () => {
+const BranchComponent = () => {
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
   const [pageSize, setPageSize] = useState<number>(10)
@@ -138,80 +133,69 @@ const UserComponent = () => {
   const [searchValue, setSearchValue] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'View' | 'Edit' | 'Add'>('View')
-  const [formValues, setFormValues] = useState<User>({
-    first_name: '',
-    last_name: '',
-    password: '',
-    phone: '',
+  const [formValues, setFormValues] = useState<Branch>({
+    id: '',
+    name: '',
+    mobile: '',
     email: '',
+    region_id: '',
+    website: '',
     country_id: '',
-    tenant_id: '',
-    role_id: '',
-    branch_id: '',
+    tax: '',
     status: ''
   })
-  const [errors, setErrors] = useState<User>({
-    first_name: '',
-    last_name: '',
-    password: '',
-    phone: '',
+  const [errors, setErrors] = useState<Branch>({
+    id: '',
+    name: '',
+    mobile: '',
     email: '',
+    region_id: '',
+    website: '',
     country_id: '',
-    role_id: '',
-    branch_id: '',
-    tenant_id: '',
+    tax: '',
     status: ''
   })
 
-  const user = useSelector((state: any) => state.user)
-  const countries = useSelector((state: any) => state.country)
   const branch = useSelector((state: any) => state.branch)
-  const role = useSelector((state: any) => state.role)
+  const countries = useSelector((state: any) => state.country)
+  const region = useSelector((state: any) => state.region)
 
   useEffect(() => {
     dispatch(
-      getEmployeesData({
-        limit: pageSize,
-        offset: pageSize * page,
-        joins: [{ column: 'Country' }, { column: 'Role' }, { column: 'Branch' }]
-      })
+      getBranchData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }, { column: 'Region' }] })
     )
     dispatch(getCountriesData({}))
-    dispatch(getBranchData({ joins: [{ column: 'Region' }] }))
-    dispatch(getRoleData({}))
+    dispatch(getRegionData({}))
   }, [pageSize, page])
 
   const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {
     let rowData = undefined
     if (id) {
-      rowData = user?.rows?.find((row: User) => row.id === id) as unknown as User
+      rowData = branch?.rows?.find((row: Branch) => row.id == id) as unknown as Branch
     }
 
     setFormValues(
       rowData
         ? {
             id: rowData.id,
-            first_name: rowData.first_name,
-            last_name: rowData.last_name,
-            password: '',
-            phone: rowData.phone,
+            name: rowData.name,
+            mobile: rowData.mobile,
             email: rowData.email,
-            tenant_id: rowData.tenant_id,
-            role_id: rowData.role_id,
-            branch_id: rowData.branch_id,
-            country_id: rowData.country_id,
+            website: rowData.website,
+            region_id: rowData.region.region_id,
+            country_id: rowData.country.country_id,
+            tax: rowData.tax,
             status: rowData.status
           }
         : {
-            first_name: '',
-            last_name: '',
-            password: '',
-            phone: '',
+            id: '',
+            name: '',
+            mobile: '',
             email: '',
+            website: '',
+            region_id: '',
             country_id: '',
-            role_id: '',
-            branch_id: '',
-            tenant_id: '',
+            tax: '',
             status: ''
           }
     )
@@ -222,39 +206,40 @@ const UserComponent = () => {
   const handleCloseModal = () => {
     setModalOpen(false)
     setErrors({
-      first_name: '',
-      last_name: '',
-      password: '',
-      phone: '',
+      id: '',
+      name: '',
+      mobile: '',
       email: '',
-      role_id: '',
-      branch_id: '',
-      tenant_id: '',
+      website: '',
+      region_id: '',
       country_id: '',
+      tax: '',
       status: ''
     }) // Reset errors
   }
 
   const handleSubmit = async () => {
     const data = []
-
-    const validationErrors: User = {
-      first_name: '',
-      last_name: '',
-      password: '',
-      phone: '',
+    const validationErrors: Branch = {
+      id: '',
+      name: '',
+      mobile: '',
       email: '',
-      role_id: '',
-      branch_id: '',
+      website: '',
+      region_id: '',
       country_id: '',
+      tax: '',
       status: ''
     }
     let isValid = true
 
     // Validation logic
-    for (const i in validationErrors) {
-      if (!formValues[i as keyof User]) {
-        validationErrors[i as keyof User] = `Valid ${i} is required`
+    for (let i in validationErrors) {
+      if (i == 'id') {
+        continue
+      }
+      if (!formValues[i]) {
+        validationErrors[i] = `Valid ${i} is required`
         isValid = false
       }
     }
@@ -264,45 +249,49 @@ const UserComponent = () => {
 
       return
     }
+
     try {
       if (modalMode == 'Edit') {
-        const res = await dispatch(updateEmployeesData({ data: formValues, where: { id: formValues.id } }))
+        formValues.tax = Number(formValues.tax)
+        const res = await dispatch(updateBranchData({ data: formValues, where: { id: formValues.id } }))
         if (res.error) {
-          toast.error(`failed to update user Try Again!`)
+          toast.error(`failed to update branch Try Again!`)
 
           return
         }
         await dispatch(
-          getEmployeesData({
+          getBranchData({
             limit: pageSize,
             offset: pageSize * page,
-            joins: [{ column: 'Country' }, { column: 'Role' }, { column: 'Branch' }]
+            joins: [{ column: 'Country' }, { column: 'Region' }]
           })
         )
-        toast.success('User updated successfully')
+        toast.success('Branch updated successfully')
         handleCloseModal()
 
         return
       }
-      appendTenantId(formValues)
+      delete formValues.id
+      formValues.tax = Number(formValues.tax)
       data.push(formValues)
-      const res = await dispatch(createEmployeesData(data))
+      console.log(data)
+      const res = await dispatch(createBranchData(data))
       if (res.error) {
-        toast.error(`failed to create user Try Again!`)
+        toast.error(`failed to create branch Try Again!`)
 
         return
       }
       await dispatch(
-        getEmployeesData({
+        getBranchData({
           limit: pageSize,
           offset: pageSize * page,
-          joins: [{ column: 'Country' }, { column: 'Role' }, { column: 'Branch' }]
+          joins: [{ column: 'Country' }, { column: 'Region' }]
         })
       )
-      toast.success(`User created successfully`)
+      toast.success(`Branch created successfully`)
     } catch (error) {
       console.log(error)
-      toast.error(`failed to create user Try Again!`)
+      toast.error(`failed to create branch Try Again!`)
     }
     handleCloseModal()
   }
@@ -313,31 +302,23 @@ const UserComponent = () => {
 
   const onClearSearch = async () => {
     setSearchValue('')
-    const query: any = []
-    await dispatch(
-      getEmployeesData({ limit: pageSize, offset: pageSize * page, where: query, joins: [{ column: 'Country' }] })
-    )
+    await dispatch(getBranchData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
   }
   const handleSearch = async () => {
-    const query: any = []
+    const query = []
     if (searchValue != '') {
       query.push({
-        column: 'employees.first_name',
+        column: 'branchs.name',
         operator: 'like',
         value: `%${searchValue}%`
       })
       query.push({
-        column: 'employees.last_name',
+        column: 'branchs.phone',
         operator: 'like',
         value: `%${searchValue}%`
       })
       query.push({
-        column: 'employees.phone',
-        operator: 'like',
-        value: `%${searchValue}%`
-      })
-      query.push({
-        column: 'employees.email',
+        column: 'branchs.email',
         operator: 'like',
         value: `%${searchValue}%`
       })
@@ -348,7 +329,7 @@ const UserComponent = () => {
       })
     }
     await dispatch(
-      getEmployeesData({ limit: pageSize, offset: pageSize * page, where: query, joins: [{ column: 'Country' }] })
+      getBranchData({ limit: pageSize, offset: pageSize * page, where: query, joins: [{ column: 'Country' }] })
     )
   }
 
@@ -357,11 +338,11 @@ const UserComponent = () => {
       <Grid item xs={12}>
         <Card>
           <DataGridTable
-            loading={user?.loading}
+            loading={branch?.loading}
             checkBox={false}
-            rows={user.rows}
+            rows={branch.rows}
             columns={columns}
-            total={user.count}
+            total={branch.count}
             pageSize={pageSize}
             changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
             changePage={(newPage: number) => setPage(newPage)}
@@ -372,16 +353,16 @@ const UserComponent = () => {
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
-            onAddRow={() => handleOpenModal(null, 'Add')}
+            onAddRow={() => handleOpenModal(0, 'Add')}
           />
         </Card>
       </Grid>
 
       <Modal
-        width={800}
+        width={700}
         isOpen={modalOpen}
         onClose={handleCloseModal}
-        title={`${modalMode} User`}
+        title={`${modalMode} Branch`}
         onSubmit={handleSubmit}
         mode={modalMode}
       >
@@ -390,36 +371,11 @@ const UserComponent = () => {
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                label='First Name'
-                value={formValues.first_name}
-                onChange={e => setFormValues({ ...formValues, first_name: e.target.value })}
-                error={!!errors.first_name}
-                helperText={errors.first_name}
-                disabled={modalMode === 'View'}
-                margin='normal'
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label='Last Name'
-                value={formValues.last_name}
-                onChange={e => setFormValues({ ...formValues, last_name: e.target.value })}
-                error={!!errors.last_name}
-                helperText={errors.last_name}
-                disabled={modalMode === 'View'}
-                margin='normal'
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                type='password'
-                label='Password'
-                value={formValues.password}
-                onChange={e => setFormValues({ ...formValues, password: e.target.value })}
-                error={!!errors.password}
-                helperText={errors.password}
+                label='Name'
+                value={formValues.name}
+                onChange={e => setFormValues({ ...formValues, name: e.target.value })}
+                error={!!errors.name}
+                helperText={errors.name}
                 disabled={modalMode === 'View'}
                 margin='normal'
               />
@@ -429,10 +385,10 @@ const UserComponent = () => {
                 fullWidth
                 label='phone'
                 placeholder='+country code...'
-                value={formValues.phone}
-                onChange={e => setFormValues({ ...formValues, phone: e.target.value })}
-                error={!!errors.phone}
-                helperText={errors.phone}
+                value={formValues.mobile}
+                onChange={e => setFormValues({ ...formValues, mobile: e.target.value })}
+                error={!!errors.mobile}
+                helperText={errors.mobile}
                 disabled={modalMode === 'View'}
                 margin='normal'
               />
@@ -452,6 +408,18 @@ const UserComponent = () => {
             <Grid item xs={6}>
               <TextField
                 fullWidth
+                label='Website'
+                value={formValues.website}
+                onChange={e => setFormValues({ ...formValues, website: e.target.value })}
+                error={!!errors.website}
+                helperText={errors.website}
+                disabled={modalMode === 'View'}
+                margin='normal'
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                fullWidth
                 select
                 name='country_id'
                 value={formValues.country_id}
@@ -463,7 +431,27 @@ const UserComponent = () => {
                 sx={{ mt: 4 }}
               >
                 {countries?.rows?.map((items: any) => (
-                  <MenuItem key={uuid()} value={items.id}>
+                  <MenuItem key={items.id} value={items.id}>
+                    {items.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                fullWidth
+                select
+                name='region_id'
+                value={formValues.region_id}
+                label='Region'
+                error={!!errors.region_id}
+                helperText={errors.region_id}
+                onChange={e => setFormValues({ ...formValues, region_id: e.target.value })}
+                disabled={modalMode === 'View'}
+                sx={{ mt: 4 }}
+              >
+                {region?.rows?.map((items: any) => (
+                  <MenuItem key={items.id} value={items.id}>
                     {items.name}
                   </MenuItem>
                 ))}
@@ -493,42 +481,15 @@ const UserComponent = () => {
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                select
-                name='role_id'
-                value={formValues.role_id}
-                label='Role'
-                error={!!errors.role_id}
-                helperText={errors.role_id}
-                onChange={e => setFormValues({ ...formValues, role_id: e.target.value })}
+                type='number'
+                label='Tax'
+                value={formValues.tax}
+                onChange={e => setFormValues({ ...formValues, tax: e.target.value })}
+                error={!!errors.tax}
+                helperText={errors.tax}
                 disabled={modalMode === 'View'}
-                sx={{ mt: 4 }}
-              >
-                {role?.rows?.map((items: any) => (
-                  <MenuItem key={items.id} value={items.id}>
-                    {items.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                select
-                name='branch_id'
-                value={formValues.branch_id}
-                label='Branch'
-                error={!!errors.branch_id}
-                helperText={errors.branch_id}
-                onChange={e => setFormValues({ ...formValues, branch_id: e.target.value })}
-                disabled={modalMode === 'View'}
-                sx={{ mt: 4 }}
-              >
-                {branch?.rows?.map((items: any) => (
-                  <MenuItem key={items.id} value={items.id}>
-                    {items.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+                margin='normal'
+              />
             </Grid>
           </Grid>
         }
@@ -537,4 +498,4 @@ const UserComponent = () => {
   )
 }
 
-export default UserComponent
+export default BranchComponent

@@ -20,6 +20,11 @@ const navigation = (): VerticalNavItemsType => {
       path: '/user'
     },
     {
+      title: 'Leads',
+      icon: EmailOutline,
+      path: '/leads'
+    },
+    {
       title: 'Access Control',
       icon: ShieldOutline,
       path: '/acl',
@@ -31,8 +36,36 @@ const navigation = (): VerticalNavItemsType => {
       icon: FolderSpecialIcon,
       children: [
         {
-          title: 'countries',
+          title: 'Countries',
           path: '/master/countries'
+        },
+        {
+          title: 'Tenant',
+          path: '/master/tenant'
+        },
+        {
+          title: 'Region',
+          path: '/master/region'
+        },
+        {
+          title: 'Branch',
+          path: '/master/branch'
+        },
+        {
+          title: 'Role',
+          path: '/master/role'
+        },
+        {
+          title: 'Features',
+          path: '/master/features'
+        },
+        {
+          title: 'Products',
+          path: '/master/products'
+        },
+        {
+          title: 'LeadCategory',
+          path: '/master/leadCategory'
         }
       ]
     }
