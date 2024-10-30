@@ -181,9 +181,9 @@ const ProductComponent = () => {
           <DataGridTable
             loading={products?.loading}
             checkBox={false}
-            rows={products.rows}
+            rows={products?.rows}
             columns={columns}
-            total={products.count}
+            total={products?.count}
             pageSize={pageSize}
             changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
             changePage={(newPage: number) => setPage(newPage)}
@@ -224,7 +224,7 @@ const ProductComponent = () => {
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                label='Name'
+                label='Price'
                 value={formValues.price}
                 onChange={e => setFormValues({ ...formValues, price: e.target.value })}
                 error={!!errors.price}
