@@ -2,8 +2,9 @@ import axios from 'axios'
 
 export default async function handler(req: any, res: any) {
   try {
-    console.log(req.headers)
-    const { data } = await axios.post(`${process.env.baseUrl!}/auth`, req.body, { headers: {token:req.headers.token} })
+    const { data } = await axios.post(`${process.env.baseUrl!}/auth`, req.body, {
+      headers: { token: req.headers.token }
+    })
     res.status(200).json(data)
   } catch (error: any) {
     console.error(error)

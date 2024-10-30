@@ -13,7 +13,10 @@ const instance = axios.create({})
 
 instance.interceptors.request.use(
   async (request: any) => {
-    request.headers.token = window.localStorage.getItem('accessToken')
+    const token = window.localStorage.getItem('accessToken')
+    if (token) {
+      request.headers['token'] = token // Using 'token' as key
+    }
 
     return request
   },

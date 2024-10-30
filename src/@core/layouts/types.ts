@@ -21,6 +21,7 @@ export type NavLink = {
   icon?: any
   path?: string
   title: string
+  access: string
   action?: string
   subject?: string
   disabled?: boolean
