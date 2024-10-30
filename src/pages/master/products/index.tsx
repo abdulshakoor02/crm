@@ -224,7 +224,7 @@ const ProductComponent = () => {
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                label='Name'
+                label='Price'
                 value={formValues.price}
                 onChange={e => setFormValues({ ...formValues, price: e.target.value })}
                 error={!!errors.price}

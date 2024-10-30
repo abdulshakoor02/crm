@@ -19,9 +19,6 @@ const DataGridTable = React.memo(
     rows,
     columns,
     total,
-    edit,
-    view,
-    del,
     onView,
     onEdit,
     onDelete,
@@ -39,9 +36,6 @@ const DataGridTable = React.memo(
     rows: any
     columns: GridColumns
     total: number
-    edit: boolean
-    view: boolean
-    del: boolean
     onView?: (id: any) => void
     onEdit?: (id: any) => void
     onDelete?: (id: any) => void
@@ -67,21 +61,21 @@ const DataGridTable = React.memo(
       minWidth: 150,
       renderCell: (params: GridRenderCellParams) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {view && (
+          {onView && (
             <Tooltip title='View'>
               <IconButton sx={{ textDecoration: 'none' }} onClick={() => onView?.(params.row.id)}>
                 <EyeOutline fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
-          {edit && (
+          {onEdit && (
             <Tooltip title='View'>
               <IconButton color='secondary' onClick={() => onEdit?.(params.row.id)}>
                 <PencilOutline fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
-          {del && (
+          {onDelete && (
             <Tooltip title='View'>
               <IconButton onClick={() => onDelete?.(params.row.id)}>
                 <DeleteOutline fontSize='small' />

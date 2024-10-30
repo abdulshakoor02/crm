@@ -10,11 +10,11 @@ interface ModalProps {
   title: React.ReactNode
   children: React.ReactNode
   className?: string
-  width: number
+  width?: number
   height?: string
 }
 
-const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode, width, height = '70vh' }: ModalProps) => {
+const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode, width = 500, height = '70vh' }: ModalProps) => {
   const [isRendered, setIsRendered] = useState(isOpen)
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode, wi
 
         {/* Modal Footer */}
         <Box display='flex' justifyContent='space-between' mt={3}>
-          {(mode == 'edit' || mode == 'add') && (
+          {(mode.toLowerCase() == 'edit' || mode.toLowerCase() == 'add') && (
             <Button variant='contained' onClick={onSubmit}>
               Submit
             </Button>
