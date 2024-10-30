@@ -13,7 +13,7 @@ export const getLeadCategoryData: any = createAsyncThunk(
   async (data: any, { getState, dispatch }: Redux) => {
     data = { ...data, column: 'lead_categories' }
     const response = await axios.post(`/api/backend/leadCategory/find`, data)
-
+    console.log("lead app", response.data)
     return response.data
   }
 )
@@ -46,6 +46,7 @@ export const leadCategorySlice = createSlice({
   reducers: {},
   extraReducers: builders => {
     builders.addCase(getLeadCategoryData.fulfilled, (state: any, action: any) => {
+      console.log("builder ", action);
       state.rows = action.payload.data
       state.count = action.payload.count
       state.loading = false

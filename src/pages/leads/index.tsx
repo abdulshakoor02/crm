@@ -380,9 +380,9 @@ const LeadComponent = () => {
           <DataGridTable
             loading={leads?.loading}
             checkBox={false}
-            rows={leads.rows}
+            rows={leads?.rows}
             columns={columns}
-            total={leads.count}
+            total={leads?.count}
             pageSize={pageSize}
             changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
             changePage={(newPage: number) => setPage(newPage)}
@@ -557,7 +557,7 @@ const LeadComponent = () => {
             </Grid>
           </Grid>
         }
-        {(modalMode === 'Edit' || modalMode === 'View') && comments.count > 0 ?
+        {(modalMode === 'Edit' || modalMode === 'View') && comments?.count > 0 ?
    <Accordion sx={{mt:4}}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}

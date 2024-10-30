@@ -51,7 +51,8 @@ const LeadCategoryComponent = () => {
     name: '',
   })
 
-  const leadCategory = useSelector((state: any) => state.leadCategory)
+  const leadCategory = useSelector((state: any) => state.leadCategory);
+
 
   useEffect(() => {
     dispatch(getLeadCategoryData({ limit: pageSize, offset: pageSize * page }))
@@ -155,6 +156,8 @@ const LeadCategoryComponent = () => {
     }
   }
 
+  console.log("lead ", leadCategory)
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -162,9 +165,9 @@ const LeadCategoryComponent = () => {
           <DataGridTable
             loading={leadCategory?.loading}
             checkBox={false}
-            rows={leadCategory.rows}
+            rows={leadCategory?.rows}
             columns={columns}
-            total={leadCategory.count}
+            total={leadCategory?.count}
             pageSize={pageSize}
             changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
             changePage={(newPage: number) => setPage(newPage)}
