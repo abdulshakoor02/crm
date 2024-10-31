@@ -1,5 +1,5 @@
 
-import { CardContent, Grid, Theme, Typography, useTheme, Box, Card, TextField, InputAdornment, Divider, TableContainer, Table, TableBody, TableRow, styled, alpha, CardContentProps, GridProps, Collapse, Select, BoxProps, IconButton, Button } from '@mui/material'
+import { CardContent, Grid, Theme, Typography, useTheme, Box, Card, TextField, InputAdornment, Divider, TableContainer, Table, TableBody, TableRow, styled, alpha, CardContentProps, GridProps, Collapse, Select, BoxProps, IconButton, Button, Tooltip, InputLabel } from '@mui/material'
 import React, { forwardRef, useState, ForwardedRef, SyntheticEvent } from 'react'
 
 
@@ -76,6 +76,15 @@ const InvoiceAction = styled(Box)<BoxProps>(({ theme }) => ({
   borderLeft: `1px solid ${theme.palette.divider}`
 }))
 
+const CalcWrapper = styled(Box)<BoxProps>(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    '&:not(:last-of-type)': {
+      marginBottom: theme.spacing(2)
+    }
+  }))
+
 const now = new Date()
 const tomorrowDate = now.setDate(now.getDate() + 7)
 
@@ -85,9 +94,16 @@ const Invoice = () => {
   const [selected, setSelected] = useState<string>('Test');
   const [count, setCount] = useState(1);
  const [items, setItems] = useState([{ productId: 0, hours: 0, cost: 0 }]); // State for items
+ const [tax, setTax] = useState(21); // Tax percentage as a fixed state for now
+
+// Calculate subtotal by summing up cost * hours for each item
+const subtotal = items.reduce((acc, item) => acc + item.cost * item.hours, 0);
+
+// Calculate total by applying the tax to the subtotal
+const total = subtotal * (1 + tax / 100);
+const invoiceNumber = 100;
 
   const theme: Theme = useTheme();
-  const invoiceNumber = 100;
 
   const products = [
     {
@@ -104,13 +120,7 @@ const Invoice = () => {
     },
   ]
 
-    // ** Deletes form
-    const deleteForm = (e: SyntheticEvent) => {
-      e.preventDefault()
   
-      // @ts-ignore
-      e.target.closest('.repeater-wrapper').remove()
-    }
 
     const handleAddItem = () => {
       // When adding a new item, initialize its details
@@ -377,6 +387,14 @@ const Invoice = () => {
                           <MenuItem key={product.id} value={product.id}>{product.label}</MenuItem>
                         ))}
                       </Select>
+                      <TextField
+                          rows={2}
+                          fullWidth
+                          multiline
+                          size='small'
+                          sx={{ mt: 3.5 }}
+                          defaultValue='Customization & Bug Fixes'
+                        />
                     </Grid>
                     <Grid item lg={2} md={3} xs={12} sx={{ px: 4, my: { lg: 0, xs: 4 } }}>
                       <Typography
@@ -394,6 +412,24 @@ const Invoice = () => {
                         // InputProps={{ inputProps: { min: 0 }, readOnly: true }} // Make it read-only
                         onChange={(e) => handlePriceChange(i, Number(e.target.value))}
                       />
+                       <Box sx={{ mt: 3.5 }}>
+                          <Typography component='span' variant='body2'>
+                            Discount:
+                          </Typography>{' '}
+                          <Typography component='span' variant='body2'>
+                            0%
+                          </Typography>
+                          <Tooltip title='Tax 1' placement='top'>
+                            <Typography component='span' variant='body2' sx={{ mx: 2 }}>
+                              0%
+                            </Typography>
+                          </Tooltip>
+                          <Tooltip title='Tax 2' placement='top'>
+                            <Typography component='span' variant='body2'>
+                              0%
+                            </Typography>
+                          </Tooltip>
+                        </Box>
                     </Grid>
                     <Grid item lg={2} md={2} xs={12} sx={{ px: 4, my: { lg: 0, xs: 4 } }}>
                       <Typography
@@ -448,6 +484,65 @@ const Invoice = () => {
         </Grid>
       </Grid>
     </RepeaterWrapper>
+
+    <Divider />
+
+    <CardContent>
+        <Grid container>
+          <Grid item xs={12} sm={9} sx={{ order: { sm: 1, xs: 2 } }}>
+            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+              <Typography variant='body2' sx={{ mr: 2, fontWeight: 600 }}>
+                Salesperson:
+              </Typography>
+              <TextField size='small' sx={{ maxWidth: '150px' }} defaultValue='Tommy Shelby' />
+            </Box>
+            <TextField size='small' sx={{ maxWidth: '300px' }} placeholder='Thanks for your business' />
+          </Grid>
+          <Grid item xs={12} sm={3} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 2, xs: 1 } }}>
+            <CalcWrapper>
+              <Typography variant='body2'>Subtotal:</Typography>
+              <Typography variant='body2' sx={{ fontWeight: 600 }}>
+              ${subtotal.toFixed(2)}
+              </Typography>
+            </CalcWrapper>
+            <CalcWrapper>
+              <Typography variant='body2'>Discount:</Typography>
+              <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                $0
+              </Typography>
+            </CalcWrapper>
+            <CalcWrapper>
+              <Typography variant='body2'>Tax:</Typography>
+              <Typography variant='body2' sx={{ fontWeight: 600 }}>
+              {tax}%
+              </Typography>
+            </CalcWrapper>
+            <Divider />
+            <CalcWrapper>
+              <Typography variant='body2'>Total:</Typography>
+              <Typography variant='body2' sx={{ fontWeight: 600 }}>
+              ${total.toFixed(2)}
+              </Typography>
+            </CalcWrapper>
+          </Grid>
+        </Grid>
+      </CardContent>
+
+      <Divider />
+
+<CardContent>
+  <InputLabel htmlFor='invoice-note' sx={{ mb: 2 }}>
+    Note:
+  </InputLabel>
+  <TextField
+    rows={2}
+    fullWidth
+    multiline
+    id='invoice-note'
+    defaultValue='It was a pleasure working with you and your team. We hope you will keep us in mind for future freelance projects. Thank You!'
+  />
+</CardContent>
+
     </Card> 
 
   )
