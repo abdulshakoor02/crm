@@ -18,7 +18,7 @@ import {
   DialogActions,
   Button
 } from '@mui/material'
-import ReceiptIcon from '@mui/icons-material/Receipt'
+import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
@@ -142,18 +142,23 @@ const columns: GridColumns = [
   },
   {
     flex: 0.1,
-    minWidth: 100,
+    minWidth: 160,
     sortable: false,
-    field: 'id',
-    headerName: 'Invoice',
+    field: 'generateInvoice',
+    headerName: 'Invoice Actions', // or 'Invoice Actions'
     renderCell: (params: GridRenderCellParams) => (
-          <Tooltip title='View'>
-            <IconButton>
-              <DescriptionOutlined/>
-            </IconButton>
+          <Tooltip title='Generate Invoice'>
+           <Button
+                variant="contained"
+                color="primary"
+                startIcon={<ReceiptLongOutlinedIcon/>}
+                size="small"
+            >
+                Invoice
+            </Button>
           </Tooltip>
     )
-  }
+}
 ]
 
 const LeadComponent = () => {
