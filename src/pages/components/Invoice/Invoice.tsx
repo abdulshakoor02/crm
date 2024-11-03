@@ -147,7 +147,7 @@ const Invoice = () => {
   const [issueDate, setIssueDate] = useState<Date>(new Date())
   const [dueDate, setDueDate] = useState<Date>(new Date(tomorrowDate))
   const [selected, setSelected] = useState<string>('Test')
-  const [mode, setMode] = useState<Mode>('view')
+  const [mode, setMode] = useState<Mode>('edit')
   const [items, setItems] = useState([{ productId: 0, quantity: 0, cost: 0, discount: 0 }]) // State for items
   const [tax, setTax] = useState(21) // Tax percentage as a fixed state for now
   const [Note, setNote] = useState('')
@@ -207,9 +207,18 @@ const Invoice = () => {
     <>
       <Card>
         <CardContent>
-          <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Grid item xl={6} xs={12} sx={{ mb: { xl: 0, xs: 4 } }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                  <Typography variant='body2' sx={{ mb: 1 }}>
+                    Office 149, 450 South Brand Brooklyn
+                  </Typography>
+                  <Typography variant='body2' sx={{ mb: 1 }}>
+                    San Diego County, CA 91905, USA
+                  </Typography>
+                  <Typography variant='body2'>+1 (123) 456 7891, +44 (876) 543 2198</Typography>
+                </Box>
                 <Box sx={{ mb: 6, p: 20, display: 'flex', alignItems: 'center' }}>
                   <svg
                     width={100}
@@ -277,125 +286,116 @@ const Invoice = () => {
                     {InvoiceConfig.name}
                   </Typography>
                 </Box>
-                <Box>
-                  <Typography variant='body2' sx={{ mb: 1 }}>
-                    Office 149, 450 South Brand Brooklyn
-                  </Typography>
-                  <Typography variant='body2' sx={{ mb: 1 }}>
-                    San Diego County, CA 91905, USA
-                  </Typography>
-                  <Typography variant='body2'>+1 (123) 456 7891, +44 (876) 543 2198</Typography>
-                </Box>
-              </Box>
-            </Grid>
-            <Grid item xl={6} xs={12}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: { xs: 'flex-start', xl: 'flex-end' },
-                    mb: 3
-                  }}
-                >
-                  <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
-                    <Typography variant='h6' sx={{ mr: 2, width: '105px' }}>
-                      Invoice
-                    </Typography>
-                    {mode === 'view' ? (
-                      <Typography>{invoiceNumber}</Typography>
-                    ) : (
-                      <TextField
-                        size='small'
-                        value={invoiceNumber}
-                        sx={{ width: { sm: '250px', xs: '170px' } }}
-                        InputProps={{
-                          disabled: true,
-                          startAdornment: <InputAdornment position='start'>#</InputAdornment>
-                        }}
-                      />
-                    )}
-                  </Box>
-
-                  <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
-                    <Typography variant='body2' sx={{ mr: 3, width: '100px' }}>
-                      Date Issued:
-                    </Typography>
-                    {mode === 'view' ? (
-                      <Typography variant='body1'>
-                        {issueDate ? format(issueDate, 'dd-MM-yyyy') : 'No date selected'}
-                      </Typography>
-                    ) : (
-                      <DatePicker
-                        label='Date Issued'
-                        value={issueDate}
-                        onChange={(date: Date | null) => {
-                          if (date !== null) {
-                            setIssueDate(date)
-                          }
-                        }}
-                        renderInput={params => <TextField {...params} />}
-                      />
-                    )}
-                  </Box>
-
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant='body2' sx={{ mr: 3, width: '100px' }}>
-                      Date Due:
-                    </Typography>
-                    {mode === 'view' ? (
-                      <Typography>{dueDate ? format(dueDate, 'dd-MM-yyyy') : 'No date selected'}</Typography>
-                    ) : (
-                      <DatePicker
-                        label='Date Due'
-                        value={dueDate}
-                        onChange={(date: Date | null) => {
-                          if (date !== null) {
-                            setDueDate(date)
-                          }
-                        }}
-                        renderInput={params => <TextField {...params} />}
-                      />
-                    )}
-                  </Box>
-                </Box>
-              </LocalizationProvider>
-
-              <Box sx={{ display: 'flex', flexDirection: 'column', mt: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Typography variant='body2' sx={{ mr: 4, width: '95px', color: 'text.primary', fontWeight: 600 }}>
-                    Invoice To:
-                  </Typography>
-                  {mode === 'view' ? (
-                    <Typography>{selected}</Typography>
-                  ) : (
-                    <TextField
-                      size='small'
-                      value={selected}
-                      variant='outlined'
-                      fullWidth
-                      InputProps={{
-                        readOnly: true
+                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: { xs: 'flex-start', xl: 'flex-end' },
+                        mb: 3
                       }}
-                      sx={{ width: { sm: '250px', xs: '170px' } }}
-                    />
-                  )}
-                </Box>
+                    >
+                      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+                        <Typography variant='h6' sx={{ mr: 2, width: '105px' }}>
+                          Invoice
+                        </Typography>
+                        {mode === 'view' ? (
+                          <Typography>{invoiceNumber}</Typography>
+                        ) : (
+                          <TextField
+                            size='small'
+                            value={invoiceNumber}
+                            sx={{ width: { sm: '250px', xs: '170px' } }}
+                            InputProps={{
+                              disabled: true,
+                              startAdornment: <InputAdornment position='start'>#</InputAdornment>
+                            }}
+                          />
+                        )}
+                      </Box>
 
-                {client && (
-                  <Box>
-                    <Typography variant='body2' sx={{ mb: 1 }}>
-                      {client.company}
-                    </Typography>
-                    <Typography variant='body2' sx={{ mb: 1 }}>
-                      {client.address}
-                    </Typography>
-                    <Typography variant='body2' sx={{ mb: 1 }}>
-                      {client.contact}
-                    </Typography>
-                    <Typography variant='body2'>{client.companyEmail}</Typography>
+                      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+                        <Typography variant='body2' sx={{ mr: 3, width: '100px' }}>
+                          Date Issued:
+                        </Typography>
+                        {mode === 'view' ? (
+                          <Typography variant='body1'>
+                            {issueDate ? format(issueDate, 'dd-MM-yyyy') : 'No date selected'}
+                          </Typography>
+                        ) : (
+                          <DatePicker
+                            label='Date Issued'
+                            value={issueDate}
+                            onChange={(date: Date | null) => {
+                              if (date !== null) {
+                                setIssueDate(date)
+                              }
+                            }}
+                            renderInput={params => <TextField {...params} />}
+                          />
+                        )}
+                      </Box>
+
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography variant='body2' sx={{ mr: 3, width: '100px' }}>
+                          Date Due:
+                        </Typography>
+                        {mode === 'view' ? (
+                          <Typography>{dueDate ? format(dueDate, 'dd-MM-yyyy') : 'No date selected'}</Typography>
+                        ) : (
+                          <DatePicker
+                            label='Date Due'
+                            value={dueDate}
+                            onChange={(date: Date | null) => {
+                              if (date !== null) {
+                                setDueDate(date)
+                              }
+                            }}
+                            renderInput={params => <TextField {...params} />}
+                          />
+                        )}
+                      </Box>
+                    </Box>
+                  </LocalizationProvider>
+
+                  <Box sx={{ display: 'flex', flexDirection: 'column', mt: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <Typography variant='body2' sx={{ mr: 4, width: '95px', color: 'text.primary', fontWeight: 600 }}>
+                        Invoice To:
+                      </Typography>
+                      {mode === 'view' ? (
+                        <Typography>{selected}</Typography>
+                      ) : (
+                        <TextField
+                          size='small'
+                          value={selected}
+                          variant='outlined'
+                          fullWidth
+                          InputProps={{
+                            readOnly: true
+                          }}
+                          sx={{ width: { sm: '250px', xs: '170px' } }}
+                        />
+                      )}
+                    </Box>
+
+                    {client && (
+                      <Box>
+                        <Typography variant='body2' sx={{ mb: 1 }}>
+                          {client.company}
+                        </Typography>
+                        <Typography variant='body2' sx={{ mb: 1 }}>
+                          {client.address}
+                        </Typography>
+                        <Typography variant='body2' sx={{ mb: 1 }}>
+                          {client.contact}
+                        </Typography>
+                        <Typography variant='body2'>{client.companyEmail}</Typography>
+                      </Box>
+                    )}
                   </Box>
-                )}
+                </Box>
               </Box>
             </Grid>
           </Box>
@@ -511,9 +511,12 @@ const Invoice = () => {
                 <Typography variant='body2' sx={{ mr: 2, fontWeight: 600 }}>
                   Salesperson:
                 </Typography>
-                {mode === 'view' ? (<Typography>{"Tommy Shelby"}</Typography>) :<TextField size='small' sx={{ maxWidth: '150px' }} defaultValue='Tommy Shelby' />}
+                {mode === 'view' ? (
+                  <Typography>{'Tommy Shelby'}</Typography>
+                ) : (
+                  <TextField size='small' sx={{ maxWidth: '150px' }} defaultValue='Tommy Shelby' />
+                )}
               </Box>
-             {mode === 'view' ? <Typography>{"Thanks for your business"}</Typography> : <TextField size='small' sx={{ maxWidth: '300px' }} placeholder='Thanks for your business' />}
             </Grid>
             <Grid item xs={12} sm={3} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 2, xs: 1 } }}>
               <CalcWrapper>
