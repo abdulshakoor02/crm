@@ -88,8 +88,8 @@ const products = [
 interface PickerProps {
   label?: string
 }
-
 type Mode = 'view' | 'edit' | 'create'
+
 
 /* Custom mui components */
 const MUITableCell = styled(TableCell)<TableCellBaseProps>(({ theme }) => ({
@@ -143,14 +143,40 @@ const CalcWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   }
 }))
 
-const Invoice = () => {
-  const [issueDate, setIssueDate] = useState<Date>(new Date())
-  const [dueDate, setDueDate] = useState<Date>(new Date(tomorrowDate))
-  const [selected, setSelected] = useState<string>('Test')
-  const [mode, setMode] = useState<Mode>('edit')
-  const [items, setItems] = useState([{ productId: 0, quantity: 0, cost: 0, discount: 0 }]) // State for items
-  const [tax, setTax] = useState(21) // Tax percentage as a fixed state for now
-  const [Note, setNote] = useState('')
+type Item = {
+  productId: number, 
+  quantity: number, 
+  cost: number, 
+  discount: number
+}
+
+interface InvoiceProps {
+  issueDate: Date, 
+  setIssueDate: React.Dispatch<React.SetStateAction<Date>>,
+  dueDate: Date,
+  setDueDate: React.Dispatch<React.SetStateAction<Date>>,
+  selected: string,
+  setSelected: React.Dispatch<React.SetStateAction<string>>,
+  mode: Mode,
+  setMode: React.Dispatch<React.SetStateAction<Mode>>,
+  items: Item[],
+  setItems: React.Dispatch<React.SetStateAction<Item[]>>,
+  tax: number,
+  setTax: React.Dispatch<React.SetStateAction<number>>,
+  note: String,
+  setNote: React.Dispatch<React.SetStateAction<string>>,
+  invoiceNumber: number
+}
+
+
+const Invoice: React.FC<InvoiceProps> = ({issueDate, setIssueDate, dueDate, setDueDate, selected, setSelected, mode, setMode, items, setItems, tax, setTax, note, setNote, invoiceNumber}) => {
+  // const [issueDate, setIssueDate] = useState<Date>(new Date())
+  // const [dueDate, setDueDate] = useState<Date>(new Date(tomorrowDate))
+  // const [selected, setSelected] = useState<string>('Test')
+  // const [mode, setMode] = useState<Mode>('edit')
+  // const [items, setItems] = useState<Item[]>([{ productId: 0, quantity: 0, cost: 0, discount: 0 }]) // State for items
+  // const [tax, setTax] = useState(21) // Tax percentage as a fixed state for now
+  // const [Note, setNote] = useState('')
 
   // Calculate subtotal by summing up cost * hours for each item
   const subtotal = items.reduce((acc, item) => acc + item.cost * item.quantity, 0)
@@ -159,14 +185,16 @@ const Invoice = () => {
 
   // Calculate total by applying the tax to the subtotal
   const total = (subtotal - discountTotal) * (1 + tax / 100)
-  const invoiceNumber = 100
+  // const invoiceNumber = 100
 
   const theme: Theme = useTheme()
 
   const handleAddItem = () => {
-    // When adding a new item, initialize its details
-    setItems(prevItems => [...prevItems, { productId: 0, quantity: 0, cost: 0, discount: 0 }])
-  }
+    setItems((prev) => [
+      ...prev,
+      { productId: 0, quantity: 0, cost: 0, discount: 0 }
+    ]);
+  };
 
   const handleSelectProduct = (index: number, productId: number) => {
     const selectedProduct = products.find(product => product.id === productId)
@@ -198,9 +226,31 @@ const Invoice = () => {
   }
 
   const handleDiscountChange = (index: number, value: number) => {
-    const newItems = [...items]
-    newItems[index].discount = value // Update the discount for the specific item
-    setItems(newItems)
+    // Check if index is valid
+    if (index < 0 || index >= items.length) return; // Prevent out-of-bounds access
+
+    const item = items[index];
+
+     // Check if the discount is greater than the item's cost
+    if (value > item.cost) {
+      toast.error(`Discount cannot be greater than the cost of the item cost`); // Show toast error message
+      return; // Do not update if the discount is invalid
+    }
+    
+    // Create a new array with updated discount for the specified item
+    const newItems = items.map((item, idx) => {
+      if (idx === index) {
+        return {
+          ...item, // Copy existing item properties
+          discount: value, // Update the discount
+        };
+      }
+      return item; // Return other items unchanged
+    });
+
+
+    // Update the state with the new items array
+    setItems(newItems);
   }
 
   return (
@@ -493,13 +543,13 @@ const Invoice = () => {
             </Grid>
           ))}
 
-          <Grid container sx={{ mt: 4 }}>
+         {mode != 'view' && <Grid container sx={{ mt: 4 }}>
             <Grid item xs={12} sx={{ px: 0 }}>
               <Button size='small' variant='contained' startIcon={<Plus fontSize='small' />} onClick={handleAddItem}>
                 Add Item
               </Button>
             </Grid>
-          </Grid>
+          </Grid>}
         </RepeaterWrapper>
 
         <Divider />
@@ -534,7 +584,7 @@ const Invoice = () => {
               <CalcWrapper>
                 <Typography variant='body2'>Tax:</Typography>
                 <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                  {tax}%
+                {`${tax}%`}
                 </Typography>
               </CalcWrapper>
               <Divider />
@@ -555,14 +605,14 @@ const Invoice = () => {
             Note:
           </InputLabel>
           {mode === 'view' ? (
-            <Typography>{Note}</Typography>
+            <Typography>{note}</Typography>
           ) : (
             <TextField
               rows={2}
               fullWidth
               multiline
               id='invoice-note'
-              value={Note}
+              value={note}
               onChange={e => setNote(e.target.value)}
               defaultValue='It was a pleasure working with you and your team. We hope you will keep us in mind for future freelance projects. Thank You!'
             />

@@ -201,7 +201,7 @@ const LeadComponent = () => {
                   variant="contained"
                   color="primary"
                   startIcon={<ReceiptLongOutlinedIcon/>}
-                  onClick={() => router.push(`/invoice?id=${params.value}`)}
+                  onClick={() => router.push(`/invoice/add?id=${params.value}`)}
                   size="small"
               >
                   Invoice
