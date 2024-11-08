@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
-import {  AppDispatch } from '../../../store'
+import { AppDispatch } from '../../../store'
 
 import { getRoleData, createRoleData, updateRoleData } from '../../../store/apps/role'
 import { getFeaturesData } from '../../../store/apps/feature'
@@ -21,7 +21,7 @@ import { appendTenantId } from 'src/pages/utils/tenantAppend'
 import { checkAccess } from 'src/pages/utils/accessCheck'
 
 type Role = {
-  id?: string,
+  id?: string
   name: string
   created_by?: string
   modified_by?: string
@@ -73,11 +73,10 @@ const RoleComponent = () => {
 
   const role = useSelector((state: any) => state.role)
   const features = useSelector((state: any) => state.features)
-  console.log(features)
 
   useEffect(() => {
     dispatch(getRoleData({ limit: pageSize, offset: pageSize * page }))
-    dispatch(getFeaturesData({orderBy:"name"}))
+    dispatch(getFeaturesData({ orderBy: 'name' }))
   }, [pageSize, page])
 
   const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {
@@ -89,14 +88,14 @@ const RoleComponent = () => {
     setFormValues(
       rowData
         ? {
-          id: rowData.id,
-    name: rowData.name,
-    status: rowData.status
-  }
+            id: rowData.id,
+            name: rowData.name,
+            status: rowData.status
+          }
         : {
-    name: '',
-    status: ''
-  }
+            name: '',
+            status: ''
+          }
     )
     setModalMode(mode)
     setModalOpen(true)
@@ -105,17 +104,17 @@ const RoleComponent = () => {
   const handleCloseModal = () => {
     setModalOpen(false)
     setErrors({
-    name: '',
-    status: ''
-  }) // Reset errors
+      name: '',
+      status: ''
+    }) // Reset errors
   }
 
   const handleSubmit = async () => {
     const data = []
     const validationErrors: Role = {
-    name: '',
-    status: ''
-  }
+      name: '',
+      status: ''
+    }
     let isValid = true
 
     // Validation logic
@@ -172,16 +171,12 @@ const RoleComponent = () => {
   }
   const handleSearch = async () => {
     if (searchValue != '') {
-    await dispatch(
-      getRoleData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } })
-    )
+      await dispatch(getRoleData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } }))
     }
   }
 
   return (
     <Grid container spacing={6}>
-
-
       <PageHeader
         title={<Typography variant='h5'>Roles List</Typography>}
         subtitle={
@@ -257,10 +252,10 @@ const RoleComponent = () => {
                 disabled={modalMode === 'View'}
                 sx={{ mt: 4 }}
               >
-                <MenuItem key="Active" value='Active'>
+                <MenuItem key='Active' value='Active'>
                   Active
                 </MenuItem>
-                <MenuItem key="inActive" value='inActive'>
+                <MenuItem key='inActive' value='inActive'>
                   In Active
                 </MenuItem>
               </TextField>

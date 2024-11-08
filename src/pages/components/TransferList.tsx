@@ -56,8 +56,9 @@ export default function TransferList({ features, role, modalClose }: { features:
 
   const handleSubmit = async () => {
     const payload: any = []
+    const userData: any = JSON.parse(window.localStorage.getItem('userData'))
     right.map(data => {
-      const tenant_id = 'a61c2d3d-f0c1-4559-a7a5-3ad865fef54f'
+      const tenant_id = userData.tenant_id
       payload.push({
         tenant_id,
         role_id: role.id,
@@ -66,7 +67,6 @@ export default function TransferList({ features, role, modalClose }: { features:
     })
 
     const del = await dispatch(deleteRoleFeaturesData({ role_id: role.id }))
-    console.log(del)
     if (del.error) {
       toast.error(`failed to create rolefeatures Try Again!`)
 
