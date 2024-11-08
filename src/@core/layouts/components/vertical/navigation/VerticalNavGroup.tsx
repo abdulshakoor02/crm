@@ -88,6 +88,22 @@ const VerticalNavGroup = (props: Props) => {
     navigationBorderWidth
   } = props
 
+
+  const checkAccess = (): boolean => {
+    if (item?.access && item?.access.length > 0) {
+      const { features } = JSON.parse(window.localStorage.getItem('userData'));
+      for (const feature of item.access) {
+        if (features.includes(feature)) {
+          return true
+        }
+      }
+
+   return false
+   }
+
+   return false
+  }
+
   // ** Hooks & Vars
   const theme = useTheme()
   const router = useRouter()
@@ -246,6 +262,10 @@ const VerticalNavGroup = (props: Props) => {
   }
 
   return (
+    <>
+  {
+    checkAccess() &&
+    (
     <CanViewNavGroup navGroup={item}>
       <Fragment>
         <ListItem
@@ -347,6 +367,9 @@ const VerticalNavGroup = (props: Props) => {
         </ListItem>
       </Fragment>
     </CanViewNavGroup>
+    )
+}
+    </>
   )
 }
 

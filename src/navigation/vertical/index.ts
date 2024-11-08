@@ -17,12 +17,14 @@ const navigation = (): VerticalNavItemsType => {
     {
       title: 'User',
       icon: EmailOutline,
-      path: '/user'
+      path: '/user',
+      access: 'user'
     },
     {
       title: 'Leads',
       icon: EmailOutline,
-      path: '/leads'
+      path: '/leads',
+      access: 'lead'
     },
     {
       title: 'Access Control',
@@ -34,6 +36,7 @@ const navigation = (): VerticalNavItemsType => {
     {
       title: 'Masters',
       icon: FolderSpecialIcon,
+      access: ['countries', 'region', 'role', 'branch', 'products', 'leadCategory'],
       children: [
         {
           title: 'Countries',
@@ -51,11 +54,13 @@ const navigation = (): VerticalNavItemsType => {
         },
         {
           title: 'Branch',
-          path: '/master/branch'
+          path: '/master/branch',
+          access: 'branch'
         },
         {
           title: 'Role',
-          path: '/master/role'
+          path: '/master/role',
+          access: 'role'
         },
         {
           title: 'Features',
@@ -63,11 +68,13 @@ const navigation = (): VerticalNavItemsType => {
         },
         {
           title: 'Products',
-          path: '/master/products'
+          path: '/master/products',
+          access: 'products'
         },
         {
           title: 'LeadCategory',
-          path: '/master/leadCategory'
+          path: '/master/leadCategory',
+          access: 'leadCategory'
         }
       ]
     }

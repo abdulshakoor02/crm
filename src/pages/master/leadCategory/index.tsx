@@ -15,6 +15,7 @@ import { getLeadCategoryData, createLeadCategoryData, updateLeadCategoryData } f
 import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
 import { appendTenantId } from 'src/pages/utils/tenantAppend'
+import { checkAccess } from 'src/pages/utils/accessCheck'
 
 type LeadCategory = {
   id?: string
@@ -172,6 +173,10 @@ const LeadCategoryComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
+            edit={checkAccess('leadCategoryEdit')}
+            view={checkAccess('leadCategoryView')}
+            del={checkAccess('leadCategoryDelete')}
+            add={checkAccess('leadCategoryCreate')}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}

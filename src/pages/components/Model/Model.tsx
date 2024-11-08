@@ -66,7 +66,7 @@ const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode, wi
 
         {/* Modal Footer */}
         <Box display='flex' justifyContent='space-between' mt={3}>
-          {(mode == 'edit' || mode == 'add') && (
+          {(mode.toLowerCase() == 'edit' || mode.toLowerCase() == 'add') && (
             <Button variant='contained' onClick={onSubmit}>
               Submit
             </Button>

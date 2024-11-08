@@ -18,6 +18,7 @@ import { getRegionData } from '../../../store/apps/region'
 import DataGridTable from '../../components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
 import uuid from 'react-uuid'
+import { checkAccess } from 'src/pages/utils/accessCheck'
 
 type Branch = {
   id: string
@@ -350,6 +351,10 @@ const BranchComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
+            edit={checkAccess('branchEdit')}
+            view={checkAccess('branchView')}
+            del={checkAccess('branchDelete')}
+            add={checkAccess('branchCreate')}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}

@@ -18,6 +18,7 @@ import Modal from 'src/pages/components/Model/Model'
 import RoleCard from 'src/pages/components/RoleCard'
 import PageHeader from 'src/@core/components/page-header'
 import { appendTenantId } from 'src/pages/utils/tenantAppend'
+import { checkAccess } from 'src/pages/utils/accessCheck'
 
 type Role = {
   id?: string,
@@ -76,7 +77,7 @@ const RoleComponent = () => {
 
   useEffect(() => {
     dispatch(getRoleData({ limit: pageSize, offset: pageSize * page }))
-    dispatch(getFeaturesData({}))
+    dispatch(getFeaturesData({orderBy:"name"}))
   }, [pageSize, page])
 
   const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {
@@ -209,6 +210,10 @@ const RoleComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
+            edit={checkAccess('roleEdit')}
+            view={checkAccess('roleView')}
+            del={checkAccess('roleDelete')}
+            add={checkAccess('roleCreate')}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}

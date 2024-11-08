@@ -24,6 +24,7 @@ import DataGridTable from 'src/pages/components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
 import { appendTenantId } from 'src/pages/utils/tenantAppend'
 import uuid from 'react-uuid'
+import { checkAccess } from 'src/pages/utils/accessCheck'
 
 
 type Lead = {
@@ -40,7 +41,7 @@ type Lead = {
   tenant_id?: string
 }
 
-const columns: GridColumns = [
+let columns: GridColumns = [
   {
     flex: 0.1,
     minWidth: 150,
@@ -112,8 +113,10 @@ const columns: GridColumns = [
         {params?.row?.lead_category['name']}
       </Typography>
     )
-  },
-  {
+  }
+]
+
+const assigned_user = {
     flex: 0.1,
     minWidth: 150,
     sortable: false,
@@ -124,8 +127,9 @@ const columns: GridColumns = [
         {`${params?.row?.employee['first_name']} ${params?.row?.employee['last_name']}`}
       </Typography>
     )
-  },
-]
+  }
+
+columns = checkAccess('AssignedUserColumn') ? [...columns,assigned_user] : columns
 
 
 const LeadComponent = () => {
@@ -173,7 +177,7 @@ const LeadComponent = () => {
   const comments = useSelector((state: any) => state.additionalInfo)
 
   useEffect(() => {
-    dispatch(getLeadData({ limit: pageSize, offset: pageSize * page,joins:[{column:'Country'},{column:'Branch'},{column:'LeadCategory'},{column:'Employee'}] }))
+    dispatch(getLeadData({ limit: pageSize, offset: pageSize * page,orderBy: '"leads".created_at desc', joins:[{column:'Country'},{column:'Branch'},{column:'LeadCategory'},{column:'Employee'}] }))
   }, [pageSize, page])
 
   useEffect(() => {
@@ -249,6 +253,9 @@ const LeadComponent = () => {
 
     // Validation logic
     for (const i in validationErrors) {
+      if(i == 'employee_id') {
+        continue;
+      }
       if (!formValues[i as keyof Lead]) {
         validationErrors[i as keyof Lead] = `Valid ${i} is required`
         isValid = false
@@ -382,6 +389,10 @@ const LeadComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
+            edit={checkAccess('leadEdit')}
+            view={checkAccess('leadView')}
+            del={checkAccess('leadDelete')}
+            add={checkAccess('leadCreate')}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
@@ -470,6 +481,8 @@ const LeadComponent = () => {
               </TextField>
             </Grid>
             <Grid item xs={6}>
+            {
+              checkAccess('AssignedUserColumn') && (
               <TextField
                 fullWidth
                 select
@@ -488,6 +501,8 @@ const LeadComponent = () => {
                   </MenuItem>
                 ))}
               </TextField>
+              )
+            }
             </Grid>
             <Grid item xs={6}>
               <TextField

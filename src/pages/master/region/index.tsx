@@ -198,6 +198,7 @@ const RegionComponent = () => {
             edit={checkAccess('regionEdit')}
             view={checkAccess('regionView')}
             del={checkAccess('regionDelete')}
+            add={checkAccess('regionCreate')}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
