@@ -1,5 +1,6 @@
 import {
   DataGrid,
+  GridColDef,
   GridColumns,
   GridRenderCellParams,
   GridSortModel,
@@ -62,7 +63,7 @@ const DataGridTable = React.memo(
     // const { } = props
 
     // Add an action column with optional buttons
-    const actionColumn = {
+    const actionColumn: GridColDef = React.useMemo(() => ({
       field: 'actions',
       headerName: 'Actions',
       flex: 0.1,
@@ -77,14 +78,14 @@ const DataGridTable = React.memo(
             </Tooltip>
           )}
           {onEdit && (
-            <Tooltip title='View'>
+            <Tooltip title='Edit'>
               <IconButton color='secondary' onClick={() => onEdit?.(params.row.id)}>
                 <PencilOutline fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
           {onDelete && (
-            <Tooltip title='View'>
+            <Tooltip title='Delete'>
               <IconButton onClick={() => onDelete?.(params.row.id)}>
                 <DeleteOutline fontSize='small' />
               </IconButton>
@@ -92,10 +93,13 @@ const DataGridTable = React.memo(
           )}
         </Box>
       )
-    }
+    }), [onView, onEdit, onDelete]);
+    
 
     // Conditionally add the action column only if any of the handlers are passed
-    const columnsWithActions = view || edit || del ? [...columns, actionColumn] : columns
+    const columnsWithActions = React.useMemo(() => {
+      return view || edit || del ? [...columns, actionColumn] : columns;
+    }, [columns, view, edit, del]);
 
     return (
       <DataGrid

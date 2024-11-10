@@ -20,8 +20,8 @@ import {
 } from '@mui/material'
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
-import { useEffect, useState } from 'react'
+import { GridColDef, GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import moment from 'moment'
 
@@ -101,108 +101,101 @@ const LeadComponent = () => {
   const country = useSelector((state: any) => state.country)
   const leadCategory = useSelector((state: any) => state.leadCategory)
   const comments = useSelector((state: any) => state.additionalInfo)
-
-let columns: GridColumns = [
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'name',
-    headerName: 'Name',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.['name']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'email',
-    headerName: 'Email',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.['email']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'mobile',
-    headerName: 'Mobile',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.['mobile']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'country',
-    headerName: 'Country',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.country['name']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'branch',
-    headerName: 'Branch',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.branch['name']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'leadCategory',
-    headerName: 'LeadCategory',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.lead_category['name']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'assigned_user',
-    headerName: 'Assigned User',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {`${params?.row?.employee['first_name']} ${params?.row?.employee['last_name']}`}
-      </Typography>
-    )
-  },
-]
-
-const assigned_user = {
-  flex: 0.1,
-  minWidth: 150,
-  sortable: false,
-  field: 'assigned_user',
-  headerName: 'Assigned User',
-  renderCell: (params: GridRenderCellParams) => (
-    <Typography variant='body2' sx={{ color: 'text.primary' }}>
-      {`${params?.row?.employee['first_name']} ${params?.row?.employee['last_name']}`}
-    </Typography>
-  )
-}
-
-columns = checkAccess('AssignedUserColumn') ? [...columns,assigned_user] : columns
+  const columns: GridColumns = useMemo(() => {
+    const baseColumns = [
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'name',
+        headerName: 'Name',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.['name']}
+          </Typography>
+        )
+      },
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'email',
+        headerName: 'Email',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.['email']}
+          </Typography>
+        )
+      },
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'mobile',
+        headerName: 'Mobile',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.['mobile']}
+          </Typography>
+        )
+      },
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'country',
+        headerName: 'Country',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.country['name']}
+          </Typography>
+        )
+      },
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'branch',
+        headerName: 'Branch',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.branch['name']}
+          </Typography>
+        )
+      },
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'leadCategory',
+        headerName: 'LeadCategory',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.lead_category['name']}
+          </Typography>
+        )
+      }
+    ];
+  
+    // Dynamically include 'assigned_user' column if the user has access
+    if (checkAccess('AssignedUserColumn')) {
+      baseColumns.push({
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'assigned_user',
+        headerName: 'Assigned User',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {`${params?.row?.employee['first_name']} ${params?.row?.employee['last_name']}`}
+          </Typography>
+        )
+      });
+    }
+  
+    return baseColumns;
+  }, [checkAccess]); // Add `checkAccess` to the dependency array
+  
 
   useEffect(() => {
     dispatch(
