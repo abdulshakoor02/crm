@@ -41,6 +41,7 @@ import { appendTenantId } from 'src/pages/utils/tenantAppend'
 import uuid from 'react-uuid'
 import { DescriptionOutlined } from '@mui/icons-material'
 import { useRouter } from 'next/router';
+import { checkAccess } from '../utils/accessCheck';
 
 type Lead = {
   id?: string
@@ -55,8 +56,6 @@ type Lead = {
   product_id?: string
   tenant_id?: string
 }
-
-
 
 const LeadComponent = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -103,119 +102,114 @@ const LeadComponent = () => {
   const leadCategory = useSelector((state: any) => state.leadCategory)
   const comments = useSelector((state: any) => state.additionalInfo)
 
-  const columns: GridColumns = [
-    {
-      flex: 0.1,
-      minWidth: 150,
-      sortable: false,
-      field: 'name',
-      headerName: 'Name',
-      renderCell: (params: GridRenderCellParams) => (
-        <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          {params?.row?.['name']}
-        </Typography>
-      )
-    },
-    {
-      flex: 0.1,
-      minWidth: 150,
-      sortable: false,
-      field: 'email',
-      headerName: 'Email',
-      renderCell: (params: GridRenderCellParams) => (
-        <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          {params?.row?.['email']}
-        </Typography>
-      )
-    },
-    {
-      flex: 0.1,
-      minWidth: 150,
-      sortable: false,
-      field: 'mobile',
-      headerName: 'Mobile',
-      renderCell: (params: GridRenderCellParams) => (
-        <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          {params?.row?.['mobile']}
-        </Typography>
-      )
-    },
-    {
-      flex: 0.1,
-      minWidth: 150,
-      sortable: false,
-      field: 'country',
-      headerName: 'Country',
-      renderCell: (params: GridRenderCellParams) => (
-        <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          {params?.row?.country['name']}
-        </Typography>
-      )
-    },
-    {
-      flex: 0.1,
-      minWidth: 150,
-      sortable: false,
-      field: 'branch',
-      headerName: 'Branch',
-      renderCell: (params: GridRenderCellParams) => (
-        <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          {params?.row?.branch['name']}
-        </Typography>
-      )
-    },
-    {
-      flex: 0.1,
-      minWidth: 150,
-      sortable: false,
-      field: 'leadCategory',
-      headerName: 'LeadCategory',
-      renderCell: (params: GridRenderCellParams) => (
-        <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          {params?.row?.lead_category['name']}
-        </Typography>
-      )
-    },
-    {
-      flex: 0.1,
-      minWidth: 150,
-      sortable: false,
-      field: 'assigned_user',
-      headerName: 'Assigned User',
-      renderCell: (params: GridRenderCellParams) => (
-        <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          {`${params?.row?.employee['first_name']} ${params?.row?.employee['last_name']}`}
-        </Typography>
-      )
-    },
-    {
-      flex: 0.1,
-      minWidth: 160,
-      sortable: false,
-      field: 'id',
-      headerName: 'Invoice Actions', // or 'Invoice Actions'
-      renderCell: (params: GridRenderCellParams) => {
-        console.log("parasms ", params)
-           return (<Tooltip title='Generate Invoice'>
-             <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<ReceiptLongOutlinedIcon/>}
-                  onClick={() => router.push(`/invoice/add?id=${params.value}`)}
-                  size="small"
-              >
-                  Invoice
-              </Button>
-            </Tooltip>)
-      }
-  }
-  ]
+let columns: GridColumns = [
+  {
+    flex: 0.1,
+    minWidth: 150,
+    sortable: false,
+    field: 'name',
+    headerName: 'Name',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {params?.row?.['name']}
+      </Typography>
+    )
+  },
+  {
+    flex: 0.1,
+    minWidth: 150,
+    sortable: false,
+    field: 'email',
+    headerName: 'Email',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {params?.row?.['email']}
+      </Typography>
+    )
+  },
+  {
+    flex: 0.1,
+    minWidth: 150,
+    sortable: false,
+    field: 'mobile',
+    headerName: 'Mobile',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {params?.row?.['mobile']}
+      </Typography>
+    )
+  },
+  {
+    flex: 0.1,
+    minWidth: 150,
+    sortable: false,
+    field: 'country',
+    headerName: 'Country',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {params?.row?.country['name']}
+      </Typography>
+    )
+  },
+  {
+    flex: 0.1,
+    minWidth: 150,
+    sortable: false,
+    field: 'branch',
+    headerName: 'Branch',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {params?.row?.branch['name']}
+      </Typography>
+    )
+  },
+  {
+    flex: 0.1,
+    minWidth: 150,
+    sortable: false,
+    field: 'leadCategory',
+    headerName: 'LeadCategory',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {params?.row?.lead_category['name']}
+      </Typography>
+    )
+  },
+  {
+    flex: 0.1,
+    minWidth: 150,
+    sortable: false,
+    field: 'assigned_user',
+    headerName: 'Assigned User',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {`${params?.row?.employee['first_name']} ${params?.row?.employee['last_name']}`}
+      </Typography>
+    )
+  },
+]
+
+const assigned_user = {
+  flex: 0.1,
+  minWidth: 150,
+  sortable: false,
+  field: 'assigned_user',
+  headerName: 'Assigned User',
+  renderCell: (params: GridRenderCellParams) => (
+    <Typography variant='body2' sx={{ color: 'text.primary' }}>
+      {`${params?.row?.employee['first_name']} ${params?.row?.employee['last_name']}`}
+    </Typography>
+  )
+}
+
+columns = checkAccess('AssignedUserColumn') ? [...columns,assigned_user] : columns
 
   useEffect(() => {
     dispatch(
       getLeadData({
         limit: pageSize,
         offset: pageSize * page,
+        orderBy: '"leads".created_at desc',
         joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }]
       })
     )
@@ -294,6 +288,9 @@ const LeadComponent = () => {
 
     // Validation logic
     for (const i in validationErrors) {
+      if(i == 'employee_id') {
+        continue;
+      }
       if (!formValues[i as keyof Lead]) {
         validationErrors[i as keyof Lead] = `Valid ${i} is required`
         isValid = false
@@ -453,6 +450,10 @@ const LeadComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
+            edit={checkAccess('leadEdit')}
+            view={checkAccess('leadView')}
+            del={checkAccess('leadDelete')}
+            add={checkAccess('leadCreate')}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
@@ -541,6 +542,8 @@ const LeadComponent = () => {
               </TextField>
             </Grid>
             <Grid item xs={6}>
+            {
+              checkAccess('AssignedUserColumn') && (
               <TextField
                 fullWidth
                 select
@@ -559,6 +562,8 @@ const LeadComponent = () => {
                   </MenuItem>
                 ))}
               </TextField>
+              )
+            }
             </Grid>
             <Grid item xs={6}>
               <TextField

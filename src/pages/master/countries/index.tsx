@@ -19,6 +19,7 @@ import FormTextField from 'src/pages/components/FormtextField'
 import { validateFormValues } from 'src/validation/validation'
 import { Countries as ICountries } from 'src/types/components/country.types'
 import AclGuard from 'src/pages/components/AclGuard/AclGuard'
+import { checkAccess } from 'src/pages/utils/accessCheck'
 
 const columns: GridColumns = [
   {
@@ -206,6 +207,10 @@ const Countries = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={() => console.log('searched!')}
             onClearSearch={handleOnSearchClear}
+            edit={checkAccess('countriesEdit')}
+            view={checkAccess('countriesView')}
+            del={checkAccess('countriesDelete')}
+            add={checkAccess('countriesCreate')}
             onView={id => handleOpenModal(id, 'view')}
             onEdit={id => handleOpenModal(id, 'edit')}
             onDelete={id => handleDelete(id)}

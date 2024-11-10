@@ -51,7 +51,6 @@ const FeaturesComponent = () => {
   })
 
   const features = useSelector((state: any) => state.features)
-  console.log(features)
 
   useEffect(() => {
     dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page }))

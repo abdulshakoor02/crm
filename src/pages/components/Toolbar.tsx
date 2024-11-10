@@ -26,6 +26,7 @@ interface ToolbarProps {
   onClearSearch: () => void
   onAddRow?: () => void // Optional Add Row handler
   disableExport?: boolean // Option to disable export button
+  add: boolean
 }
 
 console.log('toolbar ')
@@ -36,6 +37,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   onSearch,
   onClearSearch,
   onAddRow,
+  add,
   disableExport = false
 }) => {
   return (
@@ -105,7 +107,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
         />
 
         {/* Right Section: Add Row (Optional) */}
-        {onAddRow && (
+        {add && (
           <Button variant='contained' color='primary' startIcon={<AddIcon />} onClick={onAddRow} sx={{ mx: 2 }}>
             Add Row
           </Button>

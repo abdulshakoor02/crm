@@ -25,6 +25,10 @@ const DataGridTable = React.memo(
     pageSize,
     changePageSize,
     changePage,
+    add,
+    view,
+    edit,
+    del,
     onAddRow,
     onClearSearch,
     onSearch,
@@ -36,6 +40,10 @@ const DataGridTable = React.memo(
     rows: any
     columns: GridColumns
     total: number
+    edit: boolean
+    view: boolean
+    del: boolean
+    add: boolean
     onView?: (id: any) => void
     onEdit?: (id: any) => void
     onDelete?: (id: any) => void
@@ -87,7 +95,7 @@ const DataGridTable = React.memo(
     }
 
     // Conditionally add the action column only if any of the handlers are passed
-    const columnsWithActions = onView || onEdit || onDelete ? [...columns, actionColumn] : columns
+    const columnsWithActions = view || edit || del ? [...columns, actionColumn] : columns
 
     return (
       <DataGrid
@@ -110,6 +118,7 @@ const DataGridTable = React.memo(
         components={{ Toolbar }}
         componentsProps={{
           toolbar: {
+            add,
             onAddRow,
             onSearch,
             onSearchChange,
