@@ -1,12 +1,27 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { TextField,Box,Tooltip,IconButton, MenuItem, Accordion, Card, CardContent, AccordionSummary, AccordionDetails,
-Dialog, DialogContent, DialogTitle, DialogActions, CloseIcon, Button} from '@mui/material'
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
-import { useEffect, useState } from 'react'
+import {
+  TextField,
+  Box,
+  Tooltip,
+  IconButton,
+  MenuItem,
+  Accordion,
+  Card,
+  CardContent,
+  AccordionSummary,
+  AccordionDetails,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogActions,
+  Button
+} from '@mui/material'
+import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { GridColDef, GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import moment from 'moment'
 
@@ -24,116 +39,27 @@ import DataGridTable from 'src/pages/components/Datagrid'
 import Modal from 'src/pages/components/Model/Model'
 import { appendTenantId } from 'src/pages/utils/tenantAppend'
 import uuid from 'react-uuid'
-import { checkAccess } from 'src/pages/utils/accessCheck'
-
+import { DescriptionOutlined } from '@mui/icons-material'
+import { useRouter } from 'next/router';
+import { checkAccess } from '../utils/accessCheck';
 
 type Lead = {
   id?: string
   name: string
-  email:string
-  mobile:string
-  address:string
-  country_id:string
-  employee_id:string
-  branch_id:string
-  lead_category_id:string
-  product_id?:string
+  email: string
+  mobile: string
+  address: string
+  country_id: string
+  employee_id: string
+  branch_id: string
+  lead_category_id: string
+  product_id?: string
   tenant_id?: string
 }
 
-let columns: GridColumns = [
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'name',
-    headerName: 'Name',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.['name']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'email',
-    headerName: 'Email',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.['email']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'mobile',
-    headerName: 'Mobile',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.['mobile']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'country',
-    headerName: 'Country',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.country['name']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'branch',
-    headerName: 'Branch',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.branch['name']}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'leadCategory',
-    headerName: 'LeadCategory',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.lead_category['name']}
-      </Typography>
-    )
-  }
-]
-
-const assigned_user = {
-    flex: 0.1,
-    minWidth: 150,
-    sortable: false,
-    field: 'assigned_user',
-    headerName: 'Assigned User',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {`${params?.row?.employee['first_name']} ${params?.row?.employee['last_name']}`}
-      </Typography>
-    )
-  }
-
-columns = checkAccess('AssignedUserColumn') ? [...columns,assigned_user] : columns
-
-
 const LeadComponent = () => {
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const [pageSize, setPageSize] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
   const [searchValue, setSearchValue] = useState('')
@@ -141,33 +67,33 @@ const LeadComponent = () => {
   const [dailogOpen, setDailogOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'View' | 'Edit' | 'Add'>('View')
   const [infoValues, setInfoValues] = useState<{
-    title: string,
-    description: string,
+    title: string
+    description: string
     lead_id?: string
   }>({
     title: 'Comments',
     description: ''
-    })
+  })
   const [formValues, setFormValues] = useState<Lead>({
-  name: '',
-  email: '',
-  mobile: '',
-  address: '',
-  country_id: '',
-  employee_id: '',
-  branch_id: '',
-  lead_category_id: ''
-})
+    name: '',
+    email: '',
+    mobile: '',
+    address: '',
+    country_id: '',
+    employee_id: '',
+    branch_id: '',
+    lead_category_id: ''
+  })
   const [errors, setErrors] = useState<Lead>({
-  name: '',
-  email: '',
-  mobile: '',
-  address: '',
-  country_id: '',
-  employee_id: '',
-  branch_id: '',
-  lead_category_id: ''
-})
+    name: '',
+    email: '',
+    mobile: '',
+    address: '',
+    country_id: '',
+    employee_id: '',
+    branch_id: '',
+    lead_category_id: ''
+  })
 
   const leads = useSelector((state: any) => state.leads)
   const user = useSelector((state: any) => state.user)
@@ -175,15 +101,117 @@ const LeadComponent = () => {
   const country = useSelector((state: any) => state.country)
   const leadCategory = useSelector((state: any) => state.leadCategory)
   const comments = useSelector((state: any) => state.additionalInfo)
+  const columns: GridColumns = useMemo(() => {
+    const baseColumns = [
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'name',
+        headerName: 'Name',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.['name']}
+          </Typography>
+        )
+      },
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'email',
+        headerName: 'Email',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.['email']}
+          </Typography>
+        )
+      },
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'mobile',
+        headerName: 'Mobile',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.['mobile']}
+          </Typography>
+        )
+      },
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'country',
+        headerName: 'Country',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.country['name']}
+          </Typography>
+        )
+      },
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'branch',
+        headerName: 'Branch',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.branch['name']}
+          </Typography>
+        )
+      },
+      {
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'leadCategory',
+        headerName: 'LeadCategory',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {params?.row?.lead_category['name']}
+          </Typography>
+        )
+      }
+    ];
+  
+    // Dynamically include 'assigned_user' column if the user has access
+    if (checkAccess('AssignedUserColumn')) {
+      baseColumns.push({
+        flex: 0.1,
+        minWidth: 150,
+        sortable: false,
+        field: 'assigned_user',
+        headerName: 'Assigned User',
+        renderCell: (params: GridRenderCellParams) => (
+          <Typography variant='body2' sx={{ color: 'text.primary' }}>
+            {`${params?.row?.employee['first_name']} ${params?.row?.employee['last_name']}`}
+          </Typography>
+        )
+      });
+    }
+  
+    return baseColumns;
+  }, [checkAccess]); // Add `checkAccess` to the dependency array
+  
 
   useEffect(() => {
-    dispatch(getLeadData({ limit: pageSize, offset: pageSize * page,orderBy: '"leads".created_at desc', joins:[{column:'Country'},{column:'Branch'},{column:'LeadCategory'},{column:'Employee'}] }))
+    dispatch(
+      getLeadData({
+        limit: pageSize,
+        offset: pageSize * page,
+        orderBy: '"leads".created_at desc',
+        joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }]
+      })
+    )
   }, [pageSize, page])
 
   useEffect(() => {
     dispatch(getEmployeesData({}))
     dispatch(getCountriesData({}))
-    dispatch(getBranchData({joins:[{column:'Region'}]}))
+    dispatch(getBranchData({ joins: [{ column: 'Region' }] }))
     dispatch(getLeadCategoryData({}))
   }, [])
 
@@ -192,31 +220,31 @@ const LeadComponent = () => {
     if (id) {
       rowData = leads?.rows?.find((row: Lead) => row.id === id) as unknown as Lead
     }
-    await dispatch(getAdditionalInfoData({where:{lead_id:rowData?.id,title:'Comments'}}))
+    await dispatch(getAdditionalInfoData({ where: { lead_id: rowData?.id, title: 'Comments' } }))
 
     setFormValues(
       rowData
         ? {
-  id: rowData.id,
-  name: rowData.name,
-  email: rowData.email,
-  mobile: rowData.mobile,
-  address: rowData.address,
-  country_id: rowData.country_id,
-  employee_id: rowData.employee_id,
-  branch_id: rowData.branch_id,
-  lead_category_id: rowData.lead_category_id
-}
+            id: rowData.id,
+            name: rowData.name,
+            email: rowData.email,
+            mobile: rowData.mobile,
+            address: rowData.address,
+            country_id: rowData.country_id,
+            employee_id: rowData.employee_id,
+            branch_id: rowData.branch_id,
+            lead_category_id: rowData.lead_category_id
+          }
         : {
-  name: '',
-  email: '',
-  mobile: '',
-  address: '',
-  country_id: '',
-  employee_id: '',
-  branch_id: '',
-  lead_category_id: ''
-}
+            name: '',
+            email: '',
+            mobile: '',
+            address: '',
+            country_id: '',
+            employee_id: '',
+            branch_id: '',
+            lead_category_id: ''
+          }
     )
     setModalMode(mode)
     setModalOpen(true)
@@ -225,30 +253,30 @@ const LeadComponent = () => {
   const handleCloseModal = () => {
     setModalOpen(false)
     setErrors({
-  name: '',
-  email: '',
-  mobile: '',
-  address: '',
-  country_id: '',
-  employee_id: '',
-  branch_id: '',
-  lead_category_id: ''
-})
-    setInfoValues({...infoValues,description:''})
+      name: '',
+      email: '',
+      mobile: '',
+      address: '',
+      country_id: '',
+      employee_id: '',
+      branch_id: '',
+      lead_category_id: ''
+    })
+    setInfoValues({ ...infoValues, description: '' })
   }
 
   const handleSubmit = async () => {
     const data = []
     const validationErrors: Lead = {
-  name: '',
-  email: '',
-  mobile: '',
-  address: '',
-  country_id: '',
-  employee_id: '',
-  branch_id: '',
-  lead_category_id: ''
-}
+      name: '',
+      email: '',
+      mobile: '',
+      address: '',
+      country_id: '',
+      employee_id: '',
+      branch_id: '',
+      lead_category_id: ''
+    }
     let isValid = true
 
     // Validation logic
@@ -275,33 +303,43 @@ const LeadComponent = () => {
 
           return
         }
-        if(infoValues.description !=='') {
-        infoValues.lead_id = formValues.id
-        const comnts = await dispatch(createAdditionalInfoData([infoValues]))
-        if(comnts.error) {
-          toast.error(`failed to add comments`)
+        if (infoValues.description !== '') {
+          infoValues.lead_id = formValues.id
+          const comnts = await dispatch(createAdditionalInfoData([infoValues]))
+          if (comnts.error) {
+            toast.error(`failed to add comments`)
+          }
+          toast.success('comments updated successfully')
         }
-        toast.success('comments updated successfully')
-        }
-    dispatch(getLeadData({ limit: pageSize, offset: pageSize * page,joins:[{column:'Country'},{column:'Branch'},{column:'LeadCategory'},{column:'Employee'}] }))
+        dispatch(
+          getLeadData({
+            limit: pageSize,
+            offset: pageSize * page,
+            joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }]
+          })
+        )
         toast.success('Lead updated successfully')
         handleCloseModal()
 
         return
       }
-      const dupcheck = await dispatch(getLeadData({where:[
-      {
-        column: '"leads".email',
-        operator: 'like',
-        value: `%${formValues.email}%`
-      },
-      {
-        column: '"leads".mobile',
-        operator: 'like',
-        value: `%${formValues.mobile}%`
-      }
-      ]}))
-      if (dupcheck.payload.count > 0){
+      const dupcheck = await dispatch(
+        getLeadData({
+          where: [
+            {
+              column: '"leads".email',
+              operator: 'like',
+              value: `%${formValues.email}%`
+            },
+            {
+              column: '"leads".mobile',
+              operator: 'like',
+              value: `%${formValues.mobile}%`
+            }
+          ]
+        })
+      )
+      if (dupcheck.payload.count > 0) {
         toast.error('please check email or mobile already exists in the application')
 
         return
@@ -314,15 +352,21 @@ const LeadComponent = () => {
 
         return
       }
-      if(infoValues.description !=='') {
+      if (infoValues.description !== '') {
         infoValues.lead_id = res.payload[0]?.id
         const comnts = await dispatch(createAdditionalInfoData([infoValues]))
-        if(comnts.error) {
+        if (comnts.error) {
           toast.error(`failed to add comments`)
         }
         toast.success('comments updated successfully')
-        }
-    dispatch(getLeadData({ limit: pageSize, offset: pageSize * page,joins:[{column:'Country'},{column:'Branch'},{column:'LeadCategory'},{column:'Employee'}] }))
+      }
+      dispatch(
+        getLeadData({
+          limit: pageSize,
+          offset: pageSize * page,
+          joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }]
+        })
+      )
       toast.success(`Lead created successfully`)
     } catch (error) {
       console.log(error)
@@ -332,12 +376,12 @@ const LeadComponent = () => {
   }
 
   const handlePaste = (event: any) => {
-    const pasteText = event.clipboardData.getData('text');
-    console.log("pastedText",pasteText)
+    const pasteText = event.clipboardData.getData('text')
+    console.log('pastedText', pasteText)
 
-    setInfoValues({...infoValues,description:infoValues.description + pasteText}); // Append pasted content to current value
-    event.preventDefault();      // Prevent default paste behavior if needed
-  };
+    setInfoValues({ ...infoValues, description: infoValues.description + pasteText }) // Append pasted content to current value
+    event.preventDefault() // Prevent default paste behavior if needed
+  }
 
   const handleDelete = (id: number) => {
     // setData(prevData => prevData.filter(row => row.id !== id));
@@ -345,7 +389,13 @@ const LeadComponent = () => {
 
   const onClearSearch = async () => {
     setSearchValue('')
-    dispatch(getLeadData({ limit: pageSize, offset: pageSize * page,joins:[{column:'Country'},{column:'Branch'},{column:'LeadCategory'},{column:'Employee'}] }))
+    dispatch(
+      getLeadData({
+        limit: pageSize,
+        offset: pageSize * page,
+        joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }]
+      })
+    )
   }
   const handleSearch = async () => {
     if (searchValue != '') {
@@ -365,10 +415,14 @@ const LeadComponent = () => {
         operator: 'like',
         value: `%${searchValue}%`
       })
-      await dispatch(getLeadData({ limit: pageSize,
-      offset: pageSize * page,
-      joins:[{column:'Country'},{column:'Branch'},{column:'LeadCategory'},{column:'Employee'}],
-      where: query }))
+      await dispatch(
+        getLeadData({
+          limit: pageSize,
+          offset: pageSize * page,
+          joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }],
+          where: query
+        })
+      )
     }
   }
 
@@ -408,7 +462,7 @@ const LeadComponent = () => {
         title={`${modalMode} Lead`}
         onSubmit={handleSubmit}
         mode={modalMode}
-        height="100vh"
+        height='100vh'
       >
         {
           <Grid container spacing={2}>
@@ -544,58 +598,52 @@ const LeadComponent = () => {
                 ))}
               </TextField>
             </Grid>
+            <Grid item xs={12}></Grid>
             <Grid item xs={12}>
+              {(modalMode == 'Edit' || modalMode == 'Add') && 'Comments'}
             </Grid>
             <Grid item xs={12}>
-            {(modalMode == 'Edit' || modalMode == 'Add') && 'Comments'}
-            </Grid>
-            <Grid item xs={12}>
-            {(modalMode == 'Edit' || modalMode == 'Add') && (
-              <TextField
-                fullWidth
-                multiline
-                label='Add New Comments'
-                value={infoValues.description}
-                onPaste={handlePaste}
-                onChange={e => setInfoValues({ ...infoValues, description: e.target.value })}
-                margin='dense'
-              />
-            )}
+              {(modalMode == 'Edit' || modalMode == 'Add') && (
+                <TextField
+                  fullWidth
+                  multiline
+                  label='Add New Comments'
+                  value={infoValues.description}
+                  onPaste={handlePaste}
+                  onChange={e => setInfoValues({ ...infoValues, description: e.target.value })}
+                  margin='dense'
+                />
+              )}
             </Grid>
           </Grid>
         }
-        {(modalMode === 'Edit' || modalMode === 'View') && comments.count > 0 ?
-   <Accordion sx={{mt:4}}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-        >
-        Comments
-        </AccordionSummary>
-        <AccordionDetails key={uuid()}>
-        {
-        comments?.rows?.map((comment: any) => {
-           return (
-        <Card key={uuid()} sx={{mt:2}}>
-        <CardContent>
-        <Grid container spacing={2}>
-        <Grid item xs={10}>
-        {comment?.description}
-        </Grid>
-        <Grid item xs={2}>
-        {moment(comment.created_at).format('DD/MM/YY hh:mm:ss a')}
-        </Grid>
-        </Grid>
-        </CardContent>
-        </Card>
-          )
-        }
-        )
-        }
-        </AccordionDetails>
-      </Accordion>
-        :''}
+        {(modalMode === 'Edit' || modalMode === 'View') && comments.count > 0 ? (
+          <Accordion sx={{ mt: 4 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls='panel1-content' id='panel1-header'>
+              Comments
+            </AccordionSummary>
+            <AccordionDetails key={uuid()}>
+              {comments?.rows?.map((comment: any) => {
+                return (
+                  <Card key={uuid()} sx={{ mt: 2 }}>
+                    <CardContent>
+                      <Grid container spacing={2}>
+                        <Grid item xs={10}>
+                          {comment?.description}
+                        </Grid>
+                        <Grid item xs={2}>
+                          {moment(comment.created_at).format('DD/MM/YY hh:mm:ss a')}
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </AccordionDetails>
+          </Accordion>
+        ) : (
+          ''
+        )}
       </Modal>
     </Grid>
   )

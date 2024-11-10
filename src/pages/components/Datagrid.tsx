@@ -1,5 +1,6 @@
 import {
   DataGrid,
+  GridColDef,
   GridColumns,
   GridRenderCellParams,
   GridSortModel,
@@ -19,9 +20,6 @@ const DataGridTable = React.memo(
     rows,
     columns,
     total,
-    edit,
-    view,
-    del,
     onView,
     onEdit,
     onDelete,
@@ -29,6 +27,9 @@ const DataGridTable = React.memo(
     changePageSize,
     changePage,
     add,
+    view,
+    edit,
+    del,
     onAddRow,
     onClearSearch,
     onSearch,
@@ -62,29 +63,29 @@ const DataGridTable = React.memo(
     // const { } = props
 
     // Add an action column with optional buttons
-    const actionColumn = {
+    const actionColumn: GridColDef = React.useMemo(() => ({
       field: 'actions',
       headerName: 'Actions',
       flex: 0.1,
       minWidth: 150,
       renderCell: (params: GridRenderCellParams) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {view && (
+          {onView && (
             <Tooltip title='View'>
               <IconButton sx={{ textDecoration: 'none' }} onClick={() => onView?.(params.row.id)}>
                 <EyeOutline fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
-          {edit && (
-            <Tooltip title='View'>
+          {onEdit && (
+            <Tooltip title='Edit'>
               <IconButton color='secondary' onClick={() => onEdit?.(params.row.id)}>
                 <PencilOutline fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
-          {del && (
-            <Tooltip title='View'>
+          {onDelete && (
+            <Tooltip title='Delete'>
               <IconButton onClick={() => onDelete?.(params.row.id)}>
                 <DeleteOutline fontSize='small' />
               </IconButton>
@@ -92,10 +93,13 @@ const DataGridTable = React.memo(
           )}
         </Box>
       )
-    }
+    }), [onView, onEdit, onDelete]);
+    
 
     // Conditionally add the action column only if any of the handlers are passed
-    const columnsWithActions = view || edit || del ? [...columns, actionColumn] : columns
+    const columnsWithActions = React.useMemo(() => {
+      return view || edit || del ? [...columns, actionColumn] : columns;
+    }, [columns, view, edit, del]);
 
     return (
       <DataGrid
