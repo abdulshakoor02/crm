@@ -1,5 +1,8 @@
 export const checkAccess = (feature: string) => {
-  const { features } = JSON.parse(window.localStorage.getItem('userData'))
+  if (typeof window === 'undefined') {
+    return false
+  }
+  const { features } = JSON.parse(window.localStorage.getItem('userData') as unknown as string)
 
   return features.includes(feature)
 }
