@@ -12,14 +12,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState, AppDispatch } from '../../../store'
 
 import { createCountryData, getCountriesData, updateCountryData } from '../../../store/apps/countries'
-import DataGridTable from '../../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
 import { TextField } from '@mui/material'
-import FormTextField from 'src/pages/components/FormtextField'
+import FormTextField from 'src/components/FormtextField'
 import { validateFormValues } from 'src/validation/validation'
 import { Countries as ICountries } from 'src/types/components/country.types'
-import AclGuard from 'src/pages/components/AclGuard/AclGuard'
-import { checkAccess } from 'src/pages/utils/accessCheck'
+import AclGuard from 'src/components/AclGuard/AclGuard'
+import { checkAccess } from 'src/utils/accessCheck'
 
 const columns: GridColumns = [
   {
@@ -112,21 +112,20 @@ const Countries = () => {
 
   const handleSubmit = async () => {
     // let validationErrors = { name: '', code: '', currency: '', currency_name: '' }
-    let isValid = true;
+    let isValid = true
 
     const validationRules: Record<keyof ICountries, string> = {
       name: 'Name is required',
       code: 'Valid code is required',
       currency: 'Currency is required',
-      currency_name: 'Currency name is required',
-    };
-
-    const { hasError, errors: validationErrors } = validateFormValues(formValues,validationRules);
-    if(hasError){
-      setErrors(validationErrors); // Update the errors state
-      return;
+      currency_name: 'Currency name is required'
     }
 
+    const { hasError, errors: validationErrors } = validateFormValues(formValues, validationRules)
+    if (hasError) {
+      setErrors(validationErrors) // Update the errors state
+      return
+    }
 
     // // Validation logic
     // if (!formValues.name) {
@@ -185,39 +184,39 @@ const Countries = () => {
   }
 
   const handleOnSearch = () => {
-    if (page !== 0) setPage(0); // Reset to first page on search
+    if (page !== 0) setPage(0) // Reset to first page on search
     dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } }))
   }
 
   return (
-  <AclGuard feature='countries'>
-    <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <Card>
-          <DataGridTable
-            checkBox={false}
-            loading={country.loading}
-            rows={country.rows}
-            columns={columns}
-            total={country.count}
-            pageSize={pageSize}
-            changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
-            changePage={(newPage: number) => setPage(newPage)}
-            searchValue={searchValue}
-            onSearchChange={e => setSearchValue(e.target.value)}
-            onSearch={() => console.log('searched!')}
-            onClearSearch={handleOnSearchClear}
-            edit={checkAccess('countriesEdit')}
-            view={checkAccess('countriesView')}
-            del={checkAccess('countriesDelete')}
-            add={checkAccess('countriesCreate')}
-            onView={id => handleOpenModal(id, 'view')}
-            onEdit={id => handleOpenModal(id, 'edit')}
-            onDelete={id => handleDelete(id)}
-            onAddRow={() => handleOpenModal('', 'add')}
-          />
-        </Card>
-      </Grid>
+    <AclGuard feature='countries'>
+      <Grid container spacing={6}>
+        <Grid item xs={12}>
+          <Card>
+            <DataGridTable
+              checkBox={false}
+              loading={country.loading}
+              rows={country.rows}
+              columns={columns}
+              total={country.count}
+              pageSize={pageSize}
+              changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
+              changePage={(newPage: number) => setPage(newPage)}
+              searchValue={searchValue}
+              onSearchChange={e => setSearchValue(e.target.value)}
+              onSearch={() => console.log('searched!')}
+              onClearSearch={handleOnSearchClear}
+              edit={checkAccess('countriesEdit')}
+              view={checkAccess('countriesView')}
+              del={checkAccess('countriesDelete')}
+              add={checkAccess('countriesCreate')}
+              onView={id => handleOpenModal(id, 'view')}
+              onEdit={id => handleOpenModal(id, 'edit')}
+              onDelete={id => handleDelete(id)}
+              onAddRow={() => handleOpenModal('', 'add')}
+            />
+          </Card>
+        </Grid>
 
         {/* Modal */}
         <Modal
@@ -259,9 +258,9 @@ const Countries = () => {
               />
             </>
           }
-      </Modal>
-    </Grid>
-  </AclGuard>
+        </Modal>
+      </Grid>
+    </AclGuard>
   )
 }
 

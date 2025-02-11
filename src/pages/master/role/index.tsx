@@ -13,12 +13,12 @@ import { AppDispatch } from '../../../store'
 
 import { getRoleData, createRoleData, updateRoleData } from '../../../store/apps/role'
 import { getFeaturesData } from '../../../store/apps/feature'
-import DataGridTable from '../../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
-import RoleCard from 'src/pages/components/RoleCard'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
+import RoleCard from 'src/components/RoleCard'
 import PageHeader from 'src/@core/components/page-header'
-import { appendTenantId } from 'src/pages/utils/tenantAppend'
-import { checkAccess } from 'src/pages/utils/accessCheck'
+import { appendTenantId } from 'src/utils/tenantAppend'
+import { checkAccess } from 'src/utils/accessCheck'
 
 type Role = {
   id?: string

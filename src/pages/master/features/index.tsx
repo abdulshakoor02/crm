@@ -12,12 +12,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState, AppDispatch } from '../../../store'
 
 import { getFeaturesData, createFeaturesData, updateFeaturesData } from '../../../store/apps/feature'
-import DataGridTable from '../../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
 import uuid from 'react-uuid'
 
 type Features = {
-  id?: string,
+  id?: string
   name: string
 }
 
@@ -44,10 +44,10 @@ const FeaturesComponent = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'View' | 'Edit' | 'Add'>('View')
   const [formValues, setFormValues] = useState<Features>({
-    name: '',
+    name: ''
   })
   const [errors, setErrors] = useState<Features>({
-    name: '',
+    name: ''
   })
 
   const features = useSelector((state: any) => state.features)
@@ -65,12 +65,12 @@ const FeaturesComponent = () => {
     setFormValues(
       rowData
         ? {
-          id: rowData.id,
-    name: rowData.name,
-  }
+            id: rowData.id,
+            name: rowData.name
+          }
         : {
-    name: '',
-  }
+            name: ''
+          }
     )
     setModalMode(mode)
     setModalOpen(true)
@@ -79,15 +79,15 @@ const FeaturesComponent = () => {
   const handleCloseModal = () => {
     setModalOpen(false)
     setErrors({
-    name: '',
-  }) // Reset errors
+      name: ''
+    }) // Reset errors
   }
 
   const handleSubmit = async () => {
     const data = []
     const validationErrors: Features = {
-    name: '',
-  }
+      name: ''
+    }
     let isValid = true
 
     // Validation logic
@@ -143,9 +143,7 @@ const FeaturesComponent = () => {
   }
   const handleSearch = async () => {
     if (searchValue != '') {
-    await dispatch(
-      getFeaturesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } })
-    )
+      await dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } }))
     }
   }
 

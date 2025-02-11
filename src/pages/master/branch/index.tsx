@@ -15,10 +15,10 @@ import { AppDispatch } from '../../../store'
 import { getBranchData, createBranchData, updateBranchData } from '../../../store/apps/branch'
 import { getCountriesData } from '../../../store/apps/countries'
 import { getRegionData } from '../../../store/apps/region'
-import DataGridTable from '../../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
 import uuid from 'react-uuid'
-import { checkAccess } from 'src/pages/utils/accessCheck'
+import { checkAccess } from 'src/utils/accessCheck'
 
 type Branch = {
   id: string

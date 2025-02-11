@@ -12,9 +12,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch } from '../../../store'
 
 import { getProductData, createProductData, updateProductData } from '../../../store/apps/product'
-import DataGridTable from '../../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
-import { appendTenantId } from 'src/pages/utils/tenantAppend'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
+import { appendTenantId } from 'src/utils/tenantAppend'
 
 type Product = {
   id?: string

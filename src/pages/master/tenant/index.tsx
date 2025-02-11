@@ -17,8 +17,8 @@ import { AppDispatch, RootState } from '../../../store'
 
 import { getTenantData, createTenantData, updateTenantData } from '../../../store/apps/tenant'
 import { getCountriesData } from '../../../store/apps/countries'
-import DataGridTable from '../../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
 import uuid from 'react-uuid'
 // import { Tenant } from 'src/types/components/tenant.types'
 import { validateFormValues } from 'src/validation/validation'
@@ -116,7 +116,6 @@ const columns: GridColumns = [
   }
 ]
 
-
 const TenantComponent = () => {
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
@@ -133,7 +132,7 @@ const TenantComponent = () => {
     email: '',
     website: '',
     country_id: '',
-    status: '',
+    status: ''
   })
   const [errors, setErrors] = useState<Partial<Tenant>>({
     id: '',
@@ -154,18 +153,18 @@ const TenantComponent = () => {
   }, [pageSize, page])
 
   const handleLogo = async () => {
-    const resp = await axios.post(`${process.env.baseUrl}/fileDownload`,{url:formValues.logo})
+    const resp = await axios.post(`${process.env.baseUrl}/fileDownload`, { url: formValues.logo })
 
-   // Create a URL for the blob data
-        const url = window.URL.createObjectURL(new Blob([resp.data]));
+    // Create a URL for the blob data
+    const url = window.URL.createObjectURL(new Blob([resp.data]))
 
-        // Create a link element to download the image
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'image.jpg'); // Specify the file name
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+    // Create a link element to download the image
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'image.jpg') // Specify the file name
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
   }
 
   const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {
@@ -177,7 +176,7 @@ const TenantComponent = () => {
     setFormValues(
       rowData
         ? {
-          id: rowData.id,
+            id: rowData.id,
             name: rowData.name,
             phone: rowData.phone,
             email: rowData.email,
@@ -187,7 +186,7 @@ const TenantComponent = () => {
             logo: rowData.logo
           }
         : {
-          id: '',
+            id: '',
             name: '',
             phone: '',
             email: '',
@@ -201,8 +200,8 @@ const TenantComponent = () => {
   }
 
   const handleFileChange = (event: any) => {
-        setFile(event.target.files);
-    };
+    setFile(event.target.files)
+  }
 
   const handleCloseModal = () => {
     setModalOpen(false)
@@ -210,90 +209,90 @@ const TenantComponent = () => {
   }
 
   const handleSubmit = async () => {
-  const data = []
+    const data = []
 
-  
-  const validationRules: Partial<Record<keyof Tenant, string>> = {
-    id: 'Id is required',
-    name: 'Name is required',
-    phone: 'Valid phone number is required',
-    email: 'Email is required',
-    website: 'Website is required',
-    country_id: 'Country is required',
-    status: 'Status is required'
-  };
+    const validationRules: Partial<Record<keyof Tenant, string>> = {
+      id: 'Id is required',
+      name: 'Name is required',
+      phone: 'Valid phone number is required',
+      email: 'Email is required',
+      website: 'Website is required',
+      country_id: 'Country is required',
+      status: 'Status is required'
+    }
 
-  const { hasError, errors: validationErrors } = validateFormValues(formValues,validationRules);
-  if(hasError){
-    setErrors(validationErrors); // Update the errors state
-    return;
-  }
+    const { hasError, errors: validationErrors } = validateFormValues(formValues, validationRules)
+    if (hasError) {
+      setErrors(validationErrors) // Update the errors state
+      return
+    }
 
-  // const validationErrors: Tenant = { id: '', name: '', phone: '', email: '', website: '', country_id: '', status: '' }
-  // let isValid = true
+    // const validationErrors: Tenant = { id: '', name: '', phone: '', email: '', website: '', country_id: '', status: '' }
+    // let isValid = true
 
-  // // Validation logic
-  // for (let i in validationErrors) {
-  //   if (!formValues[i]) {
-  //     validationErrors[i] = `Valid ${i} is required`
-  //     isValid = false
-  //   }
-  // }
+    // // Validation logic
+    // for (let i in validationErrors) {
+    //   if (!formValues[i]) {
+    //     validationErrors[i] = `Valid ${i} is required`
+    //     isValid = false
+    //   }
+    // }
 
-  // if (!isValid) {
-  //   setErrors(validationErrors)
+    // if (!isValid) {
+    //   setErrors(validationErrors)
 
-  //   return
-  // }
+    //   return
+    // }
 
-  try {
-    if (modalMode == 'Edit') {
-      const res = await dispatch(updateTenantData({ data: formValues, where: { id: formValues.id } }))
-      if (res.error) {
-        toast.error(`failed to update tenant Try Again!`)
+    try {
+      if (modalMode == 'Edit') {
+        const res = await dispatch(updateTenantData({ data: formValues, where: { id: formValues.id } }))
+        if (res.error) {
+          toast.error(`failed to update tenant Try Again!`)
+
+          return
+        }
+        if (file[0]) {
+          const formdata = new FormData()
+          formdata.append('file', file[0])
+          try {
+            console.log(formValues.id)
+            const response = await axios.post(`${process.env.baseUrl}/fileUpload`, formdata, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                filename: file[0].name,
+                folder: 'crm',
+                tenant_id: formValues.id
+              }
+            })
+            toast.success('file uploaded successfully')
+          } catch (error) {
+            toast.error('failed to uplaod the file')
+          }
+        }
+
+        await dispatch(getTenantData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
+
+        toast.success('Tenant updated successfully')
+        handleCloseModal()
 
         return
       }
-      if (file[0]) {
-        const formdata = new FormData()
-        formdata.append('file',file[0])
-        try {
-          console.log(formValues.id)
-        const response = await axios.post(`${process.env.baseUrl}/fileUpload`, formdata,{headers:{
-        'Content-Type': 'multipart/form-data',
-        filename:file[0].name,
-        folder:'crm',
-        tenant_id: formValues.id
-        }})
-        toast.success('file uploaded successfully')
-        } catch (error) {
-          toast.error('failed to uplaod the file')
-        }
+      data.push(formValues)
+      const res = await dispatch(createTenantData(data))
+      if (res.error) {
+        toast.error(`failed to create tenant Try Again!`)
 
+        return
       }
-
       await dispatch(getTenantData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
-
-      toast.success('Tenant updated successfully')
-      handleCloseModal()
-
-      return
-    }
-    data.push(formValues)
-    const res = await dispatch(createTenantData(data))
-    if (res.error) {
+      toast.success(`Tenant created successfully`)
+    } catch (error) {
+      console.log(error)
       toast.error(`failed to create tenant Try Again!`)
-
-      return
     }
-    await dispatch(getTenantData({ limit: pageSize, offset: pageSize * page, joins: [{ column: 'Country' }] }))
-    toast.success(`Tenant created successfully`)
-  } catch (error) {
-    console.log(error)
-    toast.error(`failed to create tenant Try Again!`)
-  }
 
-  // handleCloseModal()
+    // handleCloseModal()
   }
 
   const handleDelete = (id: number) => {
@@ -353,7 +352,7 @@ const TenantComponent = () => {
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
-            onAddRow={() => handleOpenModal("", 'Add')}
+            onAddRow={() => handleOpenModal('', 'Add')}
           />
         </Card>
       </Grid>
@@ -471,11 +470,7 @@ const TenantComponent = () => {
               </Button>
             </Grid>
             <Grid item xs={6}>
-            { formValues.logo !== "" &&
-            <Button onClick={handleLogo}>
-            Download Logo
-            </Button>
-            }
+              {formValues.logo !== '' && <Button onClick={handleLogo}>Download Logo</Button>}
             </Grid>
           </Grid>
         }

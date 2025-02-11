@@ -12,10 +12,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch } from '../../../store'
 
 import { getLeadCategoryData, createLeadCategoryData, updateLeadCategoryData } from '../../../store/apps/leadCategory'
-import DataGridTable from '../../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
-import { appendTenantId } from 'src/pages/utils/tenantAppend'
-import { checkAccess } from 'src/pages/utils/accessCheck'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
+import { appendTenantId } from 'src/utils/tenantAppend'
+import { checkAccess } from 'src/utils/accessCheck'
 
 type LeadCategory = {
   id?: string
@@ -46,10 +46,10 @@ const LeadCategoryComponent = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'View' | 'Edit' | 'Add'>('View')
   const [formValues, setFormValues] = useState<LeadCategory>({
-    name: '',
+    name: ''
   })
   const [errors, setErrors] = useState<LeadCategory>({
-    name: '',
+    name: ''
   })
 
   const leadCategory = useSelector((state: any) => state.leadCategory)
@@ -68,10 +68,10 @@ const LeadCategoryComponent = () => {
       rowData
         ? {
             id: rowData.id,
-            name: rowData.name,
+            name: rowData.name
           }
         : {
-            name: '',
+            name: ''
           }
     )
     setModalMode(mode)
@@ -81,14 +81,14 @@ const LeadCategoryComponent = () => {
   const handleCloseModal = () => {
     setModalOpen(false)
     setErrors({
-      name: '',
+      name: ''
     })
   }
 
   const handleSubmit = async () => {
     const data = []
     const validationErrors: LeadCategory = {
-      name: '',
+      name: ''
     }
     let isValid = true
 
