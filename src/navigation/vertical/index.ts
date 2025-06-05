@@ -36,12 +36,17 @@ const navigation = (): VerticalNavItemsType => {
     {
       title: 'Masters',
       icon: FolderSpecialIcon,
-      access: ['countries', 'region', 'role', 'branch', 'products', 'leadCategory'],
+      access: ['countries', 'region', 'role', 'branch', 'product', 'leadCategory'],
       children: [
         {
           title: 'Countries',
           path: '/master/countries',
           access: 'countries'
+        },
+        {
+          title: 'Products',
+          path: '/master/products',
+          access: 'product'
         },
         {
           title: 'Tenant',

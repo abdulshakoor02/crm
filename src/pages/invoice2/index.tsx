@@ -1,5 +1,5 @@
 // ** MUI Imports
-import React, { useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import Table from '@mui/material/Table'
@@ -15,40 +15,188 @@ import { styled, useTheme } from '@mui/material/styles'
 import TableContainer from '@mui/material/TableContainer'
 import TableCell, { TableCellBaseProps } from '@mui/material/TableCell'
 import { usePDF } from 'react-to-pdf'
+import { useRouter } from 'next/router'
+
+// ** Store Imports
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch } from 'src/store'
+import { getProductData } from 'src/store/apps/product'
 
 const MUITableCell = styled(TableCell)<TableCellBaseProps>(({ theme }) => ({
-  borderBottom: 0,
-  padding: `${theme.spacing(1)} !important`
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  padding: `${theme.spacing(2)} !important`,
+  fontSize: '0.95rem',
+  fontWeight: 500
 }))
 
 const CalcWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
+  padding: theme.spacing(1, 0),
   '&:not(:last-of-type)': {
-    marginBottom: theme.spacing(2)
+    marginBottom: theme.spacing(1)
   }
+}))
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  boxShadow: theme.palette.mode === 'dark' ? '0 8px 32px rgba(0, 0, 0, 0.4)' : '0 8px 32px rgba(0, 0, 0, 0.12)',
+  borderRadius: theme.spacing(2),
+  background: theme.palette.mode === 'dark'
+    ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
+    : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+  border: `1px solid ${theme.palette.divider}`,
+  overflow: 'hidden'
+}))
+
+
+
+const InvoiceTitle = styled(Typography)(({ theme }) => ({
+  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+  fontWeight: 700,
+  fontSize: '2rem',
+  background: 'linear-gradient(45deg, #667eea, #764ba2)',
+  backgroundClip: 'text',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  textAlign: 'center',
+  marginBottom: theme.spacing(1)
+}))
+
+const SectionTitle = styled(Typography)(({ theme }) => ({
+  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+  fontWeight: 600,
+  fontSize: '1.1rem',
+  color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.main,
+  marginBottom: theme.spacing(1)
+}))
+
+const InfoText = styled(Typography)(({ theme }) => ({
+  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+  fontSize: '0.9rem',
+  lineHeight: 1.6,
+  color: theme.palette.text.secondary
 }))
 
 const InvoicePage = () => {
   const theme = useTheme()
+  const router = useRouter()
+  const dispatch = useDispatch<AppDispatch>()
+  const [invoiceData, setInvoiceData] = useState<any>(null)
+  const [product, setProduct] = useState<any>(null)
+
+  const products = useSelector((state: any) => state.products)
+
   const { toPDF, targetRef } = usePDF({
-    filename: 'invoice.pdf',
+    filename: `${invoiceData?.invoiceId || 'invoice'}.pdf`,
     page: { format: 'A4' }
   })
 
-  // const targetRef = useRef<any>();
-  //
-  // const handleGeneratePdf = () => {
-  //   generatePDF(targetRef, {
-  //     filename: 'invoice.pdf',
-  //     page: { format: 'A4' }
-  //   });
-  // };
+  useEffect(() => {
+    dispatch(getProductData({}))
+
+    // Clean up old invoice data (older than 24 hours)
+    const cleanupOldInvoices = () => {
+      const now = new Date().getTime()
+      const oneDayAgo = now - (24 * 60 * 60 * 1000)
+
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('invoice_')) {
+          try {
+            const data = JSON.parse(localStorage.getItem(key) || '{}')
+            const createdAt = new Date(data.createdAt).getTime()
+            if (createdAt < oneDayAgo) {
+              localStorage.removeItem(key)
+            }
+          } catch (error) {
+            // Remove corrupted data
+            localStorage.removeItem(key)
+          }
+        }
+      })
+    }
+
+    cleanupOldInvoices()
+  }, [dispatch])
+
+  useEffect(() => {
+    if (router.isReady && router.query.ref) {
+      const urlRef = router.query.ref as string
+
+      // Try to get invoice data from localStorage
+      const storedData = localStorage.getItem(`invoice_${urlRef}`)
+
+      if (storedData) {
+        try {
+          const parsedData = JSON.parse(storedData)
+          setInvoiceData(parsedData)
+        } catch (error) {
+          console.error('Error parsing invoice data:', error)
+          // Redirect to leads page if data is corrupted
+          router.push('/leads')
+        }
+      } else {
+        // Redirect to leads page if no data found
+        router.push('/leads')
+      }
+    }
+  }, [router.isReady, router.query.ref, router])
+
+  useEffect(() => {
+    if (invoiceData?.productId && products?.rows) {
+      const foundProduct = products.rows.find((p: any) => p.id === invoiceData.productId)
+      setProduct(foundProduct)
+    }
+  }, [invoiceData, products])
+
+  // Calculate pricing
+  const basePrice = product?.price || 99.00
+  const discountAmount = invoiceData?.discountType === 'percentage'
+    ? (basePrice * (invoiceData.discount / 100))
+    : (invoiceData?.discount || 0)
+  const subtotal = basePrice - discountAmount
+  const tax = subtotal * 0.08 // 8% tax
+  const total = subtotal + tax
+
+  if (!invoiceData) {
+    return (
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '70vh',
+        flexDirection: 'column',
+        gap: 2
+      }}>
+        <Box sx={{
+          width: 60,
+          height: 60,
+          border: `4px solid ${theme.palette.divider}`,
+          borderTop: `4px solid ${theme.palette.primary.main}`,
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          '@keyframes spin': {
+            '0%': { transform: 'rotate(0deg)' },
+            '100%': { transform: 'rotate(360deg)' }
+          }
+        }} />
+        <Typography variant="h6" sx={{
+          color: theme.palette.text.secondary,
+          fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+        }}>
+          Loading invoice...
+        </Typography>
+      </Box>
+    )
+  }
 
   return (
     <>
-      <Box sx={{ mb: 4, textAlign: 'right' }}>
+      {/* Header with Invoice Title and Download Button */}
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <InvoiceTitle variant="h3">
+          {invoiceData?.invoiceId || 'Invoice'}
+        </InvoiceTitle>
         <Button
           variant='contained'
           onClick={() => toPDF()}
@@ -58,27 +206,50 @@ const InvoicePage = () => {
             </svg>
           }
           sx={{
-            backgroundColor: theme.palette.primary.main,
+            background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
             color: 'white',
-            '&:hover': {
-              backgroundColor: theme.palette.primary.dark
-            }
+            fontWeight: 600,
+            fontSize: '0.95rem',
+            padding: '12px 24px',
+            borderRadius: '12px',
           }}
         >
           Download PDF
         </Button>
       </Box>
-      <Card ref={targetRef as any} sx={{ position: 'relative', height: '95%' }}>
+      <StyledCard ref={targetRef as any} sx={{ position: 'relative', minHeight: '95vh' }}>
         <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={4} sx={{ mb: { sm: 0, xs: 4 } }}>
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ mb: 6 }}>
-                  <Typography variant='h5'>Company Name</Typography>
-                  <Typography variant='body2'>Office 149, 450 South Brand Brooklyn</Typography>
-                  <Typography variant='body2'>San Diego County, CA 91905, USA</Typography>
-                  <Typography variant='body2'>+1 (123) 456 7891</Typography>
+                <Box sx={{
+                  mb: 6,
+                  p: 3,
+                  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#f8fafc',
+                  borderRadius: 2,
+                  border: `1px solid ${theme.palette.divider}`
+                }}>
+                  <SectionTitle variant='h5' sx={{ color: theme.palette.text.primary, mb: 2 }}>
+                    WeCRM Solutions
+                  </SectionTitle>
+                  <InfoText>Office 149, 450 South Brand Brooklyn</InfoText>
+                  <InfoText>San Diego County, CA 91905, USA</InfoText>
+                  <InfoText sx={{ fontWeight: 600, color: theme.palette.primary.main }}>+1 (123) 456 7891</InfoText>
                 </Box>
+                {invoiceData && (
+                  <Box sx={{
+                    p: 3,
+                    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#f1f5f9',
+                    borderRadius: 2,
+                    border: `1px solid ${theme.palette.divider}`
+                  }}>
+                    <SectionTitle sx={{ mb: 2 }}>Bill To:</SectionTitle>
+                    <InfoText sx={{ fontWeight: 600, fontSize: '1rem', color: theme.palette.text.primary, mb: 1 }}>
+                      {invoiceData.leadName}
+                    </InfoText>
+                    <InfoText sx={{ color: theme.palette.primary.main }}>{invoiceData.leadEmail}</InfoText>
+                  </Box>
+                )}
               </Box>
             </Grid>
             <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -106,13 +277,41 @@ const InvoicePage = () => {
               </Box>
             </Grid>
             <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: { xs: 'left', sm: 'flex-end' } }}>
-              <Box sx={{ mb: 4 }}>
-                <Typography variant='h5' sx={{ mb: 2 }}>
-                  Invoice #3492
+              <Box sx={{
+                mb: 4,
+                p: 3,
+                backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: 2,
+                color: 'white',
+                minWidth: '280px',
+                boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)'
+              }}>
+                <Typography variant='h4' sx={{
+                  mb: 3,
+                  fontWeight: 700,
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  {invoiceData?.invoiceId}
                 </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2'>Date Issued: 25/05/2022</Typography>
-                  <Typography variant='body2'>Due Date: 29/05/2022</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant='body2' sx={{ fontWeight: 600, opacity: 0.9 }}>
+                      Date Issued:
+                    </Typography>
+                    <Typography variant='body2' sx={{ fontWeight: 500 }}>
+                      {invoiceData?.createdAt ? new Date(invoiceData.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant='body2' sx={{ fontWeight: 600, opacity: 0.9 }}>
+                      Due Date:
+                    </Typography>
+                    <Typography variant='body2' sx={{ fontWeight: 500 }}>
+                      {invoiceData?.createdAt ?
+                        new Date(new Date(invoiceData.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString() :
+                        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                    </Typography>
+                  </Box>
                 </Box>
               </Box>
             </Grid>
@@ -120,25 +319,78 @@ const InvoicePage = () => {
 
           <Divider sx={{ my: theme => `${theme.spacing(6)} !important` }} />
 
-          <TableContainer>
+          <TableContainer sx={{
+            backgroundColor: theme.palette.background.paper,
+            borderRadius: 2,
+            border: `1px solid ${theme.palette.divider}`,
+            overflow: 'hidden'
+          }}>
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell>Item</TableCell>
-                  <TableCell>Description</TableCell>
-                  <TableCell>Qty</TableCell>
-                  <TableCell>Price</TableCell>
-                  <TableCell>Total</TableCell>
+                <TableRow sx={{ backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#f8fafc' }}>
+                  <TableCell sx={{
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    color: theme.palette.text.primary,
+                    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Item
+                  </TableCell>
+                  <TableCell sx={{
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    color: theme.palette.text.primary,
+                    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Description
+                  </TableCell>
+                  <TableCell sx={{
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    color: theme.palette.text.primary,
+                    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Qty
+                  </TableCell>
+                  <TableCell sx={{
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    color: theme.palette.text.primary,
+                    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Price
+                  </TableCell>
+                  <TableCell sx={{
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    color: theme.palette.text.primary,
+                    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Total
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 <TableRow>
-                  <MUITableCell>Premium Subscription</MUITableCell>
-                  <MUITableCell>12 months access</MUITableCell>
+                  <MUITableCell>{product?.name || 'Premium Subscription'}</MUITableCell>
+                  <MUITableCell>{product?.description || '12 months access'}</MUITableCell>
                   <MUITableCell>1</MUITableCell>
-                  <MUITableCell>$99.00</MUITableCell>
-                  <MUITableCell>$99.00</MUITableCell>
+                  <MUITableCell>${basePrice.toFixed(2)}</MUITableCell>
+                  <MUITableCell>${basePrice.toFixed(2)}</MUITableCell>
                 </TableRow>
+                {invoiceData?.discount > 0 && (
+                  <TableRow>
+                    <MUITableCell>Discount</MUITableCell>
+                    <MUITableCell>
+                      {invoiceData.discountType === 'percentage'
+                        ? `${invoiceData.discount}% discount`
+                        : 'Fixed discount'}
+                    </MUITableCell>
+                    <MUITableCell>1</MUITableCell>
+                    <MUITableCell>-${discountAmount.toFixed(2)}</MUITableCell>
+                    <MUITableCell>-${discountAmount.toFixed(2)}</MUITableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -146,27 +398,71 @@ const InvoicePage = () => {
           <Box sx={{ mt: 'auto', position: 'relative', display: 'flex', justifyContent: 'flex-end' }}>
             <Box
               sx={{
-                width: '300px',
-                mt: 8
+                width: '350px',
+                mt: 8,
+                p: 3,
+                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#f8fafc',
+                borderRadius: 2,
+                border: `1px solid ${theme.palette.divider}`,
+                boxShadow: theme.palette.mode === 'dark' ? '0 4px 16px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.08)'
               }}
             >
               <CalcWrapper>
-                <Typography>Subtotal:</Typography>
-                <Typography>$99.00</Typography>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: theme.palette.text.secondary,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  Subtotal:
+                </Typography>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: theme.palette.text.primary,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  ${subtotal.toFixed(2)}
+                </Typography>
               </CalcWrapper>
               <CalcWrapper>
-                <Typography>Tax:</Typography>
-                <Typography>$8.00</Typography>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: theme.palette.text.secondary,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  Tax (8%):
+                </Typography>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: theme.palette.text.primary,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  ${tax.toFixed(2)}
+                </Typography>
               </CalcWrapper>
-              <Divider sx={{ my: 2 }} />
-              <CalcWrapper>
-                <Typography>Total:</Typography>
-                <Typography variant='h6'>$107.00</Typography>
+              <Divider sx={{ my: 2, backgroundColor: theme.palette.divider }} />
+              <CalcWrapper sx={{
+                p: 2,
+                backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: 1,
+                color: 'white'
+              }}>
+                <Typography variant='h6' sx={{
+                  fontWeight: 700,
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  Total:
+                </Typography>
+                <Typography variant='h5' sx={{
+                  fontWeight: 700,
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  ${total.toFixed(2)}
+                </Typography>
               </CalcWrapper>
             </Box>
           </Box>
         </CardContent>
-      </Card>
+      </StyledCard>
     </>
   )
 }
