@@ -1,8 +1,17 @@
 // ** Icon imports
 import HomeOutline from 'mdi-material-ui/HomeOutline'
-import EmailOutline from 'mdi-material-ui/EmailOutline'
 import ShieldOutline from 'mdi-material-ui/ShieldOutline'
-import FolderSpecialIcon from '@mui/icons-material/FolderSpecial'
+import AccountGroupOutline from 'mdi-material-ui/AccountGroupOutline'
+import BullhornOutline from 'mdi-material-ui/BullhornOutline'
+import FolderCogOutline from 'mdi-material-ui/FolderCogOutline' // For Masters
+import Earth from 'mdi-material-ui/Earth' // For Countries
+import OfficeBuildingOutline from 'mdi-material-ui/OfficeBuildingOutline' // For Tenant
+import MapMarkerRadiusOutline from 'mdi-material-ui/MapMarkerRadiusOutline' // For Region
+import StoreOutline from 'mdi-material-ui/StoreOutline' // For Branch
+import AccountLockOutline from 'mdi-material-ui/AccountLockOutline' // For Role
+import TuneVariant from 'mdi-material-ui/TuneVariant' // For Features
+import PackageVariantClosed from 'mdi-material-ui/PackageVariantClosed' // For Products
+import TagOutline from 'mdi-material-ui/TagOutline' // For LeadCategory
 
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
@@ -16,13 +25,13 @@ const navigation = (): VerticalNavItemsType => {
     },
     {
       title: 'User',
-      icon: EmailOutline,
+      icon: AccountGroupOutline,
       path: '/user',
       access: 'user'
     },
     {
       title: 'Leads',
-      icon: EmailOutline,
+      icon: BullhornOutline,
       path: '/leads',
       access: 'lead'
     },
@@ -36,11 +45,12 @@ const navigation = (): VerticalNavItemsType => {
     // },
     {
       title: 'Masters',
-      icon: FolderSpecialIcon,
-      access: ['countries', 'region', 'role', 'branch', 'product', 'leadCategory'],
+      icon: FolderCogOutline,
+      access: ['countries', 'region', 'role', 'branch', 'products', 'leadCategory'],
       children: [
         {
           title: 'Countries',
+          icon: Earth,
           path: '/master/countries',
           access: 'countries'
         },
@@ -51,34 +61,41 @@ const navigation = (): VerticalNavItemsType => {
         },
         {
           title: 'Tenant',
+          icon: OfficeBuildingOutline,
           path: '/master/tenant'
         },
         {
           title: 'Region',
+          icon: MapMarkerRadiusOutline,
           path: '/master/region',
           access: 'region'
         },
         {
           title: 'Branch',
+          icon: StoreOutline,
           path: '/master/branch',
           access: 'branch'
         },
         {
           title: 'Role',
+          icon: AccountLockOutline,
           path: '/master/role',
           access: 'role'
         },
         {
           title: 'Features',
+          icon: TuneVariant,
           path: '/master/features'
         },
         {
           title: 'Products',
+          icon: PackageVariantClosed,
           path: '/master/products',
           access: 'products'
         },
         {
           title: 'LeadCategory',
+          icon: TagOutline,
           path: '/master/leadCategory',
           access: 'leadCategory'
         }

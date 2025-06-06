@@ -95,7 +95,7 @@ const DataGridTable = React.memo(
               >
                 <IconButton
                   onClick={() => onView?.(params.row.id)}
-                  sx={{ color: theme.palette.primary.main }}
+                  sx={{ color: theme.palette.common.black }}
                 >
                   <EyeOutline fontSize='small' />
                 </IconButton>
@@ -121,7 +121,7 @@ const DataGridTable = React.memo(
               >
                 <IconButton
                   onClick={() => onEdit?.(params.row.id)}
-                  sx={{ color: theme.palette.warning.main }}
+                  sx={{ color: theme.palette.common.black }}
                 >
                   <PencilOutline fontSize='small' />
                 </IconButton>
@@ -147,7 +147,7 @@ const DataGridTable = React.memo(
               >
                 <IconButton
                   onClick={() => onDelete?.(params.row.id)}
-                  sx={{ color: theme.palette.error.main }}
+                  sx={{ color: theme.palette.common.black }}
                 >
                   <DeleteOutline fontSize='small' />
                 </IconButton>

@@ -2,7 +2,7 @@
 import { ReactNode } from 'react'
 
 // ** MUI Imports
-import { styled, useTheme } from '@mui/material/styles'
+import { styled, useTheme, alpha } from '@mui/material/styles' // Added alpha
 import MuiSwipeableDrawer, { SwipeableDrawerProps } from '@mui/material/SwipeableDrawer'
 
 // ** Type Import
@@ -86,8 +86,10 @@ const Drawer = (props: Props) => {
         backgroundColor: theme.palette.customColors.lightBg
       }
     } else {
+      // Frosted glass effect for default and bordered skins
       return {
-        backgroundColor: theme.palette.background.default
+        backgroundColor: alpha(theme.palette.background.default, 0.85),
+        backdropFilter: 'blur(6px)'
       }
     }
   }
