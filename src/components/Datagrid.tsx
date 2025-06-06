@@ -6,7 +6,7 @@ import {
   GridToolbarContainer,
   GridToolbarExport
 } from '@mui/x-data-grid'
-import { useTheme } from '@mui/material/styles'
+import { useTheme, alpha } from '@mui/material/styles'
 import Toolbar from './Toolbar'
 import { IconButton, Tooltip } from '@mui/material'
 import { Visibility, Edit, Delete } from '@mui/icons-material'
@@ -78,23 +78,80 @@ const DataGridTable = React.memo(
         <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           {view && (
             <Tooltip title='View Details'>
-              <IconButton color='primary' onClick={() => onView?.(params.row.id)}>
-                <EyeOutline fontSize='small' />
-              </IconButton>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  width: 32,
+                  height: 32,
+                  mx: 0.5,
+                  backgroundColor: theme.palette.mode === 'light' ? theme.palette.primary.light : theme.palette.primary.dark,
+                  '&:hover': {
+                    backgroundColor: theme.palette.mode === 'light' ? alpha(theme.palette.primary.light, 0.8) : alpha(theme.palette.primary.dark, 0.8),
+                  }
+                }}
+              >
+                <IconButton
+                  onClick={() => onView?.(params.row.id)}
+                  sx={{ color: theme.palette.primary.main }}
+                >
+                  <EyeOutline fontSize='small' />
+                </IconButton>
+              </Box>
             </Tooltip>
           )}
           {edit && (
             <Tooltip title='Edit Item'>
-              <IconButton sx={{ color: theme.palette.warning.main }} onClick={() => onEdit?.(params.row.id)}>
-                <PencilOutline fontSize='small' />
-              </IconButton>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  width: 32,
+                  height: 32,
+                  mx: 0.5,
+                  backgroundColor: theme.palette.mode === 'light' ? theme.palette.warning.light : theme.palette.warning.dark,
+                  '&:hover': {
+                    backgroundColor: theme.palette.mode === 'light' ? alpha(theme.palette.warning.light, 0.8) : alpha(theme.palette.warning.dark, 0.8),
+                  }
+                }}
+              >
+                <IconButton
+                  onClick={() => onEdit?.(params.row.id)}
+                  sx={{ color: theme.palette.warning.main }}
+                >
+                  <PencilOutline fontSize='small' />
+                </IconButton>
+              </Box>
             </Tooltip>
           )}
           {del && (
             <Tooltip title='Delete Item'>
-              <IconButton color='error' onClick={() => onDelete?.(params.row.id)}>
-                <DeleteOutline fontSize='small' />
-              </IconButton>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  width: 32,
+                  height: 32,
+                  mx: 0.5,
+                  backgroundColor: theme.palette.mode === 'light' ? theme.palette.error.light : theme.palette.error.dark,
+                  '&:hover': {
+                    backgroundColor: theme.palette.mode === 'light' ? alpha(theme.palette.error.light, 0.8) : alpha(theme.palette.error.dark, 0.8),
+                  }
+                }}
+              >
+                <IconButton
+                  onClick={() => onDelete?.(params.row.id)}
+                  sx={{ color: theme.palette.error.main }}
+                >
+                  <DeleteOutline fontSize='small' />
+                </IconButton>
+              </Box>
             </Tooltip>
           )}
           {customActions.map((action, index) => {
@@ -138,8 +195,11 @@ const DataGridTable = React.memo(
           border: 0, // Or `1px solid ${theme.palette.divider}`
           padding: theme.spacing(1),
           minHeight: 300,
+          background: theme.palette.mode === 'light'
+            ? `linear-gradient(to bottom, ${theme.palette.grey[100]}, ${theme.palette.background.paper})`
+            : `linear-gradient(to bottom, ${alpha(theme.palette.background.paper, 0.95)}, ${theme.palette.background.paper})`,
           '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900]
+            backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[800],
           },
           '& .MuiDataGrid-cell': {
             borderBottom: `1px solid ${theme.palette.divider}`
