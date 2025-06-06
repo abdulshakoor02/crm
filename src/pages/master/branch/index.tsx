@@ -136,18 +136,7 @@ const columns: GridColumns = [
         {params?.row?.['status']}
       </Typography>
     )
-  },
-  {
-    flex: 0.2, // Adjust flex as needed
-    minWidth: 200, // Adjust minWidth as needed
-    field: 'address',
-    headerName: 'Address',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary', whiteSpace: 'pre-line' }}>
-        {params?.row?.['address']}
-      </Typography>
-    )
-  },
+  }
 ]
 
 const BranchComponent = () => {
