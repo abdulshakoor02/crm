@@ -227,36 +227,44 @@ const Countries = () => {
           mode={modalMode}
         >
           {
-            <>
-              <FormTextField
-                label={'Name'}
-                value={formValues.name}
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <FormTextField
+                  label={'Name'}
+                  value={formValues.name}
                 onChange={e => setFormValues({ ...formValues, name: e.target.value })}
                 error={errors.name}
                 disabled={modalMode === 'view'}
-              />
-              <FormTextField
-                label={'Code'}
-                value={formValues.code}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormTextField
+                  label={'Code'}
+                  value={formValues.code}
                 onChange={e => setFormValues({ ...formValues, code: e.target.value })}
                 error={errors.code}
                 disabled={modalMode === 'view'}
-              />
-              <FormTextField
-                label={'Currency'}
-                value={formValues.currency}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormTextField
+                  label={'Currency'}
+                  value={formValues.currency}
                 onChange={e => setFormValues({ ...formValues, currency: e.target.value })}
                 error={errors.currency}
                 disabled={modalMode === 'view'}
-              />
-              <FormTextField
-                label={'Currency Name'}
-                value={formValues.currency_name}
-                onChange={e => setFormValues({ ...formValues, currency_name: e.target.value })}
-                error={errors.currency_name}
-                disabled={modalMode === 'view'}
-              />
-            </>
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormTextField
+                  label={'Currency Name'}
+                  value={formValues.currency_name}
+                  onChange={e => setFormValues({ ...formValues, currency_name: e.target.value })}
+                  error={errors.currency_name}
+                  disabled={modalMode === 'view'}
+                />
+              </Grid>
+            </Grid>
           }
         </Modal>
       </Grid>

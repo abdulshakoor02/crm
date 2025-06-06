@@ -75,30 +75,31 @@ const DataGridTable = React.memo(
       flex: 0.15,
       minWidth: 200,
       renderCell: (params: GridRenderCellParams) => (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           {view && (
-            <Tooltip title='View'>
-              <IconButton sx={{ textDecoration: 'none' }} onClick={() => onView?.(params.row.id)}>
+            <Tooltip title='View Details'>
+              <IconButton color='primary' onClick={() => onView?.(params.row.id)}>
                 <EyeOutline fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
           {edit && (
-            <Tooltip title='Edit'>
-              <IconButton color='secondary' onClick={() => onEdit?.(params.row.id)}>
+            <Tooltip title='Edit Item'>
+              <IconButton sx={{ color: theme.palette.warning.main }} onClick={() => onEdit?.(params.row.id)}>
                 <PencilOutline fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
           {del && (
-            <Tooltip title='Delete'>
-              <IconButton onClick={() => onDelete?.(params.row.id)}>
+            <Tooltip title='Delete Item'>
+              <IconButton color='error' onClick={() => onDelete?.(params.row.id)}>
                 <DeleteOutline fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
           {customActions.map((action, index) => {
             const shouldShow = action.show ? action.show(params.row) : true
+
             return shouldShow ? (
               <Tooltip key={index} title={action.tooltip}>
                 <IconButton onClick={() => action.onClick(params.row.id, params.row)}>
@@ -131,7 +132,21 @@ const DataGridTable = React.memo(
         rows={rows}
         columns={columnsWithActions}
         rowCount={total}
-        sx={{ color: theme.palette.primary.main }}
+        sx={{
+          // color: theme.palette.primary.main, // Example, can be removed or adjusted
+          boxShadow: theme.shadows[2],
+          border: 0, // Or `1px solid ${theme.palette.divider}`
+          padding: theme.spacing(1),
+          minHeight: 300,
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900]
+          },
+          '& .MuiDataGrid-cell': {
+            borderBottom: `1px solid ${theme.palette.divider}`
+          },
+
+          // Custom scrollbar styles are in globals.css, but you can add fallbacks or specific overrides here
+        }}
         components={{ Toolbar }}
         componentsProps={{
           toolbar: {

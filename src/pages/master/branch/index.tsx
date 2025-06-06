@@ -50,6 +50,17 @@ const columns: GridColumns = [
     )
   },
   {
+    flex: 0.2, // Adjust flex as needed
+    minWidth: 200, // Adjust minWidth as needed
+    field: 'address',
+    headerName: 'Address',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary', whiteSpace: 'pre-line' }}>
+        {params?.row?.['address']}
+      </Typography>
+    )
+  },
+  {
     flex: 0.1,
     minWidth: 150,
     field: 'phone',
@@ -399,7 +410,7 @@ const BranchComponent = () => {
       >
         {
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='Name'
@@ -411,7 +422,7 @@ const BranchComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='phone'
@@ -424,7 +435,7 @@ const BranchComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='Email'
@@ -436,7 +447,7 @@ const BranchComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='Website'
@@ -448,7 +459,7 @@ const BranchComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 select
@@ -468,7 +479,7 @@ const BranchComponent = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 select
@@ -488,7 +499,7 @@ const BranchComponent = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 select
@@ -509,7 +520,7 @@ const BranchComponent = () => {
                 </MenuItem>
               </TextField>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 type='number'
