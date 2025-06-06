@@ -400,6 +400,11 @@ const LeadComponent = () => {
     // setData(prevData => prevData.filter(row => row.id !== id));
   }
 
+  const handleAddProduct = () => {
+    handleCloseInvoiceModal()
+    router.push('/master/products')
+  }
+
   const handleGenerateInvoice = (id: string, row: any) => {
     setSelectedLead(row)
     setInvoiceModalOpen(true)
@@ -846,10 +851,30 @@ const LeadComponent = () => {
                 </Typography>
               </Grid>
 
-              <Grid item xs={12}>
-                <Typography variant="body1">
+              <Grid item xs={12} container spacing={2} alignItems="center">
+                <Grid item xs={6}>
+                  <Typography variant="body1">
                   <strong>Product Price:</strong> ${product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.price?.toFixed(2) || '0.00'}
-                </Typography>
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={3}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleAddProduct}
+                    fullWidth
+                    sx={{
+                      fontWeight: 600,
+                      px: 2,
+                      py: 1,
+                      borderRadius: 1,
+                      textTransform: 'none',
+                    }}
+                  >
+                    Add Product
+                  </Button>
+                </Grid>
               </Grid>
             </>
           )}
@@ -888,8 +913,8 @@ const LeadComponent = () => {
               {invoiceData.discountType === 'percentage'
                 ? ' Maximum allowed: 90% (to ensure minimum invoice value).'
                 : ` Maximum allowed: $${selectedLead && product?.rows ?
-                    ((product.rows.find((p: any) => p.id === selectedLead.product_id)?.price || 0) * 0.9).toFixed(2)
-                    : '0.00'} (90% of product price).`}
+                  ((product.rows.find((p: any) => p.id === selectedLead.product_id)?.price || 0) * 0.9).toFixed(2)
+                  : '0.00'} (90% of product price).`}
             </Typography>
           </Grid>
         </Grid>
