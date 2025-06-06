@@ -35,7 +35,8 @@ const DataGridTable = React.memo(
     onSearchChange,
     searchValue,
     checkBox = false,
-    loading = false
+    loading = false,
+    customActions = []
   }: {
     rows: any
     columns: GridColumns
@@ -57,6 +58,12 @@ const DataGridTable = React.memo(
     changePage: any
     checkBox?: boolean
     loading?: boolean
+    customActions?: Array<{
+      icon: React.ReactNode
+      tooltip: string
+      onClick: (id: any, row: any) => void
+      show?: (row: any) => boolean
+    }>
   }) => {
     const theme = useTheme()
     // const { } = props
@@ -65,8 +72,8 @@ const DataGridTable = React.memo(
     const actionColumn = {
       field: 'actions',
       headerName: 'Actions',
-      flex: 0.1,
-      minWidth: 150,
+      flex: 0.15,
+      minWidth: 200,
       renderCell: (params: GridRenderCellParams) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {view && (
@@ -77,25 +84,35 @@ const DataGridTable = React.memo(
             </Tooltip>
           )}
           {edit && (
-            <Tooltip title='View'>
+            <Tooltip title='Edit'>
               <IconButton color='secondary' onClick={() => onEdit?.(params.row.id)}>
                 <PencilOutline fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
           {del && (
-            <Tooltip title='View'>
+            <Tooltip title='Delete'>
               <IconButton onClick={() => onDelete?.(params.row.id)}>
                 <DeleteOutline fontSize='small' />
               </IconButton>
             </Tooltip>
           )}
+          {customActions.map((action, index) => {
+            const shouldShow = action.show ? action.show(params.row) : true
+            return shouldShow ? (
+              <Tooltip key={index} title={action.tooltip}>
+                <IconButton onClick={() => action.onClick(params.row.id, params.row)}>
+                  {action.icon}
+                </IconButton>
+              </Tooltip>
+            ) : null
+          })}
         </Box>
       )
     }
 
     // Conditionally add the action column only if any of the handlers are passed
-    const columnsWithActions = view || edit || del ? [...columns, actionColumn] : columns
+    const columnsWithActions = view || edit || del || customActions.length > 0 ? [...columns, actionColumn] : columns
 
     return (
       <DataGrid

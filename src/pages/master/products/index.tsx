@@ -15,6 +15,7 @@ import { getProductData, createProductData, updateProductData } from '../../../s
 import DataGridTable from 'src/components/Datagrid'
 import Modal from 'src/components/Model/Model'
 import { appendTenantId } from 'src/utils/tenantAppend'
+import { checkAccess } from 'src/utils/accessCheck'
 
 type Product = {
   id?: string
@@ -80,14 +81,14 @@ const ProductComponent = () => {
     setFormValues(
       rowData
         ? {
-            id: rowData.id,
-            name: rowData.name,
-            price: rowData.price
-          }
+          id: rowData.id,
+          name: rowData.name,
+          price: rowData.price
+        }
         : {
-            name: '',
-            price: ''
-          }
+          name: '',
+          price: ''
+        }
     )
     setModalMode(mode)
     setModalOpen(true)
@@ -191,6 +192,10 @@ const ProductComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
+            edit={checkAccess('productEdit')}
+            view={checkAccess('productView')}
+            del={checkAccess('productDelete')}
+            add={checkAccess('productCreate')}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
