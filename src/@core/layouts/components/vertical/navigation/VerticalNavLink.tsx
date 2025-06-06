@@ -11,7 +11,7 @@ import ListItem from '@mui/material/ListItem'
 import Typography from '@mui/material/Typography'
 import Box, { BoxProps } from '@mui/material/Box'
 import ListItemIcon from '@mui/material/ListItemIcon'
-import { styled, useTheme } from '@mui/material/styles'
+import { styled, useTheme, alpha } from '@mui/material/styles' // Added alpha
 import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton'
 
 // ** Configs Import
@@ -50,13 +50,18 @@ const MenuNavLink = styled(ListItemButton)<
   borderBottomRightRadius: 100,
   color: theme.palette.text.primary,
   transition: 'padding-left .25s ease-in-out',
+  // Updated py padding is in the sx prop within the component, not here.
   '&.active': {
+    borderLeft: `3px solid ${theme.palette.primary.main}`,
+    backgroundColor: alpha(theme.palette.primary.main, 0.1),
     '&, &:hover': {
-      boxShadow: theme.shadows[3],
-      backgroundImage: `linear-gradient(98deg, ${theme.palette.customColors.primaryGradient}, ${theme.palette.primary.main} 94%)`
+      backgroundColor: alpha(theme.palette.primary.main, 0.1), // Ensure hover on active keeps the active background
     },
     '& .MuiTypography-root, & .MuiListItemIcon-root': {
-      color: `${theme.palette.common.white} !important`
+      color: `${theme.palette.primary.main} !important`
+    },
+    '& .MuiTypography-root': {
+      fontWeight: theme.typography.fontWeightMedium
     }
   }
 }))
@@ -155,7 +160,7 @@ const VerticalNavLink = ({
               }
             }}
             sx={{
-              py: 2.25,
+              py: theme.spacing(2.5), // Changed from 2.25
               ...conditionalBgColor(),
               ...(item.disabled ? { pointerEvents: 'none' } : { cursor: 'pointer' }),
               pl: navCollapsed && !navHover ? (collapsedNavWidth - navigationBorderWidth - 24) / 8 : 5.5,

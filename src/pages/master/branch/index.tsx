@@ -19,6 +19,7 @@ import DataGridTable from 'src/components/Datagrid'
 import Modal from 'src/components/Model/Model'
 import uuid from 'react-uuid'
 import { checkAccess } from 'src/utils/accessCheck'
+import { setFlagsFromString } from 'v8'
 
 type Branch = {
   id: string
@@ -29,6 +30,7 @@ type Branch = {
   website: string
   country_id: string
   tax: string
+  address: string
   created_by?: string
   modified_by?: string
   status: string
@@ -44,6 +46,17 @@ const columns: GridColumns = [
     renderCell: (params: GridRenderCellParams) => (
       <Typography variant='body2' sx={{ color: 'text.primary' }}>
         {params?.row?.['name']}
+      </Typography>
+    )
+  },
+  {
+    flex: 0.2, // Adjust flex as needed
+    minWidth: 200, // Adjust minWidth as needed
+    field: 'address',
+    headerName: 'Address',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary', whiteSpace: 'pre-line' }}>
+        {params?.row?.['address']}
       </Typography>
     )
   },
@@ -142,6 +155,7 @@ const BranchComponent = () => {
     region_id: '',
     website: '',
     country_id: '',
+    address: '',
     tax: '',
     status: ''
   })
@@ -153,6 +167,7 @@ const BranchComponent = () => {
     region_id: '',
     website: '',
     country_id: '',
+    address: '',
     tax: '',
     status: ''
   })
@@ -185,6 +200,7 @@ const BranchComponent = () => {
             website: rowData.website,
             region_id: rowData.region.region_id,
             country_id: rowData.country.country_id,
+            address: rowData.address,
             tax: rowData.tax,
             status: rowData.status
           }
@@ -196,6 +212,7 @@ const BranchComponent = () => {
             website: '',
             region_id: '',
             country_id: '',
+            address: '',
             tax: '',
             status: ''
           }
@@ -214,11 +231,19 @@ const BranchComponent = () => {
       website: '',
       region_id: '',
       country_id: '',
+      address: '',
       tax: '',
       status: ''
     }) // Reset errors
   }
 
+  const handlePaste = (event: any) => {
+    const pasteText = event.clipboardData.getData('text')
+    console.log('pastedText', pasteText)
+
+    setFormValues({ ...formValues, address: formValues.address + pasteText }) // Append pasted content to current value
+    event.preventDefault() // Prevent default paste behavior if needed
+  }
   const handleSubmit = async () => {
     const data = []
     const validationErrors: Branch = {
@@ -229,18 +254,19 @@ const BranchComponent = () => {
       website: '',
       region_id: '',
       country_id: '',
+      address: '',
       tax: '',
       status: ''
     }
     let isValid = true
 
     // Validation logic
-    for (let i in validationErrors) {
+    for (const i in validationErrors) {
       if (i == 'id') {
         continue
       }
-      if (!formValues[i]) {
-        validationErrors[i] = `Valid ${i} is required`
+      if (!formValues[i as keyof Branch]) {
+        validationErrors[i as keyof Branch] = `Valid ${i} is required`
         isValid = false
       }
     }
@@ -373,7 +399,7 @@ const BranchComponent = () => {
       >
         {
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='Name'
@@ -385,7 +411,7 @@ const BranchComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='phone'
@@ -398,7 +424,7 @@ const BranchComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='Email'
@@ -410,7 +436,7 @@ const BranchComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='Website'
@@ -422,7 +448,7 @@ const BranchComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 select
@@ -442,7 +468,7 @@ const BranchComponent = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 select
@@ -462,7 +488,7 @@ const BranchComponent = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 select
@@ -483,7 +509,7 @@ const BranchComponent = () => {
                 </MenuItem>
               </TextField>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 type='number'
@@ -494,6 +520,20 @@ const BranchComponent = () => {
                 helperText={errors.tax}
                 disabled={modalMode === 'View'}
                 margin='normal'
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                multiline
+                label='Address'
+                value={formValues.address}
+                onPaste={handlePaste}
+                onChange={e => setFormValues({ ...formValues, address: e.target.value })}
+                error={!!errors.address}
+                helperText={errors.address}
+                disabled={modalMode === 'View'}
+                margin='dense'
               />
             </Grid>
           </Grid>
