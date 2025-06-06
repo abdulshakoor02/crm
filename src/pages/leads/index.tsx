@@ -816,106 +816,122 @@ const LeadComponent = () => {
 
       {/* Invoice Modal */}
       <Modal
-        width={600}
+        width={520}
         isOpen={invoiceModalOpen}
         onClose={handleCloseInvoiceModal}
-        title="Generate Invoice"
+        title="🧾 Generate Invoice"
         onSubmit={handleInvoiceSubmit}
         mode="Add"
         height="auto"
       >
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>
-              Invoice Details
-            </Typography>
-          </Grid>
+        <Grid container spacing={2}>
 
           {selectedLead && (
             <>
+              {/* Lead Info Card */}
               <Grid item xs={12}>
-                <Typography variant="body1">
-                  <strong>Lead:</strong> {selectedLead.name}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12}>
-                <Typography variant="body1">
-                  <strong>Email:</strong> {selectedLead.email}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12}>
-                <Typography variant="body1">
-                  <strong>Product:</strong> {product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.name || 'N/A'}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12} container spacing={2} alignItems="center">
-                <Grid item xs={6}>
-                  <Typography variant="body1">
-                  <strong>Product Price:</strong> ${product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.price?.toFixed(2) || '0.00'}
+                <Box sx={{
+                  p: 2,
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
+                  borderRadius: 1.5,
+                  border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+                }}>
+                  <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1, fontWeight: 600 }}>
+                    Lead Information
                   </Typography>
-                </Grid>
+                  <Box sx={{ display: 'flex', gap: 3 }}>
+                    <Typography variant="body2"><strong>Name:</strong> {selectedLead.name}</Typography>
+                    <Typography variant="body2"><strong>Email:</strong> {selectedLead.email}</Typography>
+                  </Box>
+                </Box>
+              </Grid>
 
-                <Grid item xs={3}>
+              {/* Product Info & Add Button */}
+              <Grid item xs={8}>
+                <Box sx={{
+                  p: 2,
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
+                  borderRadius: 1.5,
+                  border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+                }}>
+                  <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1, fontWeight: 600 }}>
+                    Product Details
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    <strong>Product:</strong> {product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.name || 'No Product Assigned'}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Price:</strong> ${product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.price?.toFixed(2) || '0.00'}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid item xs={4}>
+                <Box sx={{ height: '100%', display: 'flex', alignItems: 'center' }}>
                   <Button
                     variant="contained"
-                    color="primary"
                     onClick={handleAddProduct}
                     fullWidth
                     sx={{
-                      fontWeight: 600,
-                      px: 2,
-                      py: 1,
-                      borderRadius: 1,
                       textTransform: 'none',
+                      borderRadius: 1.5,
+                      py: 1.5,
+                      fontWeight: 600,
+                      fontSize: '0.875rem'
                     }}
                   >
                     Add Product
                   </Button>
-                </Grid>
+                </Box>
               </Grid>
             </>
           )}
 
-          <Grid item xs={8}>
-            <TextField
-              fullWidth
-              label="Discount"
-              type="number"
-              value={invoiceData.discount}
-              onChange={e => setInvoiceData({ ...invoiceData, discount: e.target.value })}
-              error={!!invoiceErrors.discount}
-              helperText={invoiceErrors.discount}
-              margin="normal"
-              inputProps={{ min: 0, step: 0.01 }}
-            />
-          </Grid>
-
-          <Grid item xs={4}>
-            <TextField
-              fullWidth
-              select
-              label="Type"
-              value={invoiceData.discountType}
-              onChange={e => setInvoiceData({ ...invoiceData, discountType: e.target.value })}
-              margin="normal"
-            >
-              <MenuItem value="percentage">%</MenuItem>
-              <MenuItem value="fixed">Fixed</MenuItem>
-            </TextField>
-          </Grid>
-
+          {/* Discount Section */}
           <Grid item xs={12}>
-            <Typography variant="body2" color="textSecondary">
-              Enter the discount amount to be applied to this invoice.
-              {invoiceData.discountType === 'percentage'
-                ? ' Maximum allowed: 90% (to ensure minimum invoice value).'
-                : ` Maximum allowed: $${selectedLead && product?.rows ?
-                  ((product.rows.find((p: any) => p.id === selectedLead.product_id)?.price || 0) * 0.9).toFixed(2)
-                  : '0.00'} (90% of product price).`}
-            </Typography>
+            <Box sx={{
+              p: 2,
+              backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
+              borderRadius: 1.5,
+              border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+            }}>
+              <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1.5, fontWeight: 600 }}>
+                Discount Settings
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={8}>
+                  <TextField
+                    fullWidth
+                    label="Discount"
+                    type="number"
+                    value={invoiceData.discount}
+                    onChange={e => setInvoiceData({ ...invoiceData, discount: e.target.value })}
+                    error={!!invoiceErrors.discount}
+                    helperText={invoiceErrors.discount}
+                    size="small"
+                    inputProps={{ min: 0, step: 0.01 }}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Type"
+                    value={invoiceData.discountType}
+                    onChange={e => setInvoiceData({ ...invoiceData, discountType: e.target.value })}
+                    size="small"
+                  >
+                    <MenuItem value="percentage">%</MenuItem>
+                    <MenuItem value="fixed">Fixed</MenuItem>
+                  </TextField>
+                </Grid>
+              </Grid>
+              <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+                {invoiceData.discountType === 'percentage'
+                  ? 'Maximum: 90% (to ensure minimum invoice value)'
+                  : 'Maximum: 90% of product price'}
+              </Typography>
+            </Box>
           </Grid>
         </Grid>
       </Modal>
