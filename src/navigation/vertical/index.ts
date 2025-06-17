@@ -1,8 +1,17 @@
 // ** Icon imports
 import HomeOutline from 'mdi-material-ui/HomeOutline'
-import EmailOutline from 'mdi-material-ui/EmailOutline'
 import ShieldOutline from 'mdi-material-ui/ShieldOutline'
-import FolderSpecialIcon from '@mui/icons-material/FolderSpecial'
+import AccountGroupOutline from 'mdi-material-ui/AccountGroupOutline';
+import BullhornOutline from 'mdi-material-ui/BullhornOutline';
+import FolderCogOutline from 'mdi-material-ui/FolderCogOutline'; // For Masters
+import Earth from 'mdi-material-ui/Earth'; // For Countries
+import OfficeBuildingOutline from 'mdi-material-ui/OfficeBuildingOutline'; // For Tenant
+import MapMarkerRadiusOutline from 'mdi-material-ui/MapMarkerRadiusOutline'; // For Region
+import StoreOutline from 'mdi-material-ui/StoreOutline'; // For Branch
+import AccountLockOutline from 'mdi-material-ui/AccountLockOutline'; // For Role
+import TuneVariant from 'mdi-material-ui/TuneVariant'; // For Features
+import PackageVariantClosed from 'mdi-material-ui/PackageVariantClosed'; // For Products
+import TagOutline from 'mdi-material-ui/TagOutline'; // For LeadCategory
 
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
@@ -16,13 +25,15 @@ const navigation = (): VerticalNavItemsType => {
     },
     {
       title: 'User',
-      icon: EmailOutline,
-      path: '/user'
+      icon: AccountGroupOutline,
+      path: '/user',
+      access: 'user'
     },
     {
       title: 'Leads',
-      icon: EmailOutline,
-      path: '/leads'
+      icon: BullhornOutline,
+      path: '/leads',
+      access: 'lead'
     },
     {
       title: 'Access Control',
@@ -33,39 +44,54 @@ const navigation = (): VerticalNavItemsType => {
     },
     {
       title: 'Masters',
-      icon: FolderSpecialIcon,
+      icon: FolderCogOutline,
+      access: ['countries', 'region', 'role', 'branch', 'products', 'leadCategory'],
       children: [
         {
           title: 'Countries',
-          path: '/master/countries'
+          icon: Earth,
+          path: '/master/countries',
+          access: 'countries'
         },
         {
           title: 'Tenant',
+          icon: OfficeBuildingOutline,
           path: '/master/tenant'
         },
         {
           title: 'Region',
-          path: '/master/region'
+          icon: MapMarkerRadiusOutline,
+          path: '/master/region',
+          access: 'region'
         },
         {
           title: 'Branch',
-          path: '/master/branch'
+          icon: StoreOutline,
+          path: '/master/branch',
+          access: 'branch'
         },
         {
           title: 'Role',
-          path: '/master/role'
+          icon: AccountLockOutline,
+          path: '/master/role',
+          access: 'role'
         },
         {
           title: 'Features',
+          icon: TuneVariant,
           path: '/master/features'
         },
         {
           title: 'Products',
-          path: '/master/products'
+          icon: PackageVariantClosed,
+          path: '/master/products',
+          access: 'products'
         },
         {
           title: 'LeadCategory',
-          path: '/master/leadCategory'
+          icon: TagOutline,
+          path: '/master/leadCategory',
+          access: 'leadCategory'
         }
       ]
     }

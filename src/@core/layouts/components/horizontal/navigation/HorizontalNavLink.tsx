@@ -9,7 +9,7 @@ import { useRouter } from 'next/router'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import List from '@mui/material/List'
-import { styled } from '@mui/material/styles'
+import { styled, alpha } from '@mui/material/styles' // Added alpha
 import Typography from '@mui/material/Typography'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import MuiListItem, { ListItemProps } from '@mui/material/ListItem'
@@ -30,7 +30,7 @@ import Translations from 'src/layouts/components/Translations'
 import CanViewNavLink from 'src/layouts/components/acl/CanViewNavLink'
 
 // ** Util Import
-import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
+// import { hexToRGBA } from 'src/@core/utils/hex-to-rgba' // hexToRGBA no longer needed, replaced by alpha
 
 interface Props {
   item: NavLink
@@ -41,16 +41,19 @@ interface Props {
 const ListItem = styled(MuiListItem)<ListItemProps & { component?: ElementType; target?: '_blank' | undefined }>(
   ({ theme }) => ({
     width: 'auto',
-    paddingTop: theme.spacing(2.25),
+    paddingTop: theme.spacing(2.5), // Updated padding
     color: theme.palette.text.primary,
-    paddingBottom: theme.spacing(2.25),
+    paddingBottom: theme.spacing(2.5), // Updated padding
     '&:hover': {
       backgroundColor: theme.palette.action.hover
     },
     '&.active, &.active:hover': {
-      backgroundColor: hexToRGBA(theme.palette.primary.main, 0.08)
+      backgroundColor: alpha(theme.palette.primary.main, 0.1), // Updated background for hasParent and base
+      '& .MuiTypography-root': { // Added for all active items
+        fontWeight: theme.typography.fontWeightMedium
+      }
     },
-    '&.active .MuiTypography-root, &.active .MuiListItemIcon-root': {
+    '&.active .MuiTypography-root, &.active .MuiListItemIcon-root': { // Existing color rule, still good for hasParent
       color: theme.palette.primary.main
     }
   })
@@ -106,12 +109,12 @@ const HorizontalNavLink = (props: Props) => {
                     px: 5.5,
                     borderRadius: 3.5,
                     '&.active, &.active:hover': {
-                      boxShadow: 3,
-                      backgroundImage: theme =>
-                        `linear-gradient(98deg, ${theme.palette.customColors.primaryGradient}, ${theme.palette.primary.main} 94%)`,
+                      // Removed boxShadow and backgroundImage
+                      backgroundColor: alpha(theme.palette.primary.main, 0.1), // Explicitly set for !hasParent active
                       '& .MuiTypography-root, & .MuiListItemIcon-root': {
-                        color: 'common.white'
+                        color: theme.palette.primary.main // Changed from common.white
                       }
+                      // fontWeight for typography is handled by the main styled component's active style
                     }
                   }
                 : { px: 5 })

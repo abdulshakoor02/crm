@@ -39,9 +39,9 @@ const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode, wi
           bgcolor: 'background.paper',
           borderRadius: 2,
           boxShadow: 24,
-          p: 4,
-          width: width || 500,
-          maxHeight: height,
+          p: { xs: 2, sm: 3, md: 4 },
+          width: { xs: '95%', sm: '80%', md: width || 500 },
+          maxHeight: { xs: '90vh', sm: '80vh', md: height || '70vh' },
           overflowY: 'auto'
         }}
         className={className} // You can still use the custom className if needed
@@ -66,7 +66,7 @@ const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode, wi
 
         {/* Modal Footer */}
         <Box display='flex' justifyContent='space-between' mt={3}>
-          {(mode == 'edit' || mode == 'add') && (
+          {(mode.toLowerCase() == 'edit' || mode.toLowerCase() == 'add') && (
             <Button variant='contained' onClick={onSubmit}>
               Submit
             </Button>

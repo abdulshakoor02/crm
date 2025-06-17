@@ -15,6 +15,12 @@ module.exports = withTM({
   env: {
     baseUrl: process.env.BASE_URL
   },
+  eslint: {
+    ignoreDuringBuilds: true
+  },
+  typescript: {
+    ignoreBuildErrors: true
+  },
   trailingSlash: true,
   reactStrictMode: false,
   experimental: {

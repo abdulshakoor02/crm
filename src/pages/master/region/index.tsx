@@ -12,9 +12,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch } from '../../../store'
 
 import { getRegionData, createRegionData, updateRegionData } from '../../../store/apps/region'
-import DataGridTable from '../../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
-import { appendTenantId, appendTenantToQuery } from 'src/pages/utils/tenantAppend'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
+import AclGuard from 'src/components/AclGuard/AclGuard'
+import { appendTenantId } from 'src/utils/tenantAppend'
+import { checkAccess } from 'src/utils/accessCheck'
 
 type Region = {
   id?: string
@@ -176,77 +178,83 @@ const RegionComponent = () => {
   }
 
   return (
-    <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <Card>
-          <DataGridTable
-            loading={region?.loading}
-            checkBox={false}
-            rows={region.rows}
-            columns={columns}
-            total={region.count}
-            pageSize={pageSize}
-            changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
-            changePage={(newPage: number) => setPage(newPage)}
-            searchValue={searchValue}
-            onSearchChange={e => setSearchValue(e.target.value)}
-            onSearch={handleSearch}
-            onClearSearch={onClearSearch}
-            onView={id => handleOpenModal(id, 'View')}
-            onEdit={id => handleOpenModal(id, 'Edit')}
-            onDelete={id => handleDelete(id)}
-            onAddRow={() => handleOpenModal(null, 'Add')}
-          />
-        </Card>
-      </Grid>
+    <AclGuard feature='region'>
+      <Grid container spacing={6}>
+        <Grid item xs={12}>
+          <Card>
+            <DataGridTable
+              loading={region?.loading}
+              checkBox={false}
+              rows={region.rows}
+              columns={columns}
+              total={region.count}
+              pageSize={pageSize}
+              changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
+              changePage={(newPage: number) => setPage(newPage)}
+              searchValue={searchValue}
+              onSearchChange={e => setSearchValue(e.target.value)}
+              onSearch={handleSearch}
+              onClearSearch={onClearSearch}
+              edit={checkAccess('regionEdit')}
+              view={checkAccess('regionView')}
+              del={checkAccess('regionDelete')}
+              add={checkAccess('regionCreate')}
+              onView={id => handleOpenModal(id, 'View')}
+              onEdit={id => handleOpenModal(id, 'Edit')}
+              onDelete={id => handleDelete(id)}
+              onAddRow={() => handleOpenModal(null, 'Add')}
+            />
+          </Card>
+        </Grid>
 
-      <Modal
-        width={700}
-        isOpen={modalOpen}
-        onClose={handleCloseModal}
-        title={`${modalMode} Region`}
-        onSubmit={handleSubmit}
-        mode={modalMode}
-      >
-        {
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label='Name'
-                value={formValues.name}
-                onChange={e => setFormValues({ ...formValues, name: e.target.value })}
-                error={!!errors.name}
-                helperText={errors.name}
-                disabled={modalMode === 'View'}
-                margin='normal'
-              />
+        <Modal
+          width={700}
+          isOpen={modalOpen}
+          onClose={handleCloseModal}
+          title={`${modalMode} Region`}
+          onSubmit={handleSubmit}
+          mode={modalMode}
+        >
+          {
+            <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label='Name'
+                  value={formValues.name}
+                  onChange={e => setFormValues({ ...formValues, name: e.target.value })}
+                  error={!!errors.name}
+                  helperText={errors.name}
+                  disabled={modalMode === 'View'}
+                  margin='normal'
+                />
+              </Grid>
+            <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  select
+                  name='status'
+                  value={formValues.status}
+                  label='Status'
+                  error={!!errors.status}
+                  helperText={errors.status}
+                  onChange={e => setFormValues({ ...formValues, status: e.target.value })}
+                  disabled={modalMode === 'View'}
+                  sx={{ mt: 4 }}
+                >
+                  <MenuItem key='Active' value='Active'>
+                    Active
+                  </MenuItem>
+                  <MenuItem key='inActive' value='inActive'>
+                    In Active
+                  </MenuItem>
+                </TextField>
+              </Grid>
             </Grid>
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                select
-                name='status'
-                value={formValues.status}
-                label='Status'
-                error={!!errors.status}
-                helperText={errors.status}
-                onChange={e => setFormValues({ ...formValues, status: e.target.value })}
-                disabled={modalMode === 'View'}
-                sx={{ mt: 4 }}
-              >
-                <MenuItem key='Active' value='Active'>
-                  Active
-                </MenuItem>
-                <MenuItem key='inActive' value='inActive'>
-                  In Active
-                </MenuItem>
-              </TextField>
-            </Grid>
-          </Grid>
-        }
-      </Modal>
-    </Grid>
+          }
+        </Modal>
+      </Grid>
+    </AclGuard>
   )
 }
 

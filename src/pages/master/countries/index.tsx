@@ -12,13 +12,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState, AppDispatch } from '../../../store'
 
 import { createCountryData, getCountriesData, updateCountryData } from '../../../store/apps/countries'
-import DataGridTable from '../../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
 import { TextField } from '@mui/material'
-import FormTextField from 'src/pages/components/FormtextField'
+import FormTextField from 'src/components/FormtextField'
 import { validateFormValues } from 'src/validation/validation'
 import { Countries as ICountries } from 'src/types/components/country.types'
-
+import AclGuard from 'src/components/AclGuard/AclGuard'
+import { checkAccess } from 'src/utils/accessCheck'
 
 const columns: GridColumns = [
   {
@@ -71,7 +72,6 @@ const columns: GridColumns = [
 const Countries = () => {
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
-  const [isLoading, setLoading] = useState(true)
   const [pageSize, setPageSize] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
   const [searchValue, setSearchValue] = useState('')
@@ -112,21 +112,20 @@ const Countries = () => {
 
   const handleSubmit = async () => {
     // let validationErrors = { name: '', code: '', currency: '', currency_name: '' }
-    let isValid = true;
+    let isValid = true
 
     const validationRules: Record<keyof ICountries, string> = {
       name: 'Name is required',
       code: 'Valid code is required',
       currency: 'Currency is required',
-      currency_name: 'Currency name is required',
-    };
-
-    const { hasError, errors: validationErrors } = validateFormValues(formValues,validationRules);
-    if(hasError){
-      setErrors(validationErrors); // Update the errors state
-      return;
+      currency_name: 'Currency name is required'
     }
 
+    const { hasError, errors: validationErrors } = validateFormValues(formValues, validationRules)
+    if (hasError) {
+      setErrors(validationErrors) // Update the errors state
+      return
+    }
 
     // // Validation logic
     // if (!formValues.name) {
@@ -179,33 +178,38 @@ const Countries = () => {
     // setData(prevData => prevData.filter(row => row.id !== id));
   }
 
-  const handleOnSearch = () => {
-    if (page !== 0) setPage(0); // Reset to first page on search
-    dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } }))
-  }
-
   const handleOnSearchClear = () => {
     setSearchValue('')
     dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page }))
   }
 
+  const handleOnSearch = () => {
+    if (page !== 0) setPage(0) // Reset to first page on search
+    dispatch(getCountriesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } }))
+  }
+
   return (
-    <>
+    <AclGuard feature='countries'>
       <Grid container spacing={6}>
         <Grid item xs={12}>
           <Card>
             <DataGridTable
+              checkBox={false}
+              loading={country.loading}
               rows={country.rows}
               columns={columns}
               total={country.count}
               pageSize={pageSize}
-              loading={country.loading}
               changePageSize={(newPageSize: number) => setPageSize(newPageSize)}
               changePage={(newPage: number) => setPage(newPage)}
               searchValue={searchValue}
               onSearchChange={e => setSearchValue(e.target.value)}
-              onSearch={handleOnSearch}
+              onSearch={() => console.log('searched!')}
               onClearSearch={handleOnSearchClear}
+              edit={checkAccess('countriesEdit')}
+              view={checkAccess('countriesView')}
+              del={checkAccess('countriesDelete')}
+              add={checkAccess('countriesCreate')}
               onView={id => handleOpenModal(id, 'view')}
               onEdit={id => handleOpenModal(id, 'edit')}
               onDelete={id => handleDelete(id)}
@@ -223,40 +227,48 @@ const Countries = () => {
           mode={modalMode}
         >
           {
-            <>
-              <FormTextField
-                label={'Name'}
-                value={formValues.name}
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <FormTextField
+                  label={'Name'}
+                  value={formValues.name}
                 onChange={e => setFormValues({ ...formValues, name: e.target.value })}
                 error={errors.name}
                 disabled={modalMode === 'view'}
-              />
-              <FormTextField
-                label={'Code'}
-                value={formValues.code}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormTextField
+                  label={'Code'}
+                  value={formValues.code}
                 onChange={e => setFormValues({ ...formValues, code: e.target.value })}
                 error={errors.code}
                 disabled={modalMode === 'view'}
-              />
-              <FormTextField
-                label={'Currency'}
-                value={formValues.currency}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormTextField
+                  label={'Currency'}
+                  value={formValues.currency}
                 onChange={e => setFormValues({ ...formValues, currency: e.target.value })}
                 error={errors.currency}
                 disabled={modalMode === 'view'}
-              />
-              <FormTextField
-                label={'Currency Name'}
-                value={formValues.currency_name}
-                onChange={e => setFormValues({ ...formValues, currency_name: e.target.value })}
-                error={errors.currency_name}
-                disabled={modalMode === 'view'}
-              />
-            </>
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormTextField
+                  label={'Currency Name'}
+                  value={formValues.currency_name}
+                  onChange={e => setFormValues({ ...formValues, currency_name: e.target.value })}
+                  error={errors.currency_name}
+                  disabled={modalMode === 'view'}
+                />
+              </Grid>
+            </Grid>
           }
         </Modal>
       </Grid>
-    </>
+    </AclGuard>
   )
 }
 

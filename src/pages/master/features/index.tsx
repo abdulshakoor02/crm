@@ -12,12 +12,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState, AppDispatch } from '../../../store'
 
 import { getFeaturesData, createFeaturesData, updateFeaturesData } from '../../../store/apps/feature'
-import DataGridTable from '../../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
 import uuid from 'react-uuid'
 
 type Features = {
-  id?: string,
+  id?: string
   name: string
 }
 
@@ -44,10 +44,10 @@ const FeaturesComponent = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'View' | 'Edit' | 'Add'>('View')
   const [formValues, setFormValues] = useState<Features>({
-    name: '',
+    name: ''
   })
   const [errors, setErrors] = useState<Features>({
-    name: '',
+    name: ''
   })
 
   const features = useSelector((state: any) => state.features)
@@ -65,12 +65,12 @@ const FeaturesComponent = () => {
     setFormValues(
       rowData
         ? {
-          id: rowData.id,
-    name: rowData.name,
-  }
+            id: rowData.id,
+            name: rowData.name
+          }
         : {
-    name: '',
-  }
+            name: ''
+          }
     )
     setModalMode(mode)
     setModalOpen(true)
@@ -79,22 +79,21 @@ const FeaturesComponent = () => {
   const handleCloseModal = () => {
     setModalOpen(false)
     setErrors({
-    name: '',
-  }) // Reset errors
+      name: ''
+    }) // Reset errors
   }
 
   const handleSubmit = async () => {
     const data = []
-    formValues.tenant_id = 'a61c2d3d-f0c1-4559-a7a5-3ad865fef54f'
     const validationErrors: Features = {
-    name: '',
-  }
+      name: ''
+    }
     let isValid = true
 
     // Validation logic
-    for (let i in validationErrors) {
-      if (!formValues[i]) {
-        validationErrors[i] = `Valid ${i} is required`
+    for (const i in validationErrors) {
+      if (!formValues[i as keyof Features]) {
+        validationErrors[i as keyof Features] = `Valid ${i} is required`
         isValid = false
       }
     }
@@ -144,9 +143,7 @@ const FeaturesComponent = () => {
   }
   const handleSearch = async () => {
     if (searchValue != '') {
-    await dispatch(
-      getFeaturesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } })
-    )
+      await dispatch(getFeaturesData({ limit: pageSize, offset: pageSize * page, where: { name: searchValue } }))
     }
   }
 
@@ -167,6 +164,9 @@ const FeaturesComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
+            edit={true}
+            view={true}
+            del={true}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
@@ -185,7 +185,7 @@ const FeaturesComponent = () => {
       >
         {
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label='Name'

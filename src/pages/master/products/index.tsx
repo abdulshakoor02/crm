@@ -12,9 +12,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch } from '../../../store'
 
 import { getProductData, createProductData, updateProductData } from '../../../store/apps/product'
-import DataGridTable from '../../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
-import { appendTenantId } from 'src/pages/utils/tenantAppend'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
+import { appendTenantId } from 'src/utils/tenantAppend'
 
 type Product = {
   id?: string
@@ -209,7 +209,7 @@ const ProductComponent = () => {
       >
         {
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='Name'
@@ -221,10 +221,10 @@ const ProductComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label='Name'
+                label='Price'
                 value={formValues.price}
                 onChange={e => setFormValues({ ...formValues, price: e.target.value })}
                 error={!!errors.price}

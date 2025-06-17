@@ -14,7 +14,7 @@ import CardContent from '@mui/material/CardContent'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 
-import TransferList from 'src/pages/components/TransferList'
+import TransferList from 'src/components/TransferList'
 
 const RolesCards = ({ role, features }: { role: any; features: any }) => {
   // ** States

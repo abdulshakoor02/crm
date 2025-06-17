@@ -8,33 +8,33 @@ interface Redux {
   dispatch: Dispatch<any>
 }
 
-export const getLeadData: any = createAsyncThunk(
-  'lead/find',
-  async (data: any, { getState, dispatch }: Redux) => {
-    data = { ...data, column: 'leads' }
-    const response = await axios.post(`/api/backend/lead/find`, data)
-
-    return response.data
+export const getLeadData: any = createAsyncThunk('lead/find', async (data: any, { getState, dispatch }: Redux) => {
+  data = { ...data, column: 'leads' }
+  const { features, id } = JSON.parse(window.localStorage.getItem('userData'))
+  if (features.includes('self')) {
+    data = { ...data, find: { employee_id: id } }
   }
-)
+  const response = await axios.post(`/api/backend/lead/find`, data)
 
-export const createLeadData: any = createAsyncThunk(
-  'lead/create',
-  async (data: any, { getState, dispatch }: Redux) => {
-    const response = await axios.post(`/api/backend/lead/create`, data)
+  return response.data
+})
 
-    return response.data
+export const createLeadData: any = createAsyncThunk('lead/create', async (data: any, { getState, dispatch }: Redux) => {
+  const { features, id } = JSON.parse(window.localStorage.getItem('userData'))
+  if (features.includes('self')) {
+    data = data.map(val => ({ ...val, employee_id: id }))
   }
-)
+  console.log(data)
+  const response = await axios.post(`/api/backend/lead/create`, data)
 
-export const updateLeadData: any = createAsyncThunk(
-  'lead/update',
-  async (data: any, { getState, dispatch }: Redux) => {
-    const response = await axios.post(`/api/backend/lead/update`, data)
+  return response.data
+})
 
-    return response.data
-  }
-)
+export const updateLeadData: any = createAsyncThunk('lead/update', async (data: any, { getState, dispatch }: Redux) => {
+  const response = await axios.post(`/api/backend/lead/update`, data)
+
+  return response.data
+})
 
 export const leadSlice = createSlice({
   name: 'lead',

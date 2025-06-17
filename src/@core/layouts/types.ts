@@ -21,6 +21,7 @@ export type NavLink = {
   icon?: any
   path?: string
   title: string
+  access?: string | string[]
   action?: string
   subject?: string
   disabled?: boolean
@@ -33,6 +34,7 @@ export type NavLink = {
 export type NavGroup = {
   icon?: any
   title: string
+  access: string | string[]
   action?: string
   subject?: string
   badgeContent?: string

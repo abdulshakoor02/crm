@@ -16,10 +16,11 @@ import { getEmployeesData, updateEmployeesData, createEmployeesData } from '../.
 import { getCountriesData } from '../../store/apps/countries'
 import { getBranchData } from '../../store/apps/branch'
 import { getRoleData } from '../../store/apps/role'
-import DataGridTable from '../components/Datagrid'
-import Modal from 'src/pages/components/Model/Model'
+import DataGridTable from 'src/components/Datagrid'
+import Modal from 'src/components/Model/Model'
 import uuid from 'react-uuid'
-import { appendTenantId } from 'src/pages/utils/tenantAppend'
+import { appendTenantId } from 'src/utils/tenantAppend'
+import { checkAccess } from 'src/utils/accessCheck'
 
 type User = {
   id?: string
@@ -369,6 +370,10 @@ const UserComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
+            edit={checkAccess('userEdit')}
+            view={checkAccess('userView')}
+            del={checkAccess('userDelete')}
+            add={checkAccess('userCreate')}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
