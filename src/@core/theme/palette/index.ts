@@ -1,12 +1,13 @@
 // ** Type Imports
 import { PaletteMode } from '@mui/material'
 import { Skin, ThemeColor } from 'src/@core/layouts/types'
+import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 
 const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) => {
   // ** Vars
-  const lightColor = '58, 53, 65'
-  const darkColor = '231, 227, 252'
-  const mainColor = mode === 'light' ? lightColor : darkColor
+  const lightColor = '58, 53, 65' // RGB components for light mode text/actions
+  const darkColor = '#E7E3FC' // Hex for dark mode text/actions
+  const mainColor = mode === 'light' ? lightColor : darkColor // Deprecated for direct rgba usage, kept for customColors.main
 
   const primaryGradient = () => {
     if (themeColor === 'primary') {
@@ -36,9 +37,9 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
 
   return {
     customColors: {
-      dark: darkColor,
-      main: mainColor,
-      light: lightColor,
+      dark: darkColor, // Now a hex color
+      main: mainColor, // This will be hex if dark, rgb string if light.
+      light: lightColor, // RGB components
       darkBg: '#28243D',
       lightBg: '#F4F5FA',
       primaryGradient: primaryGradient(),
@@ -103,22 +104,22 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
       A700: '#303030'
     },
     text: {
-      primary: `rgba(${mainColor}, 0.87)`,
-      secondary: `rgba(${mainColor}, 0.68)`,
-      disabled: `rgba(${mainColor}, 0.38)`
+      primary: mode === 'light' ? `rgba(${lightColor}, 0.87)` : hexToRGBA(darkColor, 0.87),
+      secondary: mode === 'light' ? `rgba(${lightColor}, 0.68)` : hexToRGBA(darkColor, 0.68),
+      disabled: mode === 'light' ? `rgba(${lightColor}, 0.38)` : hexToRGBA(darkColor, 0.38)
     },
-    divider: `rgba(${mainColor}, 0.12)`,
+    divider: mode === 'light' ? `rgba(${lightColor}, 0.12)` : hexToRGBA(darkColor, 0.12),
     background: {
       paper: mode === 'light' ? '#FFF' : '#312D4B',
       default: defaultBgColor()
     },
     action: {
-      active: `rgba(${mainColor}, 0.54)`,
-      hover: `rgba(${mainColor}, 0.04)`,
-      selected: `rgba(${mainColor}, 0.08)`,
-      disabled: `rgba(${mainColor}, 0.3)`,
-      disabledBackground: `rgba(${mainColor}, 0.18)`,
-      focus: `rgba(${mainColor}, 0.12)`
+      active: mode === 'light' ? `rgba(${lightColor}, 0.54)` : hexToRGBA(darkColor, 0.54),
+      hover: mode === 'light' ? `rgba(${lightColor}, 0.04)` : hexToRGBA(darkColor, 0.04),
+      selected: mode === 'light' ? `rgba(${lightColor}, 0.08)` : hexToRGBA(darkColor, 0.08),
+      disabled: mode === 'light' ? `rgba(${lightColor}, 0.3)` : hexToRGBA(darkColor, 0.3),
+      disabledBackground: mode === 'light' ? `rgba(${lightColor}, 0.18)` : hexToRGBA(darkColor, 0.18),
+      focus: mode === 'light' ? `rgba(${lightColor}, 0.12)` : hexToRGBA(darkColor, 0.12)
     }
   }
 }
