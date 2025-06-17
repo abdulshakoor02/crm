@@ -42,10 +42,10 @@ import { appendTenantId } from 'src/utils/tenantAppend'
 import uuid from 'react-uuid'
 import { checkAccess } from 'src/utils/accessCheck'
 
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { getUnixTime, format, fromUnixTime } from 'date-fns'; // Added format and fromUnixTime
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV2'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import { getUnixTime, format, fromUnixTime } from 'date-fns' // Added format and fromUnixTime
 
 type Lead = {
   id?: string
@@ -59,7 +59,7 @@ type Lead = {
   lead_category_id: string
   product_id?: string
   tenant_id?: string
-  appointmentDateTime?: Date | null; // Added
+  appointmentDateTime?: Date | null // Added
 }
 
 let columns: GridColumns = [
@@ -135,6 +135,7 @@ let columns: GridColumns = [
       </Typography>
     )
   }
+
   // Omitting other columns for brevity in this diff, they remain unchanged
 ]
 
@@ -147,31 +148,34 @@ const appointmentDateTimeColumn: GridColumns[number] = {
   renderCell: (params: GridRenderCellParams) => {
     if (params.row.appointmentDateTime) {
       try {
-        const date = fromUnixTime(params.row.appointmentDateTime as number);
+        const date = fromUnixTime(params.row.appointmentDateTime as number)
+
         return (
           <Typography variant='body2' sx={{ color: 'text.primary' }}>
             {format(date, 'dd/MM/yyyy HH:mm')}
           </Typography>
-        );
+        )
       } catch (error) {
-        console.error("Error formatting appointmentDateTime:", error, params.row.appointmentDateTime);
+        console.error('Error formatting appointmentDateTime:', error, params.row.appointmentDateTime)
+
         return (
           <Typography variant='body2' sx={{ color: 'text.secondary' }}>
             Invalid Date
           </Typography>
-        );
+        )
       }
     }
+
     return (
       <Typography variant='body2' sx={{ color: 'text.secondary' }}>
         --
       </Typography>
-    );
+    )
   }
-};
+}
 
 // Add the new column to the existing columns array
-columns.push(appointmentDateTimeColumn);
+columns.push(appointmentDateTimeColumn)
 
 const assigned_user = {
   flex: 0.1,
@@ -262,28 +266,32 @@ const LeadComponent = () => {
     setFormValues(
       rowData
         ? {
-            id: rowData.id,
-            name: rowData.name,
-            email: rowData.email,
-            mobile: rowData.mobile,
-            address: rowData.address,
-            country_id: rowData.country_id,
-            employee_id: rowData.employee_id,
-            branch_id: rowData.branch_id,
-            lead_category_id: rowData.lead_category_id,
-            appointmentDateTime: rowData.appointmentDateTime ? (typeof rowData.appointmentDateTime === 'number' ? new Date(rowData.appointmentDateTime * 1000) : new Date(rowData.appointmentDateTime)) : null // Added
-          }
+          id: rowData.id,
+          name: rowData.name,
+          email: rowData.email,
+          mobile: rowData.mobile,
+          address: rowData.address,
+          country_id: rowData.country_id,
+          employee_id: rowData.employee_id,
+          branch_id: rowData.branch_id,
+          lead_category_id: rowData.lead_category_id,
+          appointmentDateTime: rowData.appointmentDateTime
+            ? typeof rowData.appointmentDateTime === 'number'
+              ? new Date(rowData.appointmentDateTime * 1000)
+              : new Date(rowData.appointmentDateTime)
+            : null // Added
+        }
         : {
-            name: '',
-            email: '',
-            mobile: '',
-            address: '',
-            country_id: '',
-            employee_id: '',
-            branch_id: '',
-            lead_category_id: '',
-            appointmentDateTime: null // Added
-          }
+          name: '',
+          email: '',
+          mobile: '',
+          address: '',
+          country_id: '',
+          employee_id: '',
+          branch_id: '',
+          lead_category_id: '',
+          appointmentDateTime: null // Added
+        }
     )
     setModalMode(mode)
     setModalOpen(true)
@@ -302,7 +310,8 @@ const LeadComponent = () => {
       lead_category_id: '',
       appointmentDateTime: '' // Added
     })
-    setFormValues({ // Also reset appointmentDateTime in formValues
+    setFormValues({
+      // Also reset appointmentDateTime in formValues
       ...formValues, // Keep existing values that are not part of initial state if any.
       name: '',
       email: '',
@@ -313,7 +322,7 @@ const LeadComponent = () => {
       branch_id: '',
       lead_category_id: '',
       appointmentDateTime: null
-    });
+    })
     setInfoValues({ ...infoValues, description: '' })
   }
 
@@ -337,16 +346,19 @@ const LeadComponent = () => {
       if (i == 'employee_id') {
         continue
       }
+      if (i == 'appointmentDateTime') {
+        continue
+      }
       if (!formValues[i as keyof Lead]) {
         validationErrors[i as keyof Lead] = `Valid ${i} is required`
         isValid = false
       }
     }
-+    // Optional: Add validation for appointmentDateTime if it's required
-+    // if (!formValues.appointmentDateTime) {
-+    //   validationErrors.appointmentDateTime = 'Appointment datetime is required';
-+    //   isValid = false;
-+    // }
+
+    // if (!formValues.appointmentDateTime) {
+    //   validationErrors.appointmentDateTime = 'Appointment datetime is required';
+    //   isValid = false;
+    // }
 
     if (!isValid) {
       setErrors(validationErrors)
@@ -354,10 +366,13 @@ const LeadComponent = () => {
       return
     }
 
-    let submissionData: any = { ...formValues };
+    const submissionData: any = { ...formValues }
+
     if (submissionData.appointmentDateTime) {
-      submissionData.appointmentDateTime = getUnixTime(new Date(submissionData.appointmentDateTime));
+      submissionData.appointmentDateTime = getUnixTime(new Date(submissionData.appointmentDateTime))
     }
+
+    console.log(submissionData)
 
     try {
       if (modalMode == 'Edit') {
@@ -409,8 +424,9 @@ const LeadComponent = () => {
         return
       }
       appendTenantId(submissionData)
+
       // data.push(submissionData) // createLeadData expects an array, but if it's a single object, adjust accordingly.
-                                // Assuming createLeadData can handle a single object in an array.
+      // Assuming createLeadData can handle a single object in an array.
       const res = await dispatch(createLeadData([submissionData]))
       if (res.error) {
         toast.error(`failed to create leads Try Again!`)
@@ -662,21 +678,25 @@ const LeadComponent = () => {
                   ))}
                 </TextField>
               </Grid>
-              <Grid item xs={12} sm={6}> {/* DateTimePicker Added Here */}
+              <Grid item xs={12} sm={6}>
+                {' '}
+                {/* DateTimePicker Added Here */}
                 <DateTimePicker
-                  label="Appointment Date Time"
+                  fullWidth
+                  label='Appointment Date Time'
                   value={formValues.appointmentDateTime}
-                  onChange={(newValue) => {
-                    setFormValues({ ...formValues, appointmentDateTime: newValue });
+                  sx={{ mt: 4 }}
+                  onChange={newValue => {
+                    setFormValues({ ...formValues, appointmentDateTime: newValue })
                     if (errors.appointmentDateTime) {
-                      setErrors({ ...errors, appointmentDateTime: '' });
+                      setErrors({ ...errors, appointmentDateTime: '' })
                     }
                   }}
-                  renderInput={(params) => (
+                  renderInput={params => (
                     <TextField
                       {...params}
                       fullWidth
-                      margin="normal" // Consistent margin
+                      margin='normal' // Consistent margin
                       sx={{ mt: 4 }} // Consistent with other select fields
                       error={!!errors.appointmentDateTime}
                       helperText={errors.appointmentDateTime}
@@ -686,7 +706,8 @@ const LeadComponent = () => {
                   disabled={modalMode === 'View'}
                 />
               </Grid>
-              <Grid item xs={12}></Grid> {/* This was an empty full-width spacer, kept it. If DateTimePicker makes it too long, could be xs={12} sm={6} and this becomes a real spacer or removed. */}
+              <Grid item xs={12}></Grid>{' '}
+              {/* This was an empty full-width spacer, kept it. If DateTimePicker makes it too long, could be xs={12} sm={6} and this becomes a real spacer or removed. */}
               <Grid item xs={12}>
                 {(modalMode == 'Edit' || modalMode == 'Add') && 'Comments'}
               </Grid>
