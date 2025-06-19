@@ -367,7 +367,7 @@ const TenantComponent = () => {
       >
         {
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='Name'
@@ -379,7 +379,7 @@ const TenantComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='phone'
@@ -392,7 +392,7 @@ const TenantComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='Email'
@@ -404,7 +404,7 @@ const TenantComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='Website'
@@ -416,7 +416,7 @@ const TenantComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 select
@@ -436,7 +436,7 @@ const TenantComponent = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 select
@@ -457,7 +457,7 @@ const TenantComponent = () => {
                 </MenuItem>
               </TextField>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <Button
                 component='label'
                 role={undefined}
@@ -469,7 +469,7 @@ const TenantComponent = () => {
                 <VisuallyHiddenInput type='file' onChange={handleFileChange} />
               </Button>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               {formValues.logo !== '' && <Button onClick={handleLogo}>Download Logo</Button>}
             </Grid>
           </Grid>

@@ -227,7 +227,7 @@ const RoleComponent = () => {
       >
         {
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label='Name'
@@ -239,7 +239,7 @@ const RoleComponent = () => {
                 margin='normal'
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 select

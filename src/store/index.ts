@@ -14,6 +14,7 @@ import products from '../store/apps/product'
 import leads from '../store/apps/leads'
 import leadCategory from '../store/apps/leadCategory'
 import additionalInfo from '../store/apps/additionalInfo'
+import appointments from '../store/apps/appointments'
 
 export const store = configureStore({
   reducer: {
@@ -28,7 +29,8 @@ export const store = configureStore({
     leads,
     leadCategory,
     additionalInfo,
-    user
+    user,
+    appointments
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

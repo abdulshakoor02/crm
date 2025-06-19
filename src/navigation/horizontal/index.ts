@@ -1,7 +1,7 @@
 // ** Icon imports
 import HomeOutline from 'mdi-material-ui/HomeOutline'
-import EmailOutline from 'mdi-material-ui/EmailOutline'
 import ShieldOutline from 'mdi-material-ui/ShieldOutline'
+import FileDocumentOutline from 'mdi-material-ui/FileDocumentOutline';
 
 // ** Type import
 import { HorizontalNavItemsType } from 'src/@core/layouts/types'
@@ -14,7 +14,7 @@ const navigation = (): HorizontalNavItemsType => [
   },
   {
     title: 'Second Page',
-    icon: EmailOutline,
+    icon: FileDocumentOutline,
     path: '/second-page'
   },
   {
