@@ -49,13 +49,19 @@ const MenuNavLink = styled(ListItemButton)<
   borderTopRightRadius: 100,
   borderBottomRightRadius: 100,
   color: theme.palette.text.primary,
+  textDecoration: 'none', // Added for normal state
   transition: 'padding-left .25s ease-in-out',
   // Updated py padding is in the sx prop within the component, not here.
+  '&:hover': { // Added for hover state
+    textDecoration: 'none',
+  },
   '&.active': {
     borderLeft: `3px solid ${theme.palette.primary.main}`,
+    textDecoration: 'none', // Added for active state
     backgroundColor: alpha(theme.palette.primary.main, 0.1),
     '&, &:hover': {
       backgroundColor: alpha(theme.palette.primary.main, 0.1), // Ensure hover on active keeps the active background
+      textDecoration: 'none', // Added for hover on active state
     },
     '& .MuiTypography-root, & .MuiListItemIcon-root': {
       color: `${theme.palette.primary.main} !important`

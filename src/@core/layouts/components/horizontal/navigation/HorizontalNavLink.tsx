@@ -41,14 +41,17 @@ interface Props {
 const ListItem = styled(MuiListItem)<ListItemProps & { component?: ElementType; target?: '_blank' | undefined }>(
   ({ theme }) => ({
     width: 'auto',
+    textDecoration: 'none', // Added for normal state
     paddingTop: theme.spacing(2.5), // Updated padding
     color: theme.palette.text.primary,
     paddingBottom: theme.spacing(2.5), // Updated padding
     '&:hover': {
-      backgroundColor: theme.palette.action.hover
+      backgroundColor: theme.palette.action.hover,
+      textDecoration: 'none', // Added for hover state
     },
     '&.active, &.active:hover': {
       backgroundColor: alpha(theme.palette.primary.main, 0.1), // Updated background for hasParent and base
+      textDecoration: 'none', // Added for active and hover on active state
       '& .MuiTypography-root': { // Added for all active items
         fontWeight: theme.typography.fontWeightMedium
       }

@@ -49,7 +49,7 @@ const data: CardStatsCharacterProps[] = [
 const Home = () => {
   return (
     <ApexChartWrapper>
-      <Grid container spacing={6}>
+      <Grid container spacing={12}>
         <Grid item xs={12} sm={6} md={3} sx={{ pt: theme => `${theme.spacing(12.25)} !important` }}>
           <CardStatisticsCharacter data={data[0]} />
         </Grid>
@@ -72,12 +72,12 @@ const Home = () => {
           <CrmActivityTimeline />
         </Grid>
         <Grid item xs={12} md={6}>
-          <Grid container spacing={6}>
+          <Grid container spacing={12}>
             <Grid item xs={12} sm={8}>
               <CrmWeeklySales />
             </Grid>
             <Grid item xs={12} sm={4}>
-              <Grid container spacing={6}>
+              <Grid container spacing={12}>
                 <Grid item xs={6} sm={12}>
                   <CrmTotalGrowth />
                 </Grid>
