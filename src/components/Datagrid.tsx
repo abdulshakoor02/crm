@@ -35,8 +35,7 @@ const DataGridTable = React.memo(
     onSearchChange,
     searchValue,
     checkBox = false,
-    loading = false,
-    customActions = []
+    loading = false
   }: {
     rows: any
     columns: GridColumns
@@ -58,12 +57,6 @@ const DataGridTable = React.memo(
     changePage: any
     checkBox?: boolean
     loading?: boolean
-    customActions?: Array<{
-      icon: React.ReactNode
-      tooltip: string
-      onClick: (id: any, row: any) => void
-      show?: (row: any) => boolean
-    }>
   }) => {
     const theme = useTheme()
     // const { } = props
@@ -72,8 +65,8 @@ const DataGridTable = React.memo(
     const actionColumn = {
       field: 'actions',
       headerName: 'Actions',
-      flex: 0.15,
-      minWidth: 200,
+      flex: 0.1,
+      minWidth: 150,
       renderCell: (params: GridRenderCellParams) => (
         <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           {view && (
@@ -154,23 +147,12 @@ const DataGridTable = React.memo(
               </Box>
             </Tooltip>
           )}
-          {customActions.map((action, index) => {
-            const shouldShow = action.show ? action.show(params.row) : true
-
-            return shouldShow ? (
-              <Tooltip key={index} title={action.tooltip}>
-                <IconButton onClick={() => action.onClick(params.row.id, params.row)}>
-                  {action.icon}
-                </IconButton>
-              </Tooltip>
-            ) : null
-          })}
         </Box>
       )
     }
 
     // Conditionally add the action column only if any of the handlers are passed
-    const columnsWithActions = view || edit || del || customActions.length > 0 ? [...columns, actionColumn] : columns
+    const columnsWithActions = view || edit || del ? [...columns, actionColumn] : columns
 
     return (
       <DataGrid
@@ -204,7 +186,6 @@ const DataGridTable = React.memo(
           '& .MuiDataGrid-cell': {
             borderBottom: `1px solid ${theme.palette.divider}`
           },
-
           // Custom scrollbar styles are in globals.css, but you can add fallbacks or specific overrides here
         }}
         components={{ Toolbar }}
