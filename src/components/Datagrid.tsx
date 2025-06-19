@@ -59,6 +59,7 @@ const DataGridTable = React.memo(
     loading?: boolean
   }) => {
     const theme = useTheme()
+
     // const { } = props
 
     // Add an action column with optional buttons
@@ -186,6 +187,7 @@ const DataGridTable = React.memo(
           '& .MuiDataGrid-cell': {
             borderBottom: `1px solid ${theme.palette.divider}`
           },
+
           // Custom scrollbar styles are in globals.css, but you can add fallbacks or specific overrides here
         }}
         components={{ Toolbar }}

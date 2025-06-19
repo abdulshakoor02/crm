@@ -85,7 +85,7 @@ const navigation = (): VerticalNavItemsType => {
           title: 'Products',
           icon: PackageVariantClosed,
           path: '/master/products',
-          access: 'products'
+          access: 'product'
         },
         {
           title: 'LeadCategory',

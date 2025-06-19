@@ -91,7 +91,7 @@ const VerticalNavGroup = (props: Props) => {
 
   const checkAccess = (): boolean => {
     if (item?.access && item?.access.length > 0) {
-      const { features } = JSON.parse(window.localStorage.getItem('userData'));
+      const { features } = JSON.parse(window.localStorage.getItem('userData') as any);
       for (const feature of item.access) {
         if (features.includes(feature)) {
           return true
