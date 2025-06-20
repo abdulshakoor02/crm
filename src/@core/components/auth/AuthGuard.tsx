@@ -2,7 +2,7 @@
 import { ReactNode, ReactElement, useEffect } from 'react'
 
 // ** Next Imports
-import { useRouter } from 'next/router'
+import { useRouter, usePathname } from 'next/navigation' // Updated import
 
 // ** Hooks Import
 import { useAuth } from 'src/hooks/useAuth'
@@ -16,26 +16,21 @@ const AuthGuard = (props: AuthGuardProps) => {
   const { children, fallback } = props
   const auth = useAuth()
   const router = useRouter()
+  const pathname = usePathname() // Get current pathname
 
   useEffect(
     () => {
-      if (!router.isReady) {
-        return
-      }
-
+      // No need for router.isReady check with next/navigation
       if (auth.user === null && !window.localStorage.getItem('userData')) {
-        if (router.asPath !== '/') {
-          router.replace({
-            pathname: '/login',
-            query: { returnUrl: router.asPath }
-          })
+        if (pathname !== '/') { // Use pathname
+          router.replace(`/login?returnUrl=${encodeURIComponent(pathname)}`) // Construct URL manually
         } else {
           router.replace('/login')
         }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.route]
+    [auth.user, pathname, router] // Updated dependencies
   )
 
   if (auth.loading || auth.user === null) {

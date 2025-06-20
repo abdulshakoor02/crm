@@ -1,3 +1,4 @@
+'use client';
 import { TextField } from "@mui/material";
 
 // Define the type for the props

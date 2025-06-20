@@ -2,7 +2,7 @@
 import { ReactNode, ReactElement, useEffect } from 'react'
 
 // ** Next Imports
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation' // Updated import
 
 // ** Hooks Import
 import { useAuth } from 'src/hooks/useAuth'
@@ -18,15 +18,12 @@ const GuestGuard = (props: GuestGuardProps) => {
   const router = useRouter()
 
   useEffect(() => {
-    if (!router.isReady) {
-      return
-    }
-
+    // No need for router.isReady check with next/navigation
     if (window.localStorage.getItem('userData')) {
       router.replace('/')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.route])
+  }, [auth.user, router]) // Updated dependencies
 
   if (auth.loading || (!auth.loading && auth.user !== null)) {
     return fallback

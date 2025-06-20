@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from 'react'
 import { Modal as MuiModal, Box, Typography, Button, IconButton } from '@mui/material'
 import { Close as CloseIcon } from '@mui/icons-material'

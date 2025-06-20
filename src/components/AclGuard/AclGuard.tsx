@@ -1,5 +1,6 @@
+'use client';
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-import NotAuthorized from 'src/pages/401'
+import Error401Page from 'src/app/401/page' // Updated import path and component name
 
 import { checkAccess } from 'src/utils/accessCheck'
 
@@ -10,7 +11,7 @@ const AclGuard = ({ children, feature }) => {
         <>{children}</>
       ) : (
         <BlankLayout>
-          <NotAuthorized />
+          <Error401Page />
         </BlankLayout>
       )}
     </>
