@@ -35,6 +35,7 @@ const DataGridTable = React.memo(
     onSearchChange,
     searchValue,
     checkBox = false,
+    customActions = [],
     loading = false
   }: {
     rows: any
@@ -57,6 +58,12 @@ const DataGridTable = React.memo(
     changePage: any
     checkBox?: boolean
     loading?: boolean
+    customActions?: Array<{
+      icon: React.ReactNode
+      tooltip: string
+      onClick: (id: any, row: any) => void
+      show?: (row: any) => boolean
+    }>
   }) => {
     const theme = useTheme()
 
@@ -67,7 +74,7 @@ const DataGridTable = React.memo(
       field: 'actions',
       headerName: 'Actions',
       flex: 0.1,
-      minWidth: 150,
+      minWidth: 200,
       renderCell: (params: GridRenderCellParams) => (
         <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           {view && (
@@ -148,12 +155,23 @@ const DataGridTable = React.memo(
               </Box>
             </Tooltip>
           )}
+          {customActions.map((action, index) => {
+            const shouldShow = action.show ? action.show(params.row) : true
+
+            return shouldShow ? (
+              <Tooltip key={index} title={action.tooltip}>
+                <IconButton onClick={() => action.onClick(params.row.id, params.row)}>
+                  {action.icon}
+                </IconButton>
+              </Tooltip>
+            ) : null
+          })}
         </Box>
       )
     }
 
     // Conditionally add the action column only if any of the handlers are passed
-    const columnsWithActions = view || edit || del ? [...columns, actionColumn] : columns
+    const columnsWithActions = view || edit || del || customActions.length > 0 ? [...columns, actionColumn] : columns
 
     return (
       <DataGrid

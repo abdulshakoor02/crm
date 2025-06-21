@@ -25,6 +25,7 @@ import { GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import moment from 'moment'
+import { useRouter } from 'next/router'
 
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
@@ -36,6 +37,7 @@ import { getEmployeesData } from 'src/store/apps/user'
 import { getCountriesData } from 'src/store/apps/countries'
 import { getBranchData } from 'src/store/apps/branch'
 import { getLeadCategoryData } from 'src/store/apps/leadCategory'
+import { getProductData } from 'src/store/apps/product'
 import DataGridTable from 'src/components/Datagrid'
 import Modal from 'src/components/Model/Model'
 import { appendTenantId } from 'src/utils/tenantAppend'
@@ -139,44 +141,6 @@ let columns: GridColumns = [
   // Omitting other columns for brevity in this diff, they remain unchanged
 ]
 
-const appointmentDateTimeColumn: GridColumns[number] = {
-  flex: 0.15,
-  minWidth: 180,
-  field: 'appointmentDateTime',
-  headerName: 'Appointment DateTime',
-  sortable: true,
-  renderCell: (params: GridRenderCellParams) => {
-    if (params.row.appointmentDateTime) {
-      try {
-        const date = fromUnixTime(params.row.appointmentDateTime as number)
-
-        return (
-          <Typography variant='body2' sx={{ color: 'text.primary' }}>
-            {format(date, 'dd/MM/yyyy HH:mm')}
-          </Typography>
-        )
-      } catch (error) {
-        console.error('Error formatting appointmentDateTime:', error, params.row.appointmentDateTime)
-
-        return (
-          <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-            Invalid Date
-          </Typography>
-        )
-      }
-    }
-
-    return (
-      <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-        --
-      </Typography>
-    )
-  }
-}
-
-// Add the new column to the existing columns array
-columns.push(appointmentDateTimeColumn)
-
 const assigned_user = {
   flex: 0.1,
   minWidth: 150,
@@ -193,6 +157,8 @@ const assigned_user = {
 columns = checkAccess('AssignedUserColumn') ? [...columns, assigned_user] : columns
 
 const LeadComponent = () => {
+
+  const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
   const [pageSize, setPageSize] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
@@ -200,6 +166,16 @@ const LeadComponent = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [dailogOpen, setDailogOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'View' | 'Edit' | 'Add'>('View')
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false)
+  const [selectedLead, setSelectedLead] = useState<any>(null)
+  const [selectedBranch, setSelectedBranch] = useState<any>(null)
+  const [invoiceData, setInvoiceData] = useState({
+    discount: '',
+    discountType: 'percentage' // 'percentage' or 'fixed'
+  })
+  const [invoiceErrors, setInvoiceErrors] = useState({
+    discount: ''
+  })
   const [infoValues, setInfoValues] = useState<{
     title: string
     description: string
@@ -217,6 +193,7 @@ const LeadComponent = () => {
     employee_id: '',
     branch_id: '',
     lead_category_id: '',
+    product_id: '',
     appointmentDateTime: null // Added
   })
   const [errors, setErrors] = useState<Lead>({
@@ -228,7 +205,8 @@ const LeadComponent = () => {
     employee_id: '',
     branch_id: '',
     lead_category_id: '',
-    appointmentDateTime: '' // Added
+    product_id: '',
+    appointmentDateTime: null // Added
   })
 
   const leads = useSelector((state: any) => state.leads)
@@ -237,6 +215,7 @@ const LeadComponent = () => {
   const country = useSelector((state: any) => state.country)
   const leadCategory = useSelector((state: any) => state.leadCategory)
   const comments = useSelector((state: any) => state.additionalInfo)
+  const product = useSelector((state: any) => state.products)
 
   useEffect(() => {
     dispatch(
@@ -244,7 +223,7 @@ const LeadComponent = () => {
         limit: pageSize,
         offset: pageSize * page,
         orderBy: '"leads".created_at desc',
-        joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }]
+        joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }, { column: 'Country' }]
       })
     )
   }, [pageSize, page])
@@ -252,8 +231,9 @@ const LeadComponent = () => {
   useEffect(() => {
     dispatch(getEmployeesData({}))
     dispatch(getCountriesData({}))
-    dispatch(getBranchData({ joins: [{ column: 'Region' }] }))
+    dispatch(getBranchData({ joins: [{ column: 'Region' }, { column: 'Country' }] }))
     dispatch(getLeadCategoryData({}))
+    dispatch(getProductData({}))
   }, [])
 
   const handleOpenModal = async (id: string | null, mode: 'View' | 'Edit' | 'Add') => {
@@ -275,6 +255,7 @@ const LeadComponent = () => {
           employee_id: rowData.employee_id,
           branch_id: rowData.branch_id,
           lead_category_id: rowData.lead_category_id,
+          product_id: rowData.product_id,
           appointmentDateTime: rowData.appointmentDateTime
             ? typeof rowData.appointmentDateTime === 'number'
               ? new Date(rowData.appointmentDateTime * 1000)
@@ -290,6 +271,7 @@ const LeadComponent = () => {
           employee_id: '',
           branch_id: '',
           lead_category_id: '',
+          product_id: '',
           appointmentDateTime: null // Added
         }
     )
@@ -308,7 +290,8 @@ const LeadComponent = () => {
       employee_id: '',
       branch_id: '',
       lead_category_id: '',
-      appointmentDateTime: '' // Added
+      product_id: '',
+      appointmentDateTime: null // Added
     })
     setFormValues({
       // Also reset appointmentDateTime in formValues
@@ -337,7 +320,8 @@ const LeadComponent = () => {
       employee_id: '',
       branch_id: '',
       lead_category_id: '',
-      appointmentDateTime: '' // Added
+      product_id: '',
+      appointmentDateTime: null // Added
     }
     let isValid = true
 
@@ -456,6 +440,139 @@ const LeadComponent = () => {
     handleCloseModal()
   }
 
+
+  const handleAddProduct = () => {
+    handleCloseInvoiceModal()
+    router.push('/master/products')
+  }
+
+  const handleGenerateInvoice = (id: string, row: any) => {
+    setSelectedLead(row)
+    const selectedBranch = branch?.rows?.find((p: any) => p.id === row?.branch_id)
+    setSelectedBranch(selectedBranch);
+    setInvoiceModalOpen(true)
+    setInvoiceData({
+      discount: '',
+      discountType: 'percentage'
+    })
+    setInvoiceErrors({
+      discount: ''
+    })
+  }
+
+  const handleCloseInvoiceModal = () => {
+    setInvoiceModalOpen(false)
+    setSelectedLead(null)
+    setInvoiceData({
+      discount: '',
+      discountType: 'percentage'
+    })
+    setInvoiceErrors({
+      discount: ''
+    })
+  }
+
+  const handleInvoiceSubmit = () => {
+    // Validate discount
+    const errors = { discount: '' }
+    let isValid = true
+
+    if (!invoiceData.discount) {
+      errors.discount = 'Discount is required'
+      isValid = false
+    } else {
+      const discountValue = parseFloat(invoiceData.discount)
+      if (isNaN(discountValue) || discountValue < 0) {
+        errors.discount = 'Please enter a valid discount value'
+        isValid = false
+      } else if (invoiceData.discountType === 'percentage' && discountValue > 100) {
+        errors.discount = 'Percentage discount cannot exceed 100%'
+        isValid = false
+      } else if (selectedLead && selectedLead.product_id) {
+        // Get the product price for validation
+        const selectedProduct = product?.rows?.find((p: any) => p.id === selectedLead.product_id)
+        const productPrice = selectedProduct?.price || 0
+
+        // Maximum allowed discount (90% of product price to prevent zero total)
+        const maxDiscountPercentage = 90
+        const maxFixedDiscount = (productPrice * maxDiscountPercentage) / 100
+
+        if (invoiceData.discountType === 'fixed') {
+          if (discountValue >= productPrice) {
+            errors.discount = `Fixed discount cannot be equal to or exceed product price ($${productPrice.toFixed(2)}). Maximum allowed: $${maxFixedDiscount.toFixed(2)}`
+            isValid = false
+          } else if (discountValue > maxFixedDiscount) {
+            errors.discount = `Fixed discount too high. Maximum allowed: $${maxFixedDiscount.toFixed(2)} (${maxDiscountPercentage}% of product price)`
+            isValid = false
+          }
+        } else if (invoiceData.discountType === 'percentage') {
+          if (discountValue >= 100) {
+            errors.discount = `Percentage discount cannot be 100% or more. Maximum allowed: ${maxDiscountPercentage}%`
+            isValid = false
+          } else if (discountValue > maxDiscountPercentage) {
+            errors.discount = `Percentage discount too high. Maximum allowed: ${maxDiscountPercentage}%`
+            isValid = false
+          }
+        }
+      }
+    }
+
+    if (!isValid) {
+      setInvoiceErrors(errors)
+
+      return
+    }
+
+    // Clean up any existing invoice data for this lead to prevent duplicates
+    const cleanupExistingInvoices = () => {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('invoice_')) {
+          try {
+            const data = JSON.parse(localStorage.getItem(key) || '{}')
+            if (data.leadId === selectedLead.id) {
+              localStorage.removeItem(key)
+            }
+          } catch (error) {
+            // Remove corrupted data
+            localStorage.removeItem(key)
+          }
+        }
+      })
+    }
+
+    cleanupExistingInvoices()
+
+    // Generate a user-friendly invoice ID
+    const currentYear = new Date().getFullYear()
+    const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0')
+    const randomNum = Math.floor(Math.random() * 9999).toString().padStart(4, '0')
+    const invoiceNumber = `INV-${currentYear}${currentMonth}-${randomNum}`
+
+    // Generate a short reference for URL (6 characters)
+    const urlRef = Math.random().toString(36).substring(2, 8).toUpperCase()
+
+    const invoiceDataToStore = {
+      invoiceId: invoiceNumber,
+      urlRef: urlRef,
+      leadId: selectedLead.id,
+      productId: selectedLead.product_id,
+      discount: parseFloat(invoiceData.discount),
+      discountType: invoiceData.discountType,
+      leadName: selectedLead.name,
+      leadEmail: selectedLead.email,
+      leadMobile: selectedLead.mobile,
+      leadAddress: selectedLead.address,
+      createdAt: new Date().toISOString()
+    }
+
+    // Store in localStorage using the short reference
+    localStorage.setItem(`invoice_${urlRef}`, JSON.stringify(invoiceDataToStore))
+
+    // Navigate to invoice2 page with query parameter
+    router.push(`/invoice2?ref=${urlRef}`)
+    handleCloseInvoiceModal()
+  }
+
   const handlePaste = (event: any) => {
     const pasteText = event.clipboardData.getData('text')
     console.log('pastedText', pasteText)
@@ -532,6 +649,14 @@ const LeadComponent = () => {
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
             onAddRow={() => handleOpenModal(null, 'Add')}
+            customActions={[
+              {
+                icon: <ReceiptIcon fontSize='medium' sx={{ color: '#28a745' }} />,
+                tooltip: 'Generate Invoice',
+                onClick: handleGenerateInvoice,
+                show: (row: any) => !!row.product_id // Only show if product_id exists
+              }
+            ]}
           />
         </Card>
       </Grid>
@@ -706,6 +831,28 @@ const LeadComponent = () => {
                   disabled={modalMode === 'View'}
                 />
               </Grid>
+
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  select
+                  name='product_id'
+                  value={formValues.product_id}
+                  label='Product'
+                  error={!!errors.product_id}
+                  helperText={errors.product_id}
+                  onChange={e => setFormValues({ ...formValues, product_id: e.target.value })}
+                  disabled={modalMode === 'View'}
+                  sx={{ mt: 4 }}
+                >
+                  {product?.rows?.map((items: any) => (
+                    <MenuItem key={items.id} value={items.id}>
+                      {items.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
               <Grid item xs={12}></Grid>{' '}
               {/* This was an empty full-width spacer, kept it. If DateTimePicker makes it too long, could be xs={12} sm={6} and this becomes a real spacer or removed. */}
               <Grid item xs={12}>
@@ -755,6 +902,137 @@ const LeadComponent = () => {
           ''
         )}
       </Modal>
+
+      {/* Invoice Modal */}
+      <Modal
+        width={520}
+        isOpen={invoiceModalOpen}
+        onClose={handleCloseInvoiceModal}
+        title="🧾 Generate Invoice"
+        onSubmit={handleInvoiceSubmit}
+        mode="Add"
+        height="auto"
+      >
+        <Grid container spacing={2}>
+
+          {selectedLead && (
+            <>
+              {/* Lead Info Card */}
+              <Grid item xs={12}>
+                <Box sx={{
+                  p: 2,
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
+                  borderRadius: 1.5,
+                  border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+                }}>
+                  <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1, fontWeight: 600 }}>
+                    Lead Information
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 3 }}>
+                    <Typography variant="body2"><strong>Name:</strong> {selectedLead.name}</Typography>
+                    <Typography variant="body2"><strong>Email:</strong> {selectedLead.email}</Typography>
+                  </Box>
+                </Box>
+              </Grid>
+
+              {/* Product Info & Add Button */}
+              <Grid item xs={8}>
+                <Box sx={{
+                  p: 2,
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
+                  borderRadius: 1.5,
+                  border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+                }}>
+                  <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1, fontWeight: 600 }}>
+                    Product Details
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    <strong>Product:</strong> {product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.name || 'No Product Assigned'}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    <strong>Description:</strong> {product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.desc || 'No Product Assigned'}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Price:</strong> {selectedBranch.country.currency} {product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.price?.toFixed(2) || '0.00'}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid item xs={4}>
+                <Box sx={{ height: '100%', display: 'flex', alignItems: 'center' }}>
+
+                  <TextField
+                    fullWidth
+                    select
+                    name='product_id'
+                    value={selectedLead.product_id}
+                    label='Product'
+                    error={!!errors.product_id}
+                    helperText={errors.product_id}
+                    onChange={e => setSelectedLead({ ...selectedLead, product_id: e.target.value })}
+                    sx={{ mt: 4 }}
+                  >
+                    {product?.rows?.map((items: any) => (
+                      <MenuItem key={items.id} value={items.id}>
+                        {items.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Box>
+              </Grid>
+            </>
+          )}
+
+          {/* Discount Section */}
+          <Grid item xs={12}>
+            <Box sx={{
+              p: 2,
+              backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
+              borderRadius: 1.5,
+              border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+            }}>
+              <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1.5, fontWeight: 600 }}>
+                Discount Settings
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={8}>
+                  <TextField
+                    fullWidth
+                    label="Discount"
+                    type="number"
+                    value={invoiceData.discount}
+                    onChange={e => setInvoiceData({ ...invoiceData, discount: e.target.value })}
+                    error={!!invoiceErrors.discount}
+                    helperText={invoiceErrors.discount}
+                    size="small"
+                    inputProps={{ min: 0, step: 0.01 }}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Type"
+                    value={invoiceData.discountType}
+                    onChange={e => setInvoiceData({ ...invoiceData, discountType: e.target.value })}
+                    size="small"
+                  >
+                    <MenuItem value="percentage">%</MenuItem>
+                    <MenuItem value="fixed">Fixed</MenuItem>
+                  </TextField>
+                </Grid>
+              </Grid>
+              <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+                {invoiceData.discountType === 'percentage'
+                  ? 'Maximum: 90% (to ensure minimum invoice value)'
+                  : 'Maximum: 90% of product price'}
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+      </Modal>
+
+
     </Grid>
   )
 }

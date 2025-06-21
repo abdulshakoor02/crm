@@ -15,11 +15,13 @@ import { getProductData, createProductData, updateProductData } from '../../../s
 import DataGridTable from 'src/components/Datagrid'
 import Modal from 'src/components/Model/Model'
 import { appendTenantId } from 'src/utils/tenantAppend'
+import { checkAccess } from 'src/utils/accessCheck'
 
 type Product = {
   id?: string
   name: string
   price: string | number
+  desc: string
   tenant_id?: string
 }
 
@@ -46,6 +48,17 @@ const columns: GridColumns = [
         {params?.row?.['price']}
       </Typography>
     )
+  },
+  {
+    flex: 0.1,
+    minWidth: 150,
+    field: 'desc',
+    headerName: 'Description',
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {params?.row?.['desc']}
+      </Typography>
+    )
   }
 ]
 
@@ -58,11 +71,13 @@ const ProductComponent = () => {
   const [modalMode, setModalMode] = useState<'View' | 'Edit' | 'Add'>('View')
   const [formValues, setFormValues] = useState<Product>({
     name: '',
-    price: ''
+    price: '',
+    desc: ''
   })
   const [errors, setErrors] = useState<Product>({
     name: '',
-    price: ''
+    price: '',
+    desc: ''
   })
 
   const products = useSelector((state: any) => state.products)
@@ -80,14 +95,16 @@ const ProductComponent = () => {
     setFormValues(
       rowData
         ? {
-            id: rowData.id,
-            name: rowData.name,
-            price: rowData.price
-          }
+          id: rowData.id,
+          name: rowData.name,
+          price: rowData.price,
+          desc: rowData.desc
+        }
         : {
-            name: '',
-            price: ''
-          }
+          name: '',
+          price: '',
+          desc: ''
+        }
     )
     setModalMode(mode)
     setModalOpen(true)
@@ -97,7 +114,8 @@ const ProductComponent = () => {
     setModalOpen(false)
     setErrors({
       name: '',
-      price: ''
+      price: '',
+      desc: ''
     }) // Reset errors
   }
 
@@ -105,7 +123,8 @@ const ProductComponent = () => {
     const data = []
     const validationErrors: Product = {
       name: '',
-      price: ''
+      price: '',
+      desc: ''
     }
     let isValid = true
 
@@ -191,6 +210,10 @@ const ProductComponent = () => {
             onSearchChange={e => setSearchValue(e.target.value)}
             onSearch={handleSearch}
             onClearSearch={onClearSearch}
+            edit={checkAccess('productEdit')}
+            view={checkAccess('productView')}
+            del={checkAccess('productDelete')}
+            add={checkAccess('productCreate')}
             onView={id => handleOpenModal(id, 'View')}
             onEdit={id => handleOpenModal(id, 'Edit')}
             onDelete={id => handleDelete(id)}
@@ -231,6 +254,19 @@ const ProductComponent = () => {
                 helperText={errors.price}
                 disabled={modalMode === 'View'}
                 margin='normal'
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                multiline
+                label='Description'
+                value={formValues.desc}
+                onChange={e => setFormValues({ ...formValues, desc: e.target.value })}
+                error={!!errors.desc}
+                helperText={errors.desc}
+                disabled={modalMode === 'View'}
+                margin='dense'
               />
             </Grid>
           </Grid>
