@@ -59,7 +59,7 @@ type Lead = {
   employee_id: string
   branch_id: string
   lead_category_id: string
-  product_id?: string
+  // product_ids?: string[] // Removed as per new requirement
   tenant_id?: string
   appointmentDateTime?: Date | null // Added
 }
@@ -193,7 +193,7 @@ const LeadComponent = () => {
     employee_id: '',
     branch_id: '',
     lead_category_id: '',
-    product_id: '',
+    // product_ids: [], // Removed
     appointmentDateTime: null // Added
   })
   const [errors, setErrors] = useState<Lead>({
@@ -205,7 +205,7 @@ const LeadComponent = () => {
     employee_id: '',
     branch_id: '',
     lead_category_id: '',
-    product_id: '',
+    // product_id: '', // Removed
     appointmentDateTime: null // Added
   })
 
@@ -255,7 +255,7 @@ const LeadComponent = () => {
           employee_id: rowData.employee_id,
           branch_id: rowData.branch_id,
           lead_category_id: rowData.lead_category_id,
-          product_id: rowData.product_id,
+          // product_ids: rowData.product_ids, // Removed
           appointmentDateTime: rowData.appointmentDateTime
             ? typeof rowData.appointmentDateTime === 'number'
               ? new Date(rowData.appointmentDateTime * 1000)
@@ -271,7 +271,7 @@ const LeadComponent = () => {
           employee_id: '',
           branch_id: '',
           lead_category_id: '',
-          product_id: '',
+          // product_id: '', // Removed
           appointmentDateTime: null // Added
         }
     )
@@ -290,7 +290,7 @@ const LeadComponent = () => {
       employee_id: '',
       branch_id: '',
       lead_category_id: '',
-      product_id: '',
+      // product_ids: [], // Removed
       appointmentDateTime: null // Added
     })
     setFormValues({
@@ -320,7 +320,7 @@ const LeadComponent = () => {
       employee_id: '',
       branch_id: '',
       lead_category_id: '',
-      product_id: '',
+      // product_ids: [], // Removed
       appointmentDateTime: null // Added
     }
     let isValid = true
@@ -447,7 +447,12 @@ const LeadComponent = () => {
   }
 
   const handleGenerateInvoice = (id: string, row: any) => {
-    setSelectedLead(row)
+    // Ensure product_ids is an array, defaulting to an empty array if it's null or undefined
+    const leadDataWithEnsuredProductIds = {
+      ...row,
+      product_ids: Array.isArray(row.product_ids) ? row.product_ids : []
+    }
+    setSelectedLead(leadDataWithEnsuredProductIds)
     const selectedBranch = branch?.rows?.find((p: any) => p.id === row?.branch_id)
     setSelectedBranch(selectedBranch);
     setInvoiceModalOpen(true)
@@ -477,6 +482,15 @@ const LeadComponent = () => {
     const errors = { discount: '' }
     let isValid = true
 
+    // Ensure at least one product is selected
+    if (!selectedLead?.product_ids || selectedLead.product_ids.length === 0) {
+      toast.error('Please select at least one product to generate an invoice.')
+      isValid = false
+      // Optionally, set an error state for UI feedback if a dedicated error display area for products exists
+      // setInvoiceErrors(prev => ({...prev, products: 'Please select at least one product.'})); // Example
+      return // Early return if no products selected
+    }
+
     if (!invoiceData.discount) {
       errors.discount = 'Discount is required'
       isValid = false
@@ -488,21 +502,24 @@ const LeadComponent = () => {
       } else if (invoiceData.discountType === 'percentage' && discountValue > 100) {
         errors.discount = 'Percentage discount cannot exceed 100%'
         isValid = false
-      } else if (selectedLead && selectedLead.product_id) {
-        // Get the product price for validation
-        const selectedProduct = product?.rows?.find((p: any) => p.id === selectedLead.product_id)
-        const productPrice = selectedProduct?.price || 0
+      } else if (selectedLead && selectedLead.product_ids && selectedLead.product_ids.length > 0) {
+        // Calculate total price of selected products for validation
+        let totalProductPrice = 0
+        selectedLead.product_ids.forEach((productId: string) => {
+          const selectedProduct = product?.rows?.find((p: any) => p.id === productId)
+          totalProductPrice += selectedProduct?.price || 0
+        })
 
-        // Maximum allowed discount (90% of product price to prevent zero total)
+        // Maximum allowed discount (90% of total product price to prevent zero total)
         const maxDiscountPercentage = 90
-        const maxFixedDiscount = (productPrice * maxDiscountPercentage) / 100
+        const maxFixedDiscount = (totalProductPrice * maxDiscountPercentage) / 100 // Changed productPrice to totalProductPrice
 
         if (invoiceData.discountType === 'fixed') {
-          if (discountValue >= productPrice) {
-            errors.discount = `Fixed discount cannot be equal to or exceed product price ($${productPrice.toFixed(2)}). Maximum allowed: $${maxFixedDiscount.toFixed(2)}`
+          if (discountValue >= totalProductPrice) { // Changed productPrice to totalProductPrice
+            errors.discount = `Fixed discount cannot be equal to or exceed total product price ($${totalProductPrice.toFixed(2)}). Maximum allowed: $${maxFixedDiscount.toFixed(2)}`
             isValid = false
           } else if (discountValue > maxFixedDiscount) {
-            errors.discount = `Fixed discount too high. Maximum allowed: $${maxFixedDiscount.toFixed(2)} (${maxDiscountPercentage}% of product price)`
+            errors.discount = `Fixed discount too high. Maximum allowed: $${maxFixedDiscount.toFixed(2)} (${maxDiscountPercentage}% of total product price)` // Changed product price to total product price
             isValid = false
           }
         } else if (invoiceData.discountType === 'percentage') {
@@ -555,7 +572,7 @@ const LeadComponent = () => {
       invoiceId: invoiceNumber,
       urlRef: urlRef,
       leadId: selectedLead.id,
-      productId: selectedLead.product_id,
+      product_ids: selectedLead.product_ids, // Changed from productId to product_ids
       discount: parseFloat(invoiceData.discount),
       discountType: invoiceData.discountType,
       leadName: selectedLead.name,
@@ -653,8 +670,8 @@ const LeadComponent = () => {
               {
                 icon: <ReceiptIcon fontSize='medium' sx={{ color: '#28a745' }} />,
                 tooltip: 'Generate Invoice',
-                onClick: handleGenerateInvoice,
-                show: (row: any) => !!row.product_id // Only show if product_id exists
+                onClick: handleGenerateInvoice
+                // show: (row: any) => !!row.product_ids && row.product_ids.length > 0 // Removed to make button always visible
               }
             ]}
           />
@@ -832,26 +849,8 @@ const LeadComponent = () => {
                 />
               </Grid>
 
-              <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  select
-                  name='product_id'
-                  value={formValues.product_id}
-                  label='Product'
-                  error={!!errors.product_id}
-                  helperText={errors.product_id}
-                  onChange={e => setFormValues({ ...formValues, product_id: e.target.value })}
-                  disabled={modalMode === 'View'}
-                  sx={{ mt: 4 }}
-                >
-                  {product?.rows?.map((items: any) => (
-                    <MenuItem key={items.id} value={items.id}>
-                      {items.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
+              {/* Product selection removed from here */}
+              {/* <Grid item xs={6}> ... </Grid> */}
 
               <Grid item xs={12}></Grid>{' '}
               {/* This was an empty full-width spacer, kept it. If DateTimePicker makes it too long, could be xs={12} sm={6} and this becomes a real spacer or removed. */}
@@ -936,50 +935,77 @@ const LeadComponent = () => {
               </Grid>
 
               {/* Product Info & Add Button */}
-              <Grid item xs={8}>
+              <Grid item xs={12}> // Changed from xs={8} to xs={12} to take full width for product selection
                 <Box sx={{
                   p: 2,
                   backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
                   borderRadius: 1.5,
-                  border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+                  border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)}'`
                 }}>
                   <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1, fontWeight: 600 }}>
-                    Product Details
+                    Select Products
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>
-                    <strong>Product:</strong> {product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.name || 'No Product Assigned'}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>
-                    <strong>Description:</strong> {product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.desc || 'No Product Assigned'}
-                  </Typography>
-                  <Typography variant="body2">
-                    <strong>Price:</strong> {selectedBranch.country.currency} {product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.price?.toFixed(2) || '0.00'}
-                  </Typography>
-                </Box>
-              </Grid>
-
-              <Grid item xs={4}>
-                <Box sx={{ height: '100%', display: 'flex', alignItems: 'center' }}>
-
                   <TextField
                     fullWidth
                     select
-                    name='product_id'
-                    value={selectedLead.product_id}
-                    label='Product'
-                    error={!!errors.product_id}
-                    helperText={errors.product_id}
-                    onChange={e => setSelectedLead({ ...selectedLead, product_id: e.target.value })}
-                    sx={{ mt: 4 }}
+                    multiple // Added multiple prop
+                    name='product_ids' // Changed name to product_ids
+                    value={selectedLead?.product_ids || []} // Ensure value is an array, access from selectedLead
+                    label='Products' // Changed label to Products
+                    // error={!!errors.product_ids} // Accessing errors might be complex here, consider if needed
+                    // helperText={errors.product_ids}
+                    onChange={e => {
+                      const selectedValues = e.target.value as string[]
+                      setSelectedLead({ ...selectedLead, product_ids: selectedValues })
+                    }}
+                    sx={{ mt: 2 }} // Adjusted margin
+                    SelectProps={{
+                      multiple: true,
+                      renderValue: (selected) => (product?.rows?.filter((p:any) => (selected as string[]).includes(p.id)).map((p:any) => p.name).join(', ') || '') as React.ReactNode ,
+                    }}
                   >
                     {product?.rows?.map((items: any) => (
                       <MenuItem key={items.id} value={items.id}>
-                        {items.name}
+                        {items.name} ({selectedBranch.country.currency} {items.price?.toFixed(2)})
                       </MenuItem>
                     ))}
                   </TextField>
                 </Box>
               </Grid>
+
+              {/* Product Info Display - This will be updated in a later step to show multiple products */}
+              {selectedLead?.product_ids && selectedLead.product_ids.length > 0 && (
+                <Grid item xs={12}>
+                   <Box sx={{
+                      p: 2,
+                      mt: 2,
+                      backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
+                      borderRadius: 1.5,
+                      border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+                    }}>
+                    <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1, fontWeight: 600 }}>
+                      Selected Product Details
+                    </Typography>
+                    {selectedLead.product_ids.map((productId: string) => {
+                      const selectedProduct = product?.rows?.find((p: any) => p.id === productId)
+                      if (!selectedProduct) return null
+                      return (
+                        <Box key={productId} sx={{ mb: 1, pb: 1, borderBottom: '1px dashed rgba(0,0,0,0.1)' }}>
+                          <Typography variant="body2" sx={{ mb: 0.5 }}>
+                            <strong>Product:</strong> {selectedProduct.name}
+                          </Typography>
+                          <Typography variant="body2" sx={{ mb: 0.5 }}>
+                            <strong>Description:</strong> {selectedProduct.desc}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Price:</strong> {selectedBranch.country.currency} {selectedProduct.price?.toFixed(2)}
+                          </Typography>
+                        </Box>
+                      )
+                    })}
+                  </Box>
+                </Grid>
+              )}
             </>
           )}
 
