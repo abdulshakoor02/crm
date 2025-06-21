@@ -5,9 +5,10 @@ import { useServerInsertedHTML } from 'next/navigation';
 import { CacheProvider as EmotionCacheProvider } from '@emotion/react';
 import { ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { createTheme } from '@mui/material/styles'; // Assuming you have a theme creation utility
+import { createTheme, GlobalStyles as MuiGlobalStyles } from '@mui/material/styles'; // Import GlobalStyles
 import React from 'react';
 import { SettingsConsumer, SettingsProvider } from 'src/@core/context/settingsContext';
+import globalStyles from 'src/@core/theme/globalStyles'; // Import the globalStyles function
 import themeConfig from 'src/configs/themeConfig'; // Or your actual theme config
 import { AuthProvider } from 'src/context/AuthContext';
 import { Provider as ReduxProvider } from 'react-redux';
@@ -66,12 +67,15 @@ export default function ThemeRegistry({ children }: { children: React.ReactNode 
         <AuthProvider>
           <SettingsProvider>
             <SettingsConsumer>
-              {({ settings }) => (
-                <MUIThemeProvider theme={createTheme(themeOptions(settings, 'light'))}> {/* Adapt theme creation */}
-                  <CssBaseline />
-                  <WindowWrapper>
-                    <NProgressWrapper>
-                      {/*
+              {({ settings }) => {
+                const theme = createTheme(themeOptions(settings, settings.mode || 'light')); // Use settings.mode
+                return (
+                  <MUIThemeProvider theme={theme}>
+                    <CssBaseline />
+                    <MuiGlobalStyles styles={globalStyles(theme, settings)} /> {/* Apply global styles */}
+                    <WindowWrapper>
+                      <NProgressWrapper>
+                        {/*
                         The Guard logic from _app.tsx (Component.authGuard, etc.) needs careful consideration.
                         In App Router, this is typically handled by route group layouts or middleware.
                         For this initial step, we'll include a simplified structure.
@@ -79,9 +83,11 @@ export default function ThemeRegistry({ children }: { children: React.ReactNode 
                       */}
                       {/* <Guard authGuard={authGuard} guestGuard={guestGuard}> ... </Guard> */}
                       {/* For now, let's assume UserLayout handles its own guards or we apply a default */}
-                      <UserLayout>
-                        {children}
-                      </UserLayout>
+                      <AuthGuard fallback={<Spinner />}>
+                        <UserLayout>
+                          {children}
+                        </UserLayout>
+                      </AuthGuard>
                     </NProgressWrapper>
                     <ReactHotToast>
                       <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />

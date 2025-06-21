@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+'use client';
+import React from 'react' // useState is not used
 import { styled } from '@mui/material/styles'
 import { GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid'
 import TextField from '@mui/material/TextField'

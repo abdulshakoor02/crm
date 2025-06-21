@@ -1,3 +1,4 @@
+'use client';
 // ** MUI Imports
 import MuiBadge from '@mui/material/Badge'
 

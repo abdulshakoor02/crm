@@ -2,6 +2,7 @@
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 
+'use client';
 // ** Icons Imports
 import MenuIcon from 'mdi-material-ui/Menu'
 

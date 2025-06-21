@@ -1,9 +1,10 @@
+'use client';
 // ** React Imports
 import { ElementType, ReactNode } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname, useRouter } from 'next/navigation' // Updated import
 
 // ** MUI Imports
 import Chip from '@mui/material/Chip'
@@ -88,7 +89,8 @@ const VerticalNavLink = ({
 }: Props) => {
   // ** Hooks
   const theme = useTheme()
-  const router = useRouter()
+  const router = useRouter() // from next/navigation
+  const pathname = usePathname() // from next/navigation
 
   // ** Vars
   const { skin, navCollapsed } = settings
@@ -129,7 +131,9 @@ const VerticalNavLink = ({
    }
 
   const isNavLinkActive = () => {
-    if (router.pathname === item.path || handleURLQueries(router, item.path)) {
+    // handleURLQueries will be passed the new router object (from next/navigation)
+    // and the current pathname. Its internal logic might need adjustment later.
+    if (pathname === item.path || handleURLQueries(router, item.path, pathname)) {
       return true
     } else {
       return false

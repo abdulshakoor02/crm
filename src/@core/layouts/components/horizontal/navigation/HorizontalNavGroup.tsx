@@ -1,8 +1,9 @@
+'use client';
 // ** React Imports
 import { SyntheticEvent, useState, useEffect, Fragment } from 'react'
 
 // ** Next Import
-import { useRouter } from 'next/router'
+import { useRouter, usePathname } from 'next/navigation' // Updated import
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -93,8 +94,9 @@ const HorizontalNavGroup = (props: Props) => {
 
   // ** Hooks & Vars
   const theme = useTheme()
-  const router = useRouter()
-  const currentURL = router.pathname
+  const router = useRouter() // from next/navigation
+  const pathname = usePathname() // from next/navigation
+  const currentURL = pathname // Use pathname
   const { skin, direction } = settings
   const { navSubItemIcon, menuTextTruncate, horizontalMenuToggle, horizontalMenuAnimation } = themeConfig
 
@@ -123,7 +125,7 @@ const HorizontalNavGroup = (props: Props) => {
         enabled: true,
         options: {
           // @ts-ignore
-          boundary: window,
+          boundary: typeof window !== 'undefined' ? window : undefined, // Check for window
           fallbackPlacements: ['auto-start', 'right']
         }
       }
@@ -152,7 +154,7 @@ const HorizontalNavGroup = (props: Props) => {
   useEffect(() => {
     handleGroupClose()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.asPath])
+  }, [pathname]) // Updated dependency: use pathname
 
   const IconTag = item.icon ? item.icon : navSubItemIcon
   const ToggleIcon = direction === 'rtl' ? ChevronLeft : ChevronRight

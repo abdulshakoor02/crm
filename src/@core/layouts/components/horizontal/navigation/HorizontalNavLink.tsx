@@ -1,9 +1,10 @@
+'use client';
 // ** React Imports
 import { ElementType, Fragment } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation' // Updated import
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -64,26 +65,33 @@ const HorizontalNavLink = (props: Props) => {
   const { item, settings, hasParent } = props
 
   // ** Hook & Vars
-  const router = useRouter()
+  const router = useRouter() // from next/navigation
+  const pathname = usePathname() // from next/navigation
+  const searchParams = useSearchParams() // from next/navigation
   const { navSubItemIcon, menuTextTruncate } = themeConfig
 
   const IconTag = item.icon ? item.icon : navSubItemIcon
 
   const Wrapper = !hasParent ? List : Fragment
 
-  const handleURLQueries = () => {
-    if (Object.keys(router.query).length && item.path) {
-      const arr = Object.keys(router.query)
-
-      return router.asPath.includes(item.path) && router.asPath.includes(router.query[arr[0]] as string)
-    }
-  }
-
+  // const handleURLQueries = () => { // Original local handleURLQueries
+  //   if (Object.keys(router.query).length && item.path) {
+  //     const arr = Object.keys(router.query)
+  //     return router.asPath.includes(item.path) && router.asPath.includes(router.query[arr[0]] as string)
+  //   }
+  // }
+  // Updated isNavLinkActive to use pathname and a simplified check for App Router
+  // For more complex query matching, searchParams would be used here.
   const isNavLinkActive = () => {
-    if (router.pathname === item.path || handleURLQueries()) {
-      return true
-    } else {
-      return false
+    if (pathname === item.path) {
+      return true;
+    }
+    // Basic check if pathname starts with item.path (for nested routes)
+    // and item.path is not just '/'
+    if (item.path && item.path !== '/' && pathname.startsWith(item.path)) {
+      return true;
+    }
+    return false
     }
   }
 

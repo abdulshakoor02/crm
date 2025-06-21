@@ -1,3 +1,4 @@
+'use client';
 // ** MUI Imports
 import MuiChip from '@mui/material/Chip'
 

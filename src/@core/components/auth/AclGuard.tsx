@@ -1,8 +1,9 @@
+'use client';
 // ** React Imports
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useEffect } from 'react' // Added useEffect for router changes
 
 // ** Next Imports
-import { useRouter } from 'next/router'
+import { useRouter, usePathname } from 'next/navigation' // Updated import
 
 // ** Types
 import type { ACLObj, AppAbility } from 'src/configs/acl'
@@ -14,7 +15,7 @@ import { AbilityContext } from 'src/layouts/components/acl/Can'
 import { buildAbilityFor } from 'src/configs/acl'
 
 // ** Component Import
-import NotAuthorized from 'src/pages/401'
+import Error401Page from 'src/app/401/page' // Updated import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Hooks
@@ -35,26 +36,42 @@ const AclGuard = (props: AclGuardProps) => {
   // ** Hooks
   const auth = useAuth()
   const router = useRouter()
+  const pathname = usePathname() // Get current pathname
+
+  // ** State for ability (moved out of useEffect for initial check)
+  // const [ability, setAbility] = useState<AppAbility | undefined>(buildAbilityFor(auth.user?.role, aclAbilities.subject));
+  // Re-evaluate ability on user or role change.
+  // useEffect(() => {
+  //   if (auth.user && auth.user.role) {
+  //     setAbility(buildAbilityFor(auth.user.role, aclAbilities.subject));
+  //   } else {
+  //     setAbility(undefined); // Clear ability if user is logged out
+  //   }
+  // }, [auth.user, aclAbilities.subject]);
+  // Simplified: ability is derived directly in render logic for now to avoid complex useEffect
 
   // If guestGuard is true and user is not logged in or its an error page, render the page without checking access
-  if (guestGuard || router.route === '/404' || router.route === '/500' || router.route === '/') {
+  // Note: router.route is not available. Using pathname.
+  if (guestGuard || pathname === '/404' || pathname === '/500' || pathname === '/') { // TODO: Ensure /404 and /500 are correct App Router paths for error pages
     return <>{children}</>
   }
 
   // User is logged in, build ability for the user based on his role
-  if (auth.user && auth.user.role && !ability) {
-    setAbility(buildAbilityFor(auth.user.role, aclAbilities.subject))
+  let currentAbility: AppAbility | undefined = undefined;
+  if (auth.user && auth.user.role) {
+    currentAbility = buildAbilityFor(auth.user.role, aclAbilities.subject);
   }
 
   // Check the access of current user and render pages
-  if (ability && ability.can(aclAbilities.action, aclAbilities.subject)) {
-    return <AbilityContext.Provider value={ability}>{children}</AbilityContext.Provider>
+  // Also check if ability is defined (user is logged in and role is processed)
+  if (currentAbility && currentAbility.can(aclAbilities.action, aclAbilities.subject)) {
+    return <AbilityContext.Provider value={currentAbility}>{children}</AbilityContext.Provider>
   }
 
   // Render Not Authorized component if the current user has limited access
   return (
     <BlankLayout>
-      <NotAuthorized />
+      <Error401Page />
     </BlankLayout>
   )
 }

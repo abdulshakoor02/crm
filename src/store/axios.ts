@@ -13,9 +13,11 @@ const instance = axios.create({})
 
 instance.interceptors.request.use(
   async (request: any) => {
-    const token = window.localStorage.getItem('accessToken')
-    if (token) {
-      request.headers['token'] = token // Using 'token' as key
+    if (typeof window !== 'undefined') { // Guard for localStorage access
+      const token = window.localStorage.getItem('accessToken')
+      if (token) {
+        request.headers['token'] = token // Using 'token' as key
+      }
     }
 
     return request

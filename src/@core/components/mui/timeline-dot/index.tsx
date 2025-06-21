@@ -1,3 +1,4 @@
+'use client';
 // ** MUI Imports
 import { useTheme } from '@mui/material/styles'
 import MuiTimelineDot from '@mui/lab/TimelineDot'

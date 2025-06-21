@@ -1,19 +1,31 @@
 // ** Types
 import { NavGroup, NavLink } from 'src/@core/layouts/types'
-import { NextRouter } from 'next/router'
+// Removed: import { NextRouter } from 'next/router'
+// No direct equivalent for AppRouterInstance needed here if we only use pathname
 
 /**
  * Check for URL queries as well for matching
  * Current URL & Item Path
  *
- * @param item
- * @param activeItem
+ * @param router - router instance (currently not used in this simplified version for App Router)
+ * @param path - the path of the nav item
+ * @param currentPathname - the current pathname from usePathname()
  */
-export const handleURLQueries = (router: NextRouter, path: string | undefined): boolean => {
-  if (Object.keys(router.query).length && path) {
-    const arr = Object.keys(router.query)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const handleURLQueries = (router: unknown, path: string | undefined, currentPathname?: string): boolean => {
+  if (path && currentPathname) {
+    // Example: item.path = /apps/user/list, currentPathname = /apps/user/view/1
+    // Check if currentPathname starts with item.path
+    // Also, if item.path is not just '/', ensure currentPathname is not just '/' or that they are identical.
+    if (path === '/') {
+      return currentPathname === path;
+    }
 
-    return router.asPath.includes(path) && router.asPath.includes(router.query[arr[0]] as string) && path !== '/'
+    // If path has query params, they are ignored in this basic check.
+    // For a more robust solution, consider splitting path and query params.
+    const pathWithoutQuery = path.split('?')[0];
+
+    return currentPathname.startsWith(pathWithoutQuery)
   }
 
   return false

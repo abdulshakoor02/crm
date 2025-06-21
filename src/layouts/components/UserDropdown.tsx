@@ -1,8 +1,9 @@
+'use client';
 // ** React Imports
 import { useState, SyntheticEvent, Fragment } from 'react'
 
 // ** Next Import
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation' // Updated import
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -50,7 +51,7 @@ const UserDropdown = (props: Props) => {
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
 
   // ** Hooks
-  const router = useRouter()
+  const router = useRouter() // from next/navigation
   const { logout } = useAuth()
 
   // ** Vars
@@ -83,7 +84,9 @@ const UserDropdown = (props: Props) => {
 
   const handleLogout = () => {
     logout()
-    handleDropdownClose()
+    handleDropdownClose() // This will just clear anchorEl, router.push won't be called.
+    // If you want to redirect after logout, do it here:
+    // router.push('/login'); // Example redirect
   }
 
   return (
@@ -154,38 +157,38 @@ const UserDropdown = (props: Props) => {
           </Box>
         </Box>
         <Divider sx={{ mt: 0, mb: 1 }} />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/apps/user/view/12') /* Example URL */}>
           <Box sx={styles}>
             <AccountOutline sx={{ mr: 2 }} />
             Profile
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/apps/email')/* Example URL */}>
           <Box sx={styles}>
             <EmailOutline sx={{ mr: 2 }} />
             Inbox
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/apps/chat')/* Example URL */}>
           <Box sx={styles}>
             <MessageOutline sx={{ mr: 2 }} />
             Chat
           </Box>
         </MenuItem>
         <Divider />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/account-settings')/* Example URL */}>
           <Box sx={styles}>
             <CogOutline sx={{ mr: 2 }} />
             Settings
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/pricing')/* Example URL */}>
           <Box sx={styles}>
             <CurrencyUsd sx={{ mr: 2 }} />
             Pricing
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/faq')/* Example URL */}>
           <Box sx={styles}>
             <HelpCircleOutline sx={{ mr: 2 }} />
             FAQ

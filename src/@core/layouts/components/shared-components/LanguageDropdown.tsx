@@ -1,3 +1,4 @@
+'use client';
 // ** React Imports
 import { Fragment, SyntheticEvent, useEffect, useState } from 'react'
 

@@ -1,8 +1,9 @@
+'use client';
 // ** React Imports
 import { useEffect, Fragment } from 'react'
 
 // ** Next Import
-import { useRouter } from 'next/router'
+import { useRouter, usePathname } from 'next/navigation' // Updated import
 
 // ** MUI Imports
 import Chip from '@mui/material/Chip'
@@ -106,8 +107,9 @@ const VerticalNavGroup = (props: Props) => {
 
   // ** Hooks & Vars
   const theme = useTheme()
-  const router = useRouter()
-  const currentURL = router.pathname
+  const router = useRouter() // from next/navigation
+  const pathname = usePathname() // from next/navigation
+  const currentURL = pathname // Use pathname
   const { skin, direction, navCollapsed, verticalNavToggleType } = settings
 
   // ** Accordion menu group open toggle
@@ -181,7 +183,7 @@ const VerticalNavGroup = (props: Props) => {
       setGroupActive([])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.asPath])
+  }, [pathname, router]) // Updated dependencies: use pathname
 
   useEffect(() => {
     if (navCollapsed && !navHover) {

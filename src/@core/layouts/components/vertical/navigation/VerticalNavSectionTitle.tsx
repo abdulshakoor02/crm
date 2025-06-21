@@ -1,3 +1,4 @@
+'use client';
 // ** MUI Imports
 import Divider from '@mui/material/Divider'
 import { styled, useTheme } from '@mui/material/styles'

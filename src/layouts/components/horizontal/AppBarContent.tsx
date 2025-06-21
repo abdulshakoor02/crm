@@ -1,3 +1,4 @@
+'use client';
 // ** MUI Imports
 import Box from '@mui/material/Box'
 
