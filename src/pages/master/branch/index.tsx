@@ -100,7 +100,7 @@ const columns: GridColumns = [
     headerName: 'Country',
     renderCell: (params: GridRenderCellParams) => (
       <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.country?.['country_name']}
+        {params?.row?.country?.['name']}
       </Typography>
     )
   },
@@ -111,7 +111,7 @@ const columns: GridColumns = [
     headerName: 'Region',
     renderCell: (params: GridRenderCellParams) => (
       <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params?.row?.region?.['region_name']}
+        {params?.row?.region?.['name']}
       </Typography>
     )
   },
@@ -175,6 +175,7 @@ const BranchComponent = () => {
   const branch = useSelector((state: any) => state.branch)
   const countries = useSelector((state: any) => state.country)
   const region = useSelector((state: any) => state.region)
+  console.log(branch)
 
   useEffect(() => {
     dispatch(
@@ -193,29 +194,29 @@ const BranchComponent = () => {
     setFormValues(
       rowData
         ? {
-            id: rowData.id,
-            name: rowData.name,
-            mobile: rowData.mobile,
-            email: rowData.email,
-            website: rowData.website,
-            region_id: rowData.region.region_id,
-            country_id: rowData.country.country_id,
-            address: rowData.address,
-            tax: rowData.tax,
-            status: rowData.status
-          }
+          id: rowData.id,
+          name: rowData.name,
+          mobile: rowData.mobile,
+          email: rowData.email,
+          website: rowData.website,
+          region_id: rowData.region.id,
+          country_id: rowData.country.id,
+          address: rowData.address,
+          tax: rowData.tax,
+          status: rowData.status
+        }
         : {
-            id: '',
-            name: '',
-            mobile: '',
-            email: '',
-            website: '',
-            region_id: '',
-            country_id: '',
-            address: '',
-            tax: '',
-            status: ''
-          }
+          id: '',
+          name: '',
+          mobile: '',
+          email: '',
+          website: '',
+          region_id: '',
+          country_id: '',
+          address: '',
+          tax: '',
+          status: ''
+        }
     )
     setModalMode(mode)
     setModalOpen(true)

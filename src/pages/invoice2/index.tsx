@@ -16,11 +16,13 @@ import TableContainer from '@mui/material/TableContainer'
 import TableCell, { TableCellBaseProps } from '@mui/material/TableCell'
 import { usePDF } from 'react-to-pdf'
 import { useRouter } from 'next/router'
+import moment from 'moment';
 
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch } from 'src/store'
 import { getProductData } from 'src/store/apps/product'
+import { getSingleInvoiceData } from 'src/store/apps/invoice'
 
 const MUITableCell = styled(TableCell)<TableCellBaseProps>(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.divider}`,
@@ -82,83 +84,33 @@ const InvoicePage = () => {
   const theme = useTheme()
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
-  const [invoiceData, setInvoiceData] = useState<any>(null)
-  const [product, setProduct] = useState<any>(null)
 
-  const products = useSelector((state: any) => state.products)
+  const invoice = useSelector((state: any) => state.invoice)
 
   const { toPDF, targetRef } = usePDF({
-    filename: `${invoiceData?.invoiceId || 'invoice'}.pdf`,
+    filename: `invoice.pdf`,
     page: { format: 'A4' }
   })
 
   useEffect(() => {
-    dispatch(getProductData({}))
+    if (router.isReady && router.query.reciept_id && router.query.invoice_id) {
 
-    // Clean up old invoice data (older than 24 hours)
-    const cleanupOldInvoices = () => {
-      const now = new Date().getTime()
-      const oneDayAgo = now - (24 * 60 * 60 * 1000)
+      dispatch(getSingleInvoiceData({
+        invoice_id: router.query.invoice_id,
+        reciept_id: router.query.reciept_id
+      }))
 
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('invoice_')) {
-          try {
-            const data = JSON.parse(localStorage.getItem(key) || '{}')
-            const createdAt = new Date(data.createdAt).getTime()
-            if (createdAt < oneDayAgo) {
-              localStorage.removeItem(key)
-            }
-          } catch (error) {
-            // Remove corrupted data
-            localStorage.removeItem(key)
-          }
-        }
-      })
-    }
-
-    cleanupOldInvoices()
-  }, [dispatch])
-
-  useEffect(() => {
-    if (router.isReady && router.query.ref) {
-      const urlRef = router.query.ref as string
-
-      // Try to get invoice data from localStorage
-      const storedData = localStorage.getItem(`invoice_${urlRef}`)
-
-      if (storedData) {
-        try {
-          const parsedData = JSON.parse(storedData)
-          setInvoiceData(parsedData)
-        } catch (error) {
-          console.error('Error parsing invoice data:', error)
-          // Redirect to leads page if data is corrupted
-          router.push('/leads')
-        }
-      } else {
-        // Redirect to leads page if no data found
-        router.push('/leads')
-      }
     }
   }, [router.isReady, router.query.ref, router])
 
-  useEffect(() => {
-    if (invoiceData?.productId && products?.rows) {
-      const foundProduct = products.rows.find((p: any) => p.id === invoiceData.productId)
-      setProduct(foundProduct)
-    }
-  }, [invoiceData, products])
 
   // Calculate pricing
-  const basePrice = product?.price || 99.00
-  const discountAmount = invoiceData?.discountType === 'percentage'
-    ? (basePrice * (invoiceData.discount / 100))
-    : (invoiceData?.discount || 0)
-  const subtotal = basePrice - discountAmount
-  const tax = subtotal * 0.08 // 8% tax
-  const total = subtotal + tax
+  const subtotal = invoice?.data?.reciept?.total;
+  const discount = invoice?.data?.reciept?.discount;
+  const tax = (subtotal - discount) * invoice?.data?.reciept?.tax / 100 // 8% tax
+  const total = (subtotal - discount) + tax
 
-  if (!invoiceData) {
+  if (invoice.loading) {
     return (
       <Box sx={{
         display: 'flex',
@@ -195,7 +147,7 @@ const InvoicePage = () => {
       {/* Header with Invoice Title and Download Button */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <InvoiceTitle variant="h3">
-          {invoiceData?.invoiceId || 'Invoice'}
+          {'Invoice'}
         </InvoiceTitle>
         <Button
           variant='contained'
@@ -230,13 +182,12 @@ const InvoicePage = () => {
                   border: `1px solid ${theme.palette.divider}`
                 }}>
                   <SectionTitle variant='h5' sx={{ color: theme.palette.text.primary, mb: 2 }}>
-                    WeCRM Solutions
+                    {invoice?.data?.reciept?.branch_name}
                   </SectionTitle>
-                  <InfoText>Office 149, 450 South Brand Brooklyn</InfoText>
-                  <InfoText>San Diego County, CA 91905, USA</InfoText>
-                  <InfoText sx={{ fontWeight: 600, color: theme.palette.primary.main }}>+1 (123) 456 7891</InfoText>
+                  <InfoText>{invoice?.data?.reciept?.branch_address}</InfoText>
+                  <InfoText sx={{ fontWeight: 600, color: theme.palette.primary.main }}>{invoice?.data?.reciept?.branch_mobile}</InfoText>
                 </Box>
-                {invoiceData && (
+                {invoice && (
                   <Box sx={{
                     p: 3,
                     backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#f1f5f9',
@@ -245,9 +196,9 @@ const InvoicePage = () => {
                   }}>
                     <SectionTitle sx={{ mb: 2 }}>Bill To:</SectionTitle>
                     <InfoText sx={{ fontWeight: 600, fontSize: '1rem', color: theme.palette.text.primary, mb: 1 }}>
-                      {invoiceData.leadName}
+                      {invoice?.data?.reciept?.lead_name}
                     </InfoText>
-                    <InfoText sx={{ color: theme.palette.primary.main }}>{invoiceData.leadEmail}</InfoText>
+                    <InfoText sx={{ color: theme.palette.primary.main }}>{invoice?.data?.reciept?.lead_email}</InfoText>
                   </Box>
                 )}
               </Box>
@@ -291,7 +242,7 @@ const InvoicePage = () => {
                   fontWeight: 700,
                   fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
                 }}>
-                  {invoiceData?.invoiceId}
+                  Reciept No: {invoice?.data?.reciept?.reciept_no}
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -299,17 +250,7 @@ const InvoicePage = () => {
                       Date Issued:
                     </Typography>
                     <Typography variant='body2' sx={{ fontWeight: 500 }}>
-                      {invoiceData?.createdAt ? new Date(invoiceData.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant='body2' sx={{ fontWeight: 600, opacity: 0.9 }}>
-                      Due Date:
-                    </Typography>
-                    <Typography variant='body2' sx={{ fontWeight: 500 }}>
-                      {invoiceData?.createdAt ?
-                        new Date(new Date(invoiceData.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString() :
-                        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                      {invoice?.data?.reciept?.created_at ? new Date(invoice?.data?.reciept?.created_at).toLocaleDateString() : new Date().toLocaleDateString()}
                     </Typography>
                   </Box>
                 </Box>
@@ -360,37 +301,20 @@ const InvoicePage = () => {
                   }}>
                     Price
                   </TableCell>
-                  <TableCell sx={{
-                    fontWeight: 700,
-                    fontSize: '1rem',
-                    color: theme.palette.text.primary,
-                    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
-                  }}>
-                    Total
-                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <MUITableCell>{product?.name || 'Premium Subscription'}</MUITableCell>
-                  <MUITableCell>{product?.description || '12 months access'}</MUITableCell>
-                  <MUITableCell>1</MUITableCell>
-                  <MUITableCell>${basePrice.toFixed(2)}</MUITableCell>
-                  <MUITableCell>${basePrice.toFixed(2)}</MUITableCell>
-                </TableRow>
-                {invoiceData?.discount > 0 && (
-                  <TableRow>
-                    <MUITableCell>Discount</MUITableCell>
-                    <MUITableCell>
-                      {invoiceData.discountType === 'percentage'
-                        ? `${invoiceData.discount}% discount`
-                        : 'Fixed discount'}
-                    </MUITableCell>
-                    <MUITableCell>1</MUITableCell>
-                    <MUITableCell>-${discountAmount.toFixed(2)}</MUITableCell>
-                    <MUITableCell>-${discountAmount.toFixed(2)}</MUITableCell>
-                  </TableRow>
-                )}
+                {
+                  invoice?.data?.orders?.map((order: any) => (
+                    <TableRow key={order.id}>
+                      <MUITableCell>{order?.product_name}</MUITableCell>
+                      <MUITableCell>{order?.product_desc}</MUITableCell>
+                      <MUITableCell>{order?.quantity}</MUITableCell>
+                      <MUITableCell>{invoice?.data?.reciept?.currency} {order.product_price}</MUITableCell>
+                    </TableRow>
+                  ))
+
+                }
               </TableBody>
             </Table>
           </TableContainer>
@@ -420,7 +344,7 @@ const InvoicePage = () => {
                   color: theme.palette.text.primary,
                   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
                 }}>
-                  ${subtotal.toFixed(2)}
+                  {invoice?.data?.reciept?.currency} {subtotal}
                 </Typography>
               </CalcWrapper>
               <CalcWrapper>
@@ -429,14 +353,30 @@ const InvoicePage = () => {
                   color: theme.palette.text.secondary,
                   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
                 }}>
-                  Tax (8%):
+                  Discount:
                 </Typography>
                 <Typography sx={{
                   fontWeight: 600,
                   color: theme.palette.text.primary,
                   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
                 }}>
-                  ${tax.toFixed(2)}
+                  {invoice?.data?.reciept?.currency} {discount}
+                </Typography>
+              </CalcWrapper>
+              <CalcWrapper>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: theme.palette.text.secondary,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  Tax ({invoice?.data?.reciept?.tax}%):
+                </Typography>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: theme.palette.text.primary,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  {invoice?.data?.reciept?.currency} {tax}
                 </Typography>
               </CalcWrapper>
               <Divider sx={{ my: 2, backgroundColor: theme.palette.divider }} />
@@ -456,7 +396,45 @@ const InvoicePage = () => {
                   fontWeight: 700,
                   fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
                 }}>
-                  ${total.toFixed(2)}
+                  {invoice?.data?.reciept?.currency} {total}
+                </Typography>
+              </CalcWrapper>
+              <CalcWrapper sx={{
+                p: 2,
+                backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: 1,
+                color: 'white'
+              }}>
+                <Typography variant='h6' sx={{
+                  fontWeight: 700,
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  Amount Paid:
+                </Typography>
+                <Typography variant='h5' sx={{
+                  fontWeight: 700,
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  {invoice?.data?.reciept?.currency} {invoice?.data?.reciept?.amount_paid}
+                </Typography>
+              </CalcWrapper>
+              <CalcWrapper sx={{
+                p: 2,
+                backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: 1,
+                color: 'white'
+              }}>
+                <Typography variant='h6' sx={{
+                  fontWeight: 700,
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  Pending Amount:
+                </Typography>
+                <Typography variant='h5' sx={{
+                  fontWeight: 700,
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                }}>
+                  {invoice?.data?.reciept?.currency} {total-invoice?.data?.reciept?.amount_paid}
                 </Typography>
               </CalcWrapper>
             </Box>
