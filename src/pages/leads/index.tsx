@@ -366,8 +366,6 @@ const LeadComponent = () => {
       submissionData.appointmentDateTime = getUnixTime(new Date(submissionData.appointmentDateTime))
     }
 
-    console.log(submissionData)
-
     try {
       if (modalMode == 'Edit') {
         const res = await dispatch(updateLeadData({ data: submissionData, where: { id: submissionData.id } }))
@@ -567,7 +565,7 @@ const LeadComponent = () => {
         products: selectedProducts,
         total: totalProductPrice,
         amount_paid: parseFloat(invoiceData.amountPaid),
-        discount: parseFloat(invoiceData.discount),
+        discount: Number(invoiceData.discount),
       }))
 
       // Navigate to invoice2 page with query parameter
@@ -586,7 +584,6 @@ const LeadComponent = () => {
 
   const handlePaste = (event: any) => {
     const pasteText = event.clipboardData.getData('text')
-    console.log('pastedText', pasteText)
 
     setInfoValues({ ...infoValues, description: infoValues.description + pasteText }) // Append pasted content to current value
     event.preventDefault() // Prevent default paste behavior if needed

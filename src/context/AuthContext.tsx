@@ -47,12 +47,12 @@ const AuthProvider = ({ children }: Props) => {
       const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)!
       if (storedToken) {
         setLoading(true)
-        await axios.post('/api/auth',{},{headers:{token:storedToken}})
-        .then(res=>{
+        await axios.post('/api/auth', {}, { headers: { token: storedToken } })
+          .then(res => {
             setLoading(false)
             setUser({ ...res.data })
           })
-        .catch(()=>{
+          .catch(() => {
             localStorage.removeItem('userData')
             localStorage.removeItem('refreshToken')
             localStorage.removeItem('accessToken')
@@ -67,24 +67,23 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
-    console.log('login called')
     axios
       .post('/api/login', params)
       .then(res => {
-            const returnUrl = router.query.returnUrl
+        const returnUrl = router.query.returnUrl
 
-            window.localStorage.setItem(authConfig.storageTokenKeyName, res.data.token)
-            setUser({ ...res.data.userData })
-            window.localStorage.setItem('userData', JSON.stringify(res.data.userData))
+        window.localStorage.setItem(authConfig.storageTokenKeyName, res.data.token)
+        setUser({ ...res.data.userData })
+        window.localStorage.setItem('userData', JSON.stringify(res.data.userData))
 
-            const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
 
-            router.replace(redirectURL as string)
+        router.replace(redirectURL as string)
 
-        } )
+      })
       .catch(err => {
         if (errorCallback) errorCallback(err)
-        })
+      })
   }
 
   const handleLogout = () => {
