@@ -3,15 +3,22 @@ const path = require('path')
 /** @type {import('next').NextConfig} */
 
 // Remove this if you're not using Fullcalendar features
-const withTM = require('next-transpile-modules')([
-  '@fullcalendar/common',
-  '@fullcalendar/react',
-  '@fullcalendar/daygrid',
-  '@fullcalendar/list',
-  '@fullcalendar/timegrid'
-])
+// const withTM = require('next-transpile-modules')([
+//   '@fullcalendar/common',
+//   '@fullcalendar/react',
+//   '@fullcalendar/daygrid',
+//   '@fullcalendar/list',
+//   '@fullcalendar/timegrid'
+// ])
 
-module.exports = withTM({
+module.exports = {
+  transpilePackages: [
+    '@fullcalendar/common',
+    '@fullcalendar/react',
+    '@fullcalendar/daygrid',
+    '@fullcalendar/list',
+    '@fullcalendar/timegrid'
+  ],
   env: {
     baseUrl: process.env.BASE_URL
   },
@@ -24,8 +31,8 @@ module.exports = withTM({
   trailingSlash: true,
   reactStrictMode: false,
   experimental: {
-    esmExternals: false,
-    jsconfigPaths: true // enables it for both jsconfig.json and tsconfig.json
+    esmExternals: false // May be removable or adjustable. Kept for now to minimize potential breakage.
+    // jsconfigPaths: true, // This is true by default since Next.js 12.2+
   },
   webpack: config => {
     config.resolve.alias = {
@@ -35,4 +42,4 @@ module.exports = withTM({
 
     return config
   }
-})
+}
