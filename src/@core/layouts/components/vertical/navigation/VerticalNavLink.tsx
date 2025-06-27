@@ -1,47 +1,48 @@
+"use client";
+
 // ** React Imports
-import { ElementType, ReactNode } from 'react'
+import { ElementType, ReactNode, useEffect, useState } from 'react';
 
 // ** Next Imports
-import Link from 'next/link'
-import { useRouter } from 'next/router'
+import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 // ** MUI Imports
-import Chip from '@mui/material/Chip'
-import ListItem from '@mui/material/ListItem'
-import Typography from '@mui/material/Typography'
-import Box, { BoxProps } from '@mui/material/Box'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import { styled, useTheme, alpha } from '@mui/material/styles' // Added alpha
-import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton'
+import Chip from '@mui/material/Chip';
+import ListItem from '@mui/material/ListItem';
+import Typography from '@mui/material/Typography';
+import Box, { BoxProps } from '@mui/material/Box';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import { styled, useTheme, alpha } from '@mui/material/styles';
+import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton';
 
 // ** Configs Import
-import themeConfig from 'src/configs/themeConfig'
+import themeConfig from 'src/configs/themeConfig';
 
 // ** Types
-import { NavLink, NavGroup } from 'src/@core/layouts/types'
-import { Settings } from 'src/@core/context/settingsContext'
+import { NavLink, NavGroup } from 'src/@core/layouts/types';
+import { Settings } from 'src/@core/context/settingsContext';
 
 // ** Custom Components Imports
-import UserIcon from 'src/layouts/components/UserIcon'
-import Translations from 'src/layouts/components/Translations'
-import CanViewNavLink from 'src/layouts/components/acl/CanViewNavLink'
+import UserIcon from 'src/layouts/components/UserIcon';
+import Translations from 'src/layouts/components/Translations';
+import CanViewNavLink from 'src/layouts/components/acl/CanViewNavLink';
 
 // ** Utils
-import { handleURLQueries } from 'src/@core/layouts/utils'
+import { handleURLQueries } from 'src/@core/layouts/utils';
 
 interface Props {
-  parent?: boolean
-  item: NavLink
-  navHover?: boolean
-  settings: Settings
-  navVisible?: boolean
-  collapsedNavWidth: number
-  navigationBorderWidth: number
-  toggleNavVisibility: () => void
-  isSubToSub?: NavGroup | undefined
+  parent?: boolean;
+  item: NavLink;
+  navHover?: boolean;
+  settings: Settings;
+  navVisible?: boolean;
+  collapsedNavWidth: number;
+  navigationBorderWidth: number;
+  toggleNavVisibility: () => void;
+  isSubToSub?: NavGroup | undefined;
 }
 
-// ** Styled Components
 const MenuNavLink = styled(ListItemButton)<
   ListItemButtonProps & { component?: ElementType; target?: '_blank' | undefined }
 >(({ theme }) => ({
@@ -50,12 +51,11 @@ const MenuNavLink = styled(ListItemButton)<
   borderBottomRightRadius: 100,
   color: theme.palette.text.primary,
   transition: 'padding-left .25s ease-in-out',
-  // Updated py padding is in the sx prop within the component, not here.
   '&.active': {
     borderLeft: `3px solid ${theme.palette.primary.main}`,
     backgroundColor: alpha(theme.palette.primary.main, 0.1),
     '&, &:hover': {
-      backgroundColor: alpha(theme.palette.primary.main, 0.1), // Ensure hover on active keeps the active background
+      backgroundColor: alpha(theme.palette.primary.main, 0.1),
     },
     '& .MuiTypography-root, & .MuiListItemIcon-root': {
       color: `${theme.palette.primary.main} !important`
@@ -64,7 +64,7 @@ const MenuNavLink = styled(ListItemButton)<
       fontWeight: theme.typography.fontWeightMedium
     }
   }
-}))
+}));
 
 const MenuItemTextMetaWrapper = styled(Box)<BoxProps>({
   width: '100%',
@@ -73,7 +73,8 @@ const MenuItemTextMetaWrapper = styled(Box)<BoxProps>({
   justifyContent: 'space-between',
   transition: 'opacity .25s ease-in-out',
   ...(themeConfig.menuTextTruncate && { overflow: 'hidden' })
-})
+});
+
 
 const VerticalNavLink = ({
   item,
@@ -83,17 +84,16 @@ const VerticalNavLink = ({
   navVisible,
   isSubToSub,
   collapsedNavWidth,
-  toggleNavVisibility,
-  navigationBorderWidth
+  navigationBorderWidth,
+  toggleNavVisibility
 }: Props) => {
-  // ** Hooks
-  const theme = useTheme()
-  const router = useRouter()
+  const theme = useTheme();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  // ** Vars
-  const { skin, navCollapsed } = settings
+  const { skin, navCollapsed } = settings;
 
-  const IconTag: ReactNode = parent && !item.icon ? themeConfig.navSubItemIcon : item.icon
+  const IconTag: ReactNode = parent && !item.icon ? themeConfig.navSubItemIcon : item.icon;
 
   const conditionalBgColor = () => {
     if (skin === 'semi-dark' && theme.palette.mode === 'light') {
@@ -102,42 +102,65 @@ const VerticalNavLink = ({
         '&:hover': {
           backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.04)`
         }
-      }
+      };
     } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
       return {
         color: `rgba(${theme.palette.customColors.light}, 0.87)`,
         '&:hover': {
           backgroundColor: `rgba(${theme.palette.customColors.light}, 0.04)`
         }
-      }
-    } else return {}
-  }
+      };
+    } else return {};
+  };
 
   const checkAccess = () => {
-    if (item?.access) {
-      const { features } = JSON.parse(window.localStorage.getItem('userData'));
-      if (features.includes(item.access)) {
-
-      return true
-      } else {
-
-      return false
+    if (typeof window !== 'undefined') {
+      if (item?.access) {
+        const userDataString = window.localStorage.getItem('userData');
+        if (userDataString) {
+          try {
+            const userData = JSON.parse(userDataString);
+            if (userData && userData.features && userData.features.includes(item.access)) {
+              return true;
+            } else {
+              return false;
+            }
+          } catch (e) {
+            console.error("Failed to parse userData from localStorage", e);
+            return false;
+          }
+        }
+        return false;
       }
     }
+    return true;
+  };
 
-    return true
-   }
+  const [isActive, setIsActive] = useState(false);
 
-  const isNavLinkActive = () => {
-    if (router.pathname === item.path || handleURLQueries(router, item.path)) {
-      return true
-    } else {
-      return false
+  useEffect(() => {
+    let active = false;
+    if (item.path && pathname) {
+      active = pathname === item.path;
+      if (!active && item.path !== '/') {
+        if (pathname.startsWith(item.path + '/')) { // Check for parent path
+          active = true;
+        }
+      }
+      // If more complex query matching is needed, handleURLQueries can be used here
+      // For example, if item.path itself has queries, or if specific URL queries should make it active
+      // if (!active) {
+      //   active = handleURLQueries(pathname, searchParams, item.path);
+      // }
     }
+    setIsActive(active);
+  }, [pathname, searchParams, item.path]);
+
+  if (!checkAccess()) {
+    return null;
   }
 
   return (
-  <>{ checkAccess() && (
     <CanViewNavLink navLink={item}>
       <ListItem
         disablePadding
@@ -145,22 +168,22 @@ const VerticalNavLink = ({
         disabled={item.disabled || false}
         sx={{ mt: 1.5, px: '0 !important' }}
       >
-        <Link passHref href={item.path === undefined ? '/' : `${item.path}`}>
+        <Link href={item.path === undefined ? '/' : `${item.path}`} passHref legacyBehavior={false}>
           <MenuNavLink
             component={'a'}
-            className={isNavLinkActive() ? 'active' : ''}
+            className={isActive ? 'active' : ''}
             {...(item.openInNewTab ? { target: '_blank' } : null)}
             onClick={e => {
               if (item.path === undefined) {
-                e.preventDefault()
-                e.stopPropagation()
+                e.preventDefault();
+                e.stopPropagation();
               }
               if (navVisible) {
-                toggleNavVisibility()
+                toggleNavVisibility();
               }
             }}
             sx={{
-              py: theme.spacing(2.5), // Changed from 2.25
+              py: theme.spacing(2.5),
               ...conditionalBgColor(),
               ...(item.disabled ? { pointerEvents: 'none' } : { cursor: 'pointer' }),
               pl: navCollapsed && !navHover ? (collapsedNavWidth - navigationBorderWidth - 24) / 8 : 5.5,
@@ -173,7 +196,7 @@ const VerticalNavLink = ({
                   color: 'text.primary',
                   transition: 'margin .25s ease-in-out',
                   ...(navCollapsed && !navHover ? { mr: 0 } : { mr: 2.5 }),
-                  ...(parent ? { ml: 1.25, mr: 3.75 } : {}) // This line should be after (navCollapsed && !navHover) condition for proper styling
+                  ...(parent ? { ml: 1.25, mr: 3.75 } : {})
                 }}
               >
                 <UserIcon
@@ -219,8 +242,8 @@ const VerticalNavLink = ({
           </MenuNavLink>
         </Link>
       </ListItem>
-    </CanViewNavLink>)
-  }</>)
-}
+    </CanViewNavLink>
+  );
+};
 
-export default VerticalNavLink
+export default VerticalNavLink;
