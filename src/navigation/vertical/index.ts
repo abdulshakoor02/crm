@@ -54,11 +54,12 @@ const navigation = (): VerticalNavItemsType => {
           path: '/master/countries',
           access: 'countries'
         },
-        {
-          title: 'Tenant',
-          icon: OfficeBuildingOutline,
-          path: '/master/tenant'
-        },
+
+        // {
+        //   title: 'Tenant',
+        //   icon: OfficeBuildingOutline,
+        //   path: '/master/tenant'
+        // },
         {
           title: 'Region',
           icon: MapMarkerRadiusOutline,
@@ -77,11 +78,12 @@ const navigation = (): VerticalNavItemsType => {
           path: '/master/role',
           access: 'role'
         },
-        {
-          title: 'Features',
-          icon: TuneVariant,
-          path: '/master/features'
-        },
+
+        // {
+        //   title: 'Features',
+        //   icon: TuneVariant,
+        //   path: '/master/features'
+        // },
         {
           title: 'Products',
           icon: PackageVariantClosed,
