@@ -59,6 +59,7 @@ type Lead = {
   employee_id: string
   branch_id: string
   lead_category_id: string
+
   // product_ids?: string[] // Removed as per new requirement
   tenant_id?: string
   appointmentDateTime?: Date | null // Added
@@ -193,6 +194,7 @@ const LeadComponent = () => {
     employee_id: '',
     branch_id: '',
     lead_category_id: '',
+
     // product_ids: [], // Removed
     appointmentDateTime: null // Added
   })
@@ -205,6 +207,7 @@ const LeadComponent = () => {
     employee_id: '',
     branch_id: '',
     lead_category_id: '',
+
     // product_id: '', // Removed
     appointmentDateTime: null // Added
   })
@@ -255,6 +258,7 @@ const LeadComponent = () => {
           employee_id: rowData.employee_id,
           branch_id: rowData.branch_id,
           lead_category_id: rowData.lead_category_id,
+
           // product_ids: rowData.product_ids, // Removed
           appointmentDateTime: rowData.appointmentDateTime
             ? typeof rowData.appointmentDateTime === 'number'
@@ -271,6 +275,7 @@ const LeadComponent = () => {
           employee_id: '',
           branch_id: '',
           lead_category_id: '',
+
           // product_id: '', // Removed
           appointmentDateTime: null // Added
         }
@@ -290,6 +295,7 @@ const LeadComponent = () => {
       employee_id: '',
       branch_id: '',
       lead_category_id: '',
+
       // product_ids: [], // Removed
       appointmentDateTime: null // Added
     })
@@ -320,6 +326,7 @@ const LeadComponent = () => {
       employee_id: '',
       branch_id: '',
       lead_category_id: '',
+
       // product_ids: [], // Removed
       appointmentDateTime: null // Added
     }
@@ -486,6 +493,7 @@ const LeadComponent = () => {
     if (!selectedLead?.product_ids || selectedLead.product_ids.length === 0) {
       toast.error('Please select at least one product to generate an invoice.')
       isValid = false
+
       // Optionally, set an error state for UI feedback if a dedicated error display area for products exists
       // setInvoiceErrors(prev => ({...prev, products: 'Please select at least one product.'})); // Example
       return // Early return if no products selected
@@ -671,6 +679,7 @@ const LeadComponent = () => {
                 icon: <ReceiptIcon fontSize='medium' sx={{ color: '#28a745' }} />,
                 tooltip: 'Generate Invoice',
                 onClick: handleGenerateInvoice
+
                 // show: (row: any) => !!row.product_ids && row.product_ids.length > 0 // Removed to make button always visible
               }
             ]}
@@ -935,12 +944,13 @@ const LeadComponent = () => {
               </Grid>
 
               {/* Product Info & Add Button */}
-              <Grid item xs={12}> // Changed from xs={8} to xs={12} to take full width for product selection
+              {/* Changed from xs={8} to xs={12} to take full width for product selection */}
+              <Grid item xs={12}>
                 <Box sx={{
                   p: 2,
                   backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
                   borderRadius: 1.5,
-                  border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)}'`
+                  border: (theme) => theme.palette.mode === 'dark' ? '1px solid rgba(144, 202, 249, 0.2)' : '1px solid rgba(25, 118, 210, 0.12)'
                 }}>
                   <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1, fontWeight: 600 }}>
                     Select Products
@@ -948,10 +958,11 @@ const LeadComponent = () => {
                   <TextField
                     fullWidth
                     select
-                    multiple // Added multiple prop
-                    name='product_ids' // Changed name to product_ids
-                    value={selectedLead?.product_ids || []} // Ensure value is an array, access from selectedLead
-                    label='Products' // Changed label to Products
+                    multiple
+                    name='product_ids'
+                    value={selectedLead?.product_ids || []}
+                    label='Products'
+
                     // error={!!errors.product_ids} // Accessing errors might be complex here, consider if needed
                     // helperText={errors.product_ids}
                     onChange={e => {
@@ -961,7 +972,7 @@ const LeadComponent = () => {
                     sx={{ mt: 2 }} // Adjusted margin
                     SelectProps={{
                       multiple: true,
-                      renderValue: (selected) => (product?.rows?.filter((p:any) => (selected as string[]).includes(p.id)).map((p:any) => p.name).join(', ') || '') as React.ReactNode ,
+                      renderValue: (selected) => (product?.rows?.filter((p: any) => (selected as string[]).includes(p.id)).map((p: any) => p.name).join(', ') || '') as React.ReactNode,
                     }}
                   >
                     {product?.rows?.map((items: any) => (
@@ -976,19 +987,20 @@ const LeadComponent = () => {
               {/* Product Info Display - This will be updated in a later step to show multiple products */}
               {selectedLead?.product_ids && selectedLead.product_ids.length > 0 && (
                 <Grid item xs={12}>
-                   <Box sx={{
-                      p: 2,
-                      mt: 2,
-                      backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
-                      borderRadius: 1.5,
-                      border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
-                    }}>
+                  <Box sx={{
+                    p: 2,
+                    mt: 2,
+                    backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
+                    borderRadius: 1.5,
+                    border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+                  }}>
                     <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1, fontWeight: 600 }}>
                       Selected Product Details
                     </Typography>
                     {selectedLead.product_ids.map((productId: string) => {
                       const selectedProduct = product?.rows?.find((p: any) => p.id === productId)
                       if (!selectedProduct) return null
+
                       return (
                         <Box key={productId} sx={{ mb: 1, pb: 1, borderBottom: '1px dashed rgba(0,0,0,0.1)' }}>
                           <Typography variant="body2" sx={{ mb: 0.5 }}>
