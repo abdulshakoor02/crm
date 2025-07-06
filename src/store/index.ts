@@ -15,6 +15,7 @@ import leads from '../store/apps/leads'
 import leadCategory from '../store/apps/leadCategory'
 import additionalInfo from '../store/apps/additionalInfo'
 import appointments from '../store/apps/appointments'
+import invoice from '../store/apps/invoice'
 
 export const store = configureStore({
   reducer: {
@@ -30,7 +31,8 @@ export const store = configureStore({
     leadCategory,
     additionalInfo,
     user,
-    appointments
+    appointments,
+    invoice
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

@@ -38,6 +38,7 @@ import { getCountriesData } from 'src/store/apps/countries'
 import { getBranchData } from 'src/store/apps/branch'
 import { getLeadCategoryData } from 'src/store/apps/leadCategory'
 import { getProductData } from 'src/store/apps/product'
+import { createInvoiceData } from 'src/store/apps/invoice'
 import DataGridTable from 'src/components/Datagrid'
 import Modal from 'src/components/Model/Model'
 import { appendTenantId } from 'src/utils/tenantAppend'
@@ -59,7 +60,8 @@ type Lead = {
   employee_id: string
   branch_id: string
   lead_category_id: string
-  product_id?: string
+
+  // product_ids?: string[] // Removed as per new requirement
   tenant_id?: string
   appointmentDateTime?: Date | null // Added
 }
@@ -170,10 +172,12 @@ const LeadComponent = () => {
   const [selectedLead, setSelectedLead] = useState<any>(null)
   const [selectedBranch, setSelectedBranch] = useState<any>(null)
   const [invoiceData, setInvoiceData] = useState({
+    amountPaid: '',
     discount: '',
     discountType: 'percentage' // 'percentage' or 'fixed'
   })
   const [invoiceErrors, setInvoiceErrors] = useState({
+    amountPaid: '',
     discount: ''
   })
   const [infoValues, setInfoValues] = useState<{
@@ -193,7 +197,8 @@ const LeadComponent = () => {
     employee_id: '',
     branch_id: '',
     lead_category_id: '',
-    product_id: '',
+
+    // product_ids: [], // Removed
     appointmentDateTime: null // Added
   })
   const [errors, setErrors] = useState<Lead>({
@@ -205,7 +210,8 @@ const LeadComponent = () => {
     employee_id: '',
     branch_id: '',
     lead_category_id: '',
-    product_id: '',
+
+    // product_id: '', // Removed
     appointmentDateTime: null // Added
   })
 
@@ -255,7 +261,8 @@ const LeadComponent = () => {
           employee_id: rowData.employee_id,
           branch_id: rowData.branch_id,
           lead_category_id: rowData.lead_category_id,
-          product_id: rowData.product_id,
+
+          // product_ids: rowData.product_ids, // Removed
           appointmentDateTime: rowData.appointmentDateTime
             ? typeof rowData.appointmentDateTime === 'number'
               ? new Date(rowData.appointmentDateTime * 1000)
@@ -271,7 +278,8 @@ const LeadComponent = () => {
           employee_id: '',
           branch_id: '',
           lead_category_id: '',
-          product_id: '',
+
+          // product_id: '', // Removed
           appointmentDateTime: null // Added
         }
     )
@@ -290,7 +298,8 @@ const LeadComponent = () => {
       employee_id: '',
       branch_id: '',
       lead_category_id: '',
-      product_id: '',
+
+      // product_ids: [], // Removed
       appointmentDateTime: null // Added
     })
     setFormValues({
@@ -320,7 +329,8 @@ const LeadComponent = () => {
       employee_id: '',
       branch_id: '',
       lead_category_id: '',
-      product_id: '',
+
+      // product_ids: [], // Removed
       appointmentDateTime: null // Added
     }
     let isValid = true
@@ -355,8 +365,6 @@ const LeadComponent = () => {
     if (submissionData.appointmentDateTime) {
       submissionData.appointmentDateTime = getUnixTime(new Date(submissionData.appointmentDateTime))
     }
-
-    console.log(submissionData)
 
     try {
       if (modalMode == 'Edit') {
@@ -447,15 +455,22 @@ const LeadComponent = () => {
   }
 
   const handleGenerateInvoice = (id: string, row: any) => {
-    setSelectedLead(row)
+    // Ensure product_ids is an array, defaulting to an empty array if it's null or undefined
+    const leadDataWithEnsuredProductIds = {
+      ...row,
+      product_ids: Array.isArray(row.product_ids) ? row.product_ids : []
+    }
+    setSelectedLead(leadDataWithEnsuredProductIds)
     const selectedBranch = branch?.rows?.find((p: any) => p.id === row?.branch_id)
     setSelectedBranch(selectedBranch);
     setInvoiceModalOpen(true)
     setInvoiceData({
+      amountPaid: '',
       discount: '',
       discountType: 'percentage'
     })
     setInvoiceErrors({
+      amountPaid: '',
       discount: ''
     })
   }
@@ -464,21 +479,41 @@ const LeadComponent = () => {
     setInvoiceModalOpen(false)
     setSelectedLead(null)
     setInvoiceData({
+      amountPaid: '',
       discount: '',
       discountType: 'percentage'
     })
     setInvoiceErrors({
+      amountPaid: '',
       discount: ''
     })
   }
 
-  const handleInvoiceSubmit = () => {
+  const handleInvoiceSubmit = async () => {
+    const selectedProducts: any = [];
+    let totalProductPrice = 0
+
     // Validate discount
     const errors = { discount: '' }
     let isValid = true
 
-    if (!invoiceData.discount) {
-      errors.discount = 'Discount is required'
+    // Ensure at least one product is selected
+    if (!selectedLead?.product_ids || selectedLead.product_ids.length === 0) {
+      toast.error('Please select at least one product to generate an invoice.')
+      isValid = false
+
+      // Optionally, set an error state for UI feedback if a dedicated error display area for products exists
+      // setInvoiceErrors(prev => ({...prev, products: 'Please select at least one product.'})); // Example
+      return // Early return if no products selected
+    }
+
+    if (!invoiceData.discount || !invoiceData.amountPaid) {
+      if (!invoiceData.discount) {
+        errors.discount = 'Discount is required'
+      }
+      if (!invoiceData.amountPaid) {
+        errors.amountPaid = 'amount to be paid is required'
+      }
       isValid = false
     } else {
       const discountValue = parseFloat(invoiceData.discount)
@@ -488,21 +523,30 @@ const LeadComponent = () => {
       } else if (invoiceData.discountType === 'percentage' && discountValue > 100) {
         errors.discount = 'Percentage discount cannot exceed 100%'
         isValid = false
-      } else if (selectedLead && selectedLead.product_id) {
-        // Get the product price for validation
-        const selectedProduct = product?.rows?.find((p: any) => p.id === selectedLead.product_id)
-        const productPrice = selectedProduct?.price || 0
+      } else if (selectedLead && selectedLead.product_ids && selectedLead.product_ids.length > 0) {
+        // Calculate total price of selected products for validation
+        selectedLead.product_ids.forEach((productId: string) => {
+          const selectedProduct = product?.rows?.find((p: any) => p.id === productId)
+          selectedProducts.push(
+            {
+              "product_id": selectedProduct?.id,
+              "price": selectedProduct?.price,
+              "quantity": 1
+            },
+          );
+          totalProductPrice += selectedProduct?.price || 0
+        })
 
-        // Maximum allowed discount (90% of product price to prevent zero total)
+        // Maximum allowed discount (90% of total product price to prevent zero total)
         const maxDiscountPercentage = 90
-        const maxFixedDiscount = (productPrice * maxDiscountPercentage) / 100
+        const maxFixedDiscount = (totalProductPrice * maxDiscountPercentage) / 100 // Changed productPrice to totalProductPrice
 
         if (invoiceData.discountType === 'fixed') {
-          if (discountValue >= productPrice) {
-            errors.discount = `Fixed discount cannot be equal to or exceed product price ($${productPrice.toFixed(2)}). Maximum allowed: $${maxFixedDiscount.toFixed(2)}`
+          if (discountValue >= totalProductPrice) { // Changed productPrice to totalProductPrice
+            errors.discount = `Fixed discount cannot be equal to or exceed total product price ($${totalProductPrice.toFixed(2)}). Maximum allowed: $${maxFixedDiscount.toFixed(2)}`
             isValid = false
           } else if (discountValue > maxFixedDiscount) {
-            errors.discount = `Fixed discount too high. Maximum allowed: $${maxFixedDiscount.toFixed(2)} (${maxDiscountPercentage}% of product price)`
+            errors.discount = `Fixed discount too high. Maximum allowed: $${maxFixedDiscount.toFixed(2)} (${maxDiscountPercentage}% of total product price)` // Changed product price to total product price
             isValid = false
           }
         } else if (invoiceData.discountType === 'percentage') {
@@ -515,67 +559,31 @@ const LeadComponent = () => {
           }
         }
       }
+
+      const invoice = await dispatch(createInvoiceData({
+        lead_id: selectedLead.id,
+        products: selectedProducts,
+        total: totalProductPrice,
+        amount_paid: parseFloat(invoiceData.amountPaid),
+        discount: Number(invoiceData.discount),
+      }))
+
+      // Navigate to invoice2 page with query parameter
+      router.push(`/invoice2?reciept_id=${invoice?.payload?.reciept?.id}&invoice_id=${invoice?.payload?.invoice?.id}`)
+      handleCloseInvoiceModal()
+
     }
 
     if (!isValid) {
-      setInvoiceErrors(errors)
+      setInvoiceErrors(errors as any)
 
       return
     }
 
-    // Clean up any existing invoice data for this lead to prevent duplicates
-    const cleanupExistingInvoices = () => {
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('invoice_')) {
-          try {
-            const data = JSON.parse(localStorage.getItem(key) || '{}')
-            if (data.leadId === selectedLead.id) {
-              localStorage.removeItem(key)
-            }
-          } catch (error) {
-            // Remove corrupted data
-            localStorage.removeItem(key)
-          }
-        }
-      })
-    }
-
-    cleanupExistingInvoices()
-
-    // Generate a user-friendly invoice ID
-    const currentYear = new Date().getFullYear()
-    const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0')
-    const randomNum = Math.floor(Math.random() * 9999).toString().padStart(4, '0')
-    const invoiceNumber = `INV-${currentYear}${currentMonth}-${randomNum}`
-
-    // Generate a short reference for URL (6 characters)
-    const urlRef = Math.random().toString(36).substring(2, 8).toUpperCase()
-
-    const invoiceDataToStore = {
-      invoiceId: invoiceNumber,
-      urlRef: urlRef,
-      leadId: selectedLead.id,
-      productId: selectedLead.product_id,
-      discount: parseFloat(invoiceData.discount),
-      discountType: invoiceData.discountType,
-      leadName: selectedLead.name,
-      leadEmail: selectedLead.email,
-      leadMobile: selectedLead.mobile,
-      leadAddress: selectedLead.address,
-      createdAt: new Date().toISOString()
-    }
-
-    // Store in localStorage using the short reference
-    localStorage.setItem(`invoice_${urlRef}`, JSON.stringify(invoiceDataToStore))
-
-    // Navigate to invoice2 page with query parameter
-    router.push(`/invoice2?ref=${urlRef}`)
-    handleCloseInvoiceModal()
   }
 
   const handlePaste = (event: any) => {
     const pasteText = event.clipboardData.getData('text')
-    console.log('pastedText', pasteText)
 
     setInfoValues({ ...infoValues, description: infoValues.description + pasteText }) // Append pasted content to current value
     event.preventDefault() // Prevent default paste behavior if needed
@@ -653,8 +661,9 @@ const LeadComponent = () => {
               {
                 icon: <ReceiptIcon fontSize='medium' sx={{ color: '#28a745' }} />,
                 tooltip: 'Generate Invoice',
-                onClick: handleGenerateInvoice,
-                show: (row: any) => !!row.product_id // Only show if product_id exists
+                onClick: handleGenerateInvoice
+
+                // show: (row: any) => !!row.product_ids && row.product_ids.length > 0 // Removed to make button always visible
               }
             ]}
           />
@@ -832,26 +841,8 @@ const LeadComponent = () => {
                 />
               </Grid>
 
-              <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  select
-                  name='product_id'
-                  value={formValues.product_id}
-                  label='Product'
-                  error={!!errors.product_id}
-                  helperText={errors.product_id}
-                  onChange={e => setFormValues({ ...formValues, product_id: e.target.value })}
-                  disabled={modalMode === 'View'}
-                  sx={{ mt: 4 }}
-                >
-                  {product?.rows?.map((items: any) => (
-                    <MenuItem key={items.id} value={items.id}>
-                      {items.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
+              {/* Product selection removed from here */}
+              {/* <Grid item xs={6}> ... </Grid> */}
 
               <Grid item xs={12}></Grid>{' '}
               {/* This was an empty full-width spacer, kept it. If DateTimePicker makes it too long, could be xs={12} sm={6} and this becomes a real spacer or removed. */}
@@ -936,50 +927,78 @@ const LeadComponent = () => {
               </Grid>
 
               {/* Product Info & Add Button */}
-              <Grid item xs={8}>
+              <Grid item xs={12}>
                 <Box sx={{
                   p: 2,
                   backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
                   borderRadius: 1.5,
-                  border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+                  border: (theme) => theme.palette.mode === 'dark' ? '1px solid rgba(144, 202, 249, 0.2)' : '1px solid rgba(25, 118, 210, 0.12)}'
                 }}>
                   <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1, fontWeight: 600 }}>
-                    Product Details
+                    Select Products
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>
-                    <strong>Product:</strong> {product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.name || 'No Product Assigned'}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>
-                    <strong>Description:</strong> {product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.desc || 'No Product Assigned'}
-                  </Typography>
-                  <Typography variant="body2">
-                    <strong>Price:</strong> {selectedBranch.country.currency} {product?.rows?.find((p: any) => p.id === selectedLead.product_id)?.price?.toFixed(2) || '0.00'}
-                  </Typography>
-                </Box>
-              </Grid>
-
-              <Grid item xs={4}>
-                <Box sx={{ height: '100%', display: 'flex', alignItems: 'center' }}>
-
                   <TextField
                     fullWidth
                     select
-                    name='product_id'
-                    value={selectedLead.product_id}
-                    label='Product'
-                    error={!!errors.product_id}
-                    helperText={errors.product_id}
-                    onChange={e => setSelectedLead({ ...selectedLead, product_id: e.target.value })}
-                    sx={{ mt: 4 }}
+                    multiple // Added multiple prop
+                    name='product_ids' // Changed name to product_ids
+                    value={selectedLead?.product_ids || []} // Ensure value is an array, access from selectedLead
+                    label='Products' // Changed label to Products
+                    // error={!!errors.product_ids} // Accessing errors might be complex here, consider if needed
+                    // helperText={errors.product_ids}
+                    onChange={e => {
+                      const selectedValues = e.target.value as unknown as string[]
+                      setSelectedLead({ ...selectedLead, product_ids: selectedValues })
+                    }}
+                    sx={{ mt: 2 }} // Adjusted margin
+                    SelectProps={{
+                      multiple: true,
+                      renderValue: (selected) => (product?.rows?.filter((p: any) => (selected as string[]).includes(p.id)).map((p: any) => p.name).join(', ') || '') as React.ReactNode,
+                    }}
                   >
                     {product?.rows?.map((items: any) => (
                       <MenuItem key={items.id} value={items.id}>
-                        {items.name}
+                        {items.name} ({selectedBranch.country.currency} {items.price?.toFixed(2)})
                       </MenuItem>
                     ))}
                   </TextField>
                 </Box>
               </Grid>
+
+              {/* Product Info Display - This will be updated in a later step to show multiple products */}
+              {selectedLead?.product_ids && selectedLead.product_ids.length > 0 && (
+                <Grid item xs={12}>
+                  <Box sx={{
+                    p: 2,
+                    mt: 2,
+                    backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
+                    borderRadius: 1.5,
+                    border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+                  }}>
+                    <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1, fontWeight: 600 }}>
+                      Selected Product Details
+                    </Typography>
+                    {selectedLead.product_ids.map((productId: string) => {
+                      const selectedProduct = product?.rows?.find((p: any) => p.id === productId)
+                      if (!selectedProduct) return null
+
+                      return (
+                        <Box key={productId} sx={{ mb: 1, pb: 1, borderBottom: '1px dashed rgba(0,0,0,0.1)' }}>
+                          <Typography variant="body2" sx={{ mb: 0.5 }}>
+                            <strong>Product:</strong> {selectedProduct.name}
+                          </Typography>
+                          <Typography variant="body2" sx={{ mb: 0.5 }}>
+                            <strong>Description:</strong> {selectedProduct.desc}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Price:</strong> {selectedBranch.country.currency} {selectedProduct.price?.toFixed(2)}
+                          </Typography>
+                        </Box>
+                      )
+                    })}
+                  </Box>
+                </Grid>
+              )}
             </>
           )}
 
@@ -1008,19 +1027,6 @@ const LeadComponent = () => {
                     inputProps={{ min: 0, step: 0.01 }}
                   />
                 </Grid>
-                <Grid item xs={4}>
-                  <TextField
-                    fullWidth
-                    select
-                    label="Type"
-                    value={invoiceData.discountType}
-                    onChange={e => setInvoiceData({ ...invoiceData, discountType: e.target.value })}
-                    size="small"
-                  >
-                    <MenuItem value="percentage">%</MenuItem>
-                    <MenuItem value="fixed">Fixed</MenuItem>
-                  </TextField>
-                </Grid>
               </Grid>
               <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
                 {invoiceData.discountType === 'percentage'
@@ -1029,11 +1035,42 @@ const LeadComponent = () => {
               </Typography>
             </Box>
           </Grid>
+
+          {/* Amount Paid */}
+          <Grid item xs={12}>
+            <Box sx={{
+              p: 2,
+              backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.08)' : 'rgba(25, 118, 210, 0.04)',
+              borderRadius: 1.5,
+              border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.2)' : 'rgba(25, 118, 210, 0.12)'}`
+            }}>
+              <Typography variant="subtitle2" sx={{ color: 'text.primary', mb: 1.5, fontWeight: 600 }}>
+                Payment Details
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={8}>
+                  <TextField
+                    fullWidth
+                    label="Amount Paid"
+                    type="number"
+                    value={invoiceData.amountPaid}
+                    onChange={e => setInvoiceData({ ...invoiceData, amountPaid: e.target.value })}
+                    error={!!invoiceErrors.amountPaid}
+                    helperText={invoiceErrors.amountPaid}
+                    size="small"
+                    inputProps={{ min: 0, step: 0.01 }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          </Grid>
+
+
         </Grid>
-      </Modal>
+      </Modal >
 
 
-    </Grid>
+    </Grid >
   )
 }
 

@@ -24,7 +24,6 @@ export const createLeadData: any = createAsyncThunk('lead/create', async (data: 
   if (features.includes('self')) {
     data = data.map(val => ({ ...val, employee_id: id }))
   }
-  console.log(data)
   const response = await axios.post(`/api/backend/lead/create`, data)
 
   return response.data
