@@ -10,6 +10,7 @@ import toast from 'react-hot-toast'
 import { styled } from '@mui/material/styles'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import axios from 'src/store/axios'
+import moment from 'moment'
 
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,6 +21,7 @@ import { getCountriesData } from '../../../store/apps/countries'
 import DataGridTable from 'src/components/Datagrid'
 import Modal from 'src/components/Model/Model'
 import uuid from 'react-uuid'
+
 // import { Tenant } from 'src/types/components/tenant.types'
 import { validateFormValues } from 'src/validation/validation'
 
@@ -176,24 +178,24 @@ const TenantComponent = () => {
     setFormValues(
       rowData
         ? {
-            id: rowData.id,
-            name: rowData.name,
-            phone: rowData.phone,
-            email: rowData.email,
-            website: rowData.website,
-            country_id: rowData.country_id,
-            status: rowData.status,
-            logo: rowData.logo
-          }
+          id: rowData.id,
+          name: rowData.name,
+          phone: rowData.phone,
+          email: rowData.email,
+          website: rowData.website,
+          country_id: rowData.country_id,
+          status: rowData.status,
+          logo: rowData.logo
+        }
         : {
-            id: '',
-            name: '',
-            phone: '',
-            email: '',
-            website: '',
-            country_id: '',
-            status: ''
-          }
+          id: '',
+          name: '',
+          phone: '',
+          email: '',
+          website: '',
+          country_id: '',
+          status: ''
+        }
     )
     setModalMode(mode)
     setModalOpen(true)
@@ -224,6 +226,7 @@ const TenantComponent = () => {
     const { hasError, errors: validationErrors } = validateFormValues(formValues, validationRules)
     if (hasError) {
       setErrors(validationErrors) // Update the errors state
+
       return
     }
 
@@ -256,11 +259,11 @@ const TenantComponent = () => {
           const formdata = new FormData()
           formdata.append('file', file[0])
           try {
-            console.log(formValues.id)
-            const response = await axios.post(`${process.env.baseUrl}/fileUpload`, formdata, {
+            const filename = file[0].name.split('.');
+            await axios.post(`${process.env.baseUrl}/fileUpload`, formdata, {
               headers: {
                 'Content-Type': 'multipart/form-data',
-                filename: file[0].name,
+                filename: filename[0] + moment().format('YYYY-MM-DD') + '.' + filename[1],
                 folder: 'crm',
                 tenant_id: formValues.id
               }
