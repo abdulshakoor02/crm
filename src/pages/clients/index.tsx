@@ -158,7 +158,7 @@ const assigned_user = {
 
 columns = checkAccess('AssignedUserColumn') ? [...columns, assigned_user] : columns
 
-const LeadComponent = () => {
+const ClientComponent = () => {
 
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
@@ -227,7 +227,7 @@ const LeadComponent = () => {
   useEffect(() => {
     dispatch(
       getLeadData({
-        find: { client: false },
+        find: { client: true },
         limit: pageSize,
         offset: pageSize * page,
         orderBy: '"leads".created_at desc',
@@ -386,7 +386,7 @@ const LeadComponent = () => {
         }
         dispatch(
           getLeadData({
-            find: { client: false },
+            find: { client: true },
             limit: pageSize,
             offset: pageSize * page,
             joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }]
@@ -438,7 +438,7 @@ const LeadComponent = () => {
       }
       dispatch(
         getLeadData({
-          find: { client: false },
+          find: { client: true },
           limit: pageSize,
           offset: pageSize * page,
           joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }]
@@ -603,7 +603,7 @@ const LeadComponent = () => {
     setSearchValue('')
     dispatch(
       getLeadData({
-        find: { client: false },
+        find: { client: true },
         limit: pageSize,
         offset: pageSize * page,
         joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }]
@@ -630,7 +630,7 @@ const LeadComponent = () => {
       })
       await dispatch(
         getLeadData({
-          find: { client: false },
+          find: { client: true },
           limit: pageSize,
           offset: pageSize * page,
           joins: [{ column: 'Country' }, { column: 'Branch' }, { column: 'LeadCategory' }, { column: 'Employee' }],
@@ -1102,4 +1102,4 @@ const LeadComponent = () => {
   )
 }
 
-export default LeadComponent
+export default ClientComponent

@@ -34,7 +34,7 @@ export const tenantSlice = createSlice({
   initialState: {
     count: 0,
     rows: [] as Tenant[],
-    loading: false
+    loading: true
   } as TenantState,
   reducers: {},
   extraReducers: builders => {

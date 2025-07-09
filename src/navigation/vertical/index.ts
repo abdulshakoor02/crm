@@ -35,6 +35,12 @@ const navigation = (): VerticalNavItemsType => {
       path: '/leads',
       access: 'lead'
     },
+    {
+      title: 'Clients',
+      icon: AccountGroupOutline,
+      path: '/clients',
+      access: 'lead'
+    },
 
     // {
     //   title: 'Access Control',
