@@ -9,6 +9,7 @@ import {
 import { useTheme, alpha } from '@mui/material/styles'
 import Toolbar from './Toolbar'
 import { IconButton, Tooltip } from '@mui/material'
+import { BackgroundGradient } from './ui/background-gradient'
 import { Visibility, Edit, Delete } from '@mui/icons-material'
 import Box from '@mui/material/Box'
 import { DeleteOutline, EyeOutline, PencilOutline } from 'mdi-material-ui'
@@ -174,9 +175,10 @@ const DataGridTable = React.memo(
     const columnsWithActions = view || edit || del || customActions.length > 0 ? [...columns, actionColumn] : columns
 
     return (
-      <DataGrid
-        loading={loading}
-        autoHeight
+      <BackgroundGradient containerClassName="rounded-3xl">
+        <DataGrid
+          loading={loading}
+          autoHeight
         pagination
         disableColumnFilter
         disableColumnMenu
@@ -196,9 +198,9 @@ const DataGridTable = React.memo(
           border: 0, // Or `1px solid ${theme.palette.divider}`
           padding: theme.spacing(1),
           minHeight: 300,
-          background: theme.palette.mode === 'light'
-            ? `linear-gradient(to bottom, ${theme.palette.grey[100]}, ${theme.palette.background.paper})`
-            : `linear-gradient(to bottom, ${alpha(theme.palette.background.paper, 0.95)}, ${theme.palette.background.paper})`,
+          // background: theme.palette.mode === 'light'
+          //   ? `linear-gradient(to bottom, ${theme.palette.grey[100]}, ${theme.palette.background.paper})`
+          //   : `linear-gradient(to bottom, ${alpha(theme.palette.background.paper, 0.95)}, ${theme.palette.background.paper})`,
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[800],
           },
@@ -220,6 +222,7 @@ const DataGridTable = React.memo(
           }
         }}
       />
+      </BackgroundGradient>
     )
   }
 )
