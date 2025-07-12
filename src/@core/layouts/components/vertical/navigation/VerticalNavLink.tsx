@@ -48,17 +48,20 @@ const MenuNavLink = styled(ListItemButton)<
   width: '100%',
   borderTopRightRadius: 100,
   borderBottomRightRadius: 100,
-  color: theme.palette.text.primary,
+  color: theme.palette.common.white,
   transition: 'padding-left .25s ease-in-out',
+  '&:hover': {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
   // Updated py padding is in the sx prop within the component, not here.
   '&.active': {
-    borderLeft: `3px solid ${theme.palette.primary.main}`,
-    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+    borderLeft: `3px solid ${theme.palette.common.white}`,
+    backgroundColor: 'rgba(255,255,255,0.2)',
     '&, &:hover': {
-      backgroundColor: alpha(theme.palette.primary.main, 0.1), // Ensure hover on active keeps the active background
+      backgroundColor: 'rgba(255,255,255,0.2)', // Ensure hover on active keeps the active background
     },
     '& .MuiTypography-root, & .MuiListItemIcon-root': {
-      color: `${theme.palette.primary.main} !important`
+      color: `${theme.palette.common.white} !important`
     },
     '& .MuiTypography-root': {
       fontWeight: theme.typography.fontWeightMedium

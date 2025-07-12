@@ -88,15 +88,15 @@ const DataGridTable = React.memo(
                   width: 32,
                   height: 32,
                   mx: 0.5,
-                  backgroundColor: theme.palette.mode === 'light' ? theme.palette.primary.light : theme.palette.primary.dark,
+                  background: theme.palette.customColors.primaryGradient,
                   '&:hover': {
-                    backgroundColor: theme.palette.mode === 'light' ? alpha(theme.palette.primary.light, 0.8) : alpha(theme.palette.primary.dark, 0.8),
+                    filter: 'brightness(1.2)',
                   }
                 }}
               >
                 <IconButton
                   onClick={() => onView?.(params.row.id)}
-                  sx={{ color: theme.palette.common.black }}
+                  sx={{ color: theme.palette.common.white }}
                 >
                   <EyeOutline fontSize='small' />
                 </IconButton>
@@ -114,15 +114,15 @@ const DataGridTable = React.memo(
                   width: 32,
                   height: 32,
                   mx: 0.5,
-                  backgroundColor: theme.palette.mode === 'light' ? theme.palette.warning.light : theme.palette.warning.dark,
+                  background: theme.palette.customColors.primaryGradient,
                   '&:hover': {
-                    backgroundColor: theme.palette.mode === 'light' ? alpha(theme.palette.warning.light, 0.8) : alpha(theme.palette.warning.dark, 0.8),
+                    filter: 'brightness(1.2)',
                   }
                 }}
               >
                 <IconButton
                   onClick={() => onEdit?.(params.row.id)}
-                  sx={{ color: theme.palette.common.black }}
+                  sx={{ color: theme.palette.common.white }}
                 >
                   <PencilOutline fontSize='small' />
                 </IconButton>
@@ -140,15 +140,15 @@ const DataGridTable = React.memo(
                   width: 32,
                   height: 32,
                   mx: 0.5,
-                  backgroundColor: theme.palette.mode === 'light' ? theme.palette.error.light : theme.palette.error.dark,
+                  background: theme.palette.customColors.primaryGradient,
                   '&:hover': {
-                    backgroundColor: theme.palette.mode === 'light' ? alpha(theme.palette.error.light, 0.8) : alpha(theme.palette.error.dark, 0.8),
+                    filter: 'brightness(1.2)',
                   }
                 }}
               >
                 <IconButton
                   onClick={() => onDelete?.(params.row.id)}
-                  sx={{ color: theme.palette.common.black }}
+                  sx={{ color: theme.palette.common.white }}
                 >
                   <DeleteOutline fontSize='small' />
                 </IconButton>
@@ -160,9 +160,25 @@ const DataGridTable = React.memo(
 
             return shouldShow ? (
               <Tooltip key={index} title={action.tooltip}>
-                <IconButton onClick={() => action.onClick(params.row.id, params.row)}>
-                  {action.icon}
-                </IconButton>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '50%',
+                    width: 32,
+                    height: 32,
+                    mx: 0.5,
+                    background: theme.palette.customColors.primaryGradient,
+                    '&:hover': {
+                      filter: 'brightness(1.2)',
+                    }
+                  }}
+                >
+                  <IconButton onClick={() => action.onClick(params.row.id, params.row)} sx={{ color: theme.palette.common.white }}>
+                    {action.icon}
+                  </IconButton>
+                </Box>
               </Tooltip>
             ) : null
           })}
@@ -196,14 +212,18 @@ const DataGridTable = React.memo(
           border: 0, // Or `1px solid ${theme.palette.divider}`
           padding: theme.spacing(1),
           minHeight: 300,
-          background: theme.palette.mode === 'light'
-            ? `linear-gradient(to bottom, ${theme.palette.grey[100]}, ${theme.palette.background.paper})`
-            : `linear-gradient(to bottom, ${alpha(theme.palette.background.paper, 0.95)}, ${theme.palette.background.paper})`,
+          background: theme.palette.customColors.primaryGradient,
+          transition: 'transform 0.3s ease-in-out',
+          '&:hover': {
+            transform: 'scale(1.005)'
+          },
           '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[800],
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            color: 'common.white',
           },
           '& .MuiDataGrid-cell': {
-            borderBottom: `1px solid ${theme.palette.divider}`
+            borderBottom: `1px solid rgba(255,255,255,0.2)`,
+            color: 'common.white',
           },
 
           // Custom scrollbar styles are in globals.css, but you can add fallbacks or specific overrides here

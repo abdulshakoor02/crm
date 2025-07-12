@@ -20,7 +20,9 @@ const Menu = (theme: Theme, skin: Skin) => {
           '& .MuiMenu-paper': {
             borderRadius: 5,
             boxShadow: boxShadow(),
-            ...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}` })
+            ...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}` }),
+            // Ensure background is not explicitly set here to allow gradients
+            // backgroundColor: theme.palette.background.paper, // Removed or commented out
           }
         }
       }

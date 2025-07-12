@@ -61,36 +61,16 @@ const Drawer = (props: Props) => {
   const { skin, navCollapsed } = settings
 
   const drawerColor = () => {
-    if (skin === 'semi-dark' && theme.palette.mode === 'light') {
-      return {
-        '& .MuiTypography-root, & .MuiSvgIcon-root': {
-          color: `rgba(${theme.palette.customColors.dark}, 0.87)`
-        }
+    return {
+      '& .MuiTypography-root, & .MuiSvgIcon-root': {
+        color: theme.palette.common.white
       }
-    } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
-      return {
-        '& .MuiTypography-root, & .MuiSvgIcon-root': {
-          color: `rgba(${theme.palette.customColors.light}, 0.87)`
-        }
-      }
-    } else return {}
+    }
   }
 
   const drawerBgColor = () => {
-    if (skin === 'semi-dark' && theme.palette.mode === 'light') {
-      return {
-        backgroundColor: theme.palette.customColors.darkBg
-      }
-    } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
-      return {
-        backgroundColor: theme.palette.customColors.lightBg
-      }
-    } else {
-      // Frosted glass effect for default and bordered skins
-      return {
-        backgroundColor: alpha(theme.palette.background.default, 0.85),
-        backdropFilter: 'blur(6px)'
-      }
+    return {
+      background: theme.palette.customColors.primaryGradient,
     }
   }
 
@@ -125,9 +105,10 @@ const Drawer = (props: Props) => {
       PaperProps={{ sx: { width: navCollapsed && !navHover ? collapsedNavWidth : navWidth } }}
       sx={{
         width: navCollapsed ? collapsedNavWidth : navWidth,
+        color: 'common.white',
         '& .MuiDrawer-paper': {
           ...drawerColor(),
-          ...drawerBgColor(),
+          background: theme.palette.customColors.primaryGradient,
           ...(!hidden && navCollapsed && navHover ? { boxShadow: 9 } : {}),
           borderRight: navigationBorderWidth === 0 ? 0 : `${navigationBorderWidth}px solid ${theme.palette.divider}`
         }
