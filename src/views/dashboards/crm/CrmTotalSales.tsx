@@ -39,7 +39,7 @@ const CrmTotalSales = () => {
       lineCap: 'round'
     },
     legend: { show: false },
-    colors: [theme.palette.success.main],
+    colors: [theme.palette.common.white],
     grid: {
       show: false,
       padding: {
@@ -51,7 +51,12 @@ const CrmTotalSales = () => {
     xaxis: {
       axisTicks: { show: false },
       axisBorder: { show: false },
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      labels: {
+        style: {
+          colors: theme.palette.common.white
+        }
+      }
     },
     yaxis: {
       labels: { show: false }
@@ -59,20 +64,28 @@ const CrmTotalSales = () => {
   }
 
   return (
-    <Card>
+    <Card sx={{ 
+      background: theme => theme.palette.customColors.primaryGradient, 
+      color: 'white',
+      transition: 'transform 0.3s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.02)'
+      }
+    }}>
       <CardHeader
         title='Total Sales'
         subheader='$21,845'
         subheaderTypographyProps={{
-          sx: { mt: 1, fontWeight: 500, lineHeight: '2rem', color: 'text.primary', fontSize: '1.25rem !important' }
+          sx: { mt: 1, fontWeight: 500, lineHeight: '2rem', color: 'common.white', fontSize: '1.25rem !important' }
         }}
         action={
-          <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'text.secondary' }}>
+          <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'common.white' }}>
             <DotsVertical />
           </IconButton>
         }
         titleTypographyProps={{
           sx: {
+            color: 'common.white',
             fontSize: '1rem !important',
             fontWeight: '600 !important',
             lineHeight: '1.5rem !important',
@@ -82,7 +95,7 @@ const CrmTotalSales = () => {
       />
       <CardContent
         sx={{
-          '& .apexcharts-xaxis-label': { fontSize: '0.875rem' }
+          '& .apexcharts-xaxis-label': { fontSize: '0.875rem', fill: theme.palette.common.white }
         }}
       >
         <ReactApexcharts

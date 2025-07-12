@@ -11,7 +11,7 @@ import Badge from '@mui/material/Badge'
 import Avatar from '@mui/material/Avatar'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
-import { styled } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles' // Added useTheme
 import Typography from '@mui/material/Typography'
 
 // ** Icons Imports
@@ -52,6 +52,7 @@ const UserDropdown = (props: Props) => {
   // ** Hooks
   const router = useRouter()
   const { logout } = useAuth()
+  const theme = useTheme() // Added useTheme hook
 
   // ** Vars
   const { direction } = settings
@@ -109,7 +110,7 @@ const UserDropdown = (props: Props) => {
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={() => handleDropdownClose()}
-        sx={{ '& .MuiMenu-paper': { width: 230, mt: 4 } }}
+        sx={{ '& .MuiMenu-paper': { width: 230, mt: 4, background: theme.palette.customColors.primaryGradient, color: 'common.white' } }}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: direction === 'ltr' ? 'right' : 'left'
@@ -143,64 +144,64 @@ const UserDropdown = (props: Props) => {
                 flexDirection: 'column'
               }}
             >
-              <Typography sx={{ fontWeight: 600 }}>John Doe</Typography>
+              <Typography sx={{ fontWeight: 600, color: 'common.white' }}>John Doe</Typography>
               <Typography
                 variant='body2'
-                sx={{ fontSize: '0.8rem', color: 'text.disabled' }}
+                sx={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)' }}
               >
                 Admin
               </Typography>
             </Box>
           </Box>
         </Box>
-        <Divider sx={{ mt: 0, mb: 1 }} />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
+        <Divider sx={{ mt: 0, mb: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }} />
+        <MenuItem sx={{ p: 0, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }} onClick={() => handleDropdownClose()}>
+          <Box sx={{...styles, color: 'common.white', '& svg': { color: 'common.white' }}}>
             <AccountOutline sx={{ mr: 2 }} />
             Profile
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
+        <MenuItem sx={{ p: 0, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }} onClick={() => handleDropdownClose()}>
+          <Box sx={{...styles, color: 'common.white', '& svg': { color: 'common.white' }}}>
             <EmailOutline sx={{ mr: 2 }} />
             Inbox
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
+        <MenuItem sx={{ p: 0, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }} onClick={() => handleDropdownClose()}>
+          <Box sx={{...styles, color: 'common.white', '& svg': { color: 'common.white' }}}>
             <MessageOutline sx={{ mr: 2 }} />
             Chat
           </Box>
         </MenuItem>
-        <Divider />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
+        <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.2)' }} />
+        <MenuItem sx={{ p: 0, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }} onClick={() => handleDropdownClose()}>
+          <Box sx={{...styles, color: 'common.white', '& svg': { color: 'common.white' }}}>
             <CogOutline sx={{ mr: 2 }} />
             Settings
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
+        <MenuItem sx={{ p: 0, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }} onClick={() => handleDropdownClose()}>
+          <Box sx={{...styles, color: 'common.white', '& svg': { color: 'common.white' }}}>
             <CurrencyUsd sx={{ mr: 2 }} />
             Pricing
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
+        <MenuItem sx={{ p: 0, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }} onClick={() => handleDropdownClose()}>
+          <Box sx={{...styles, color: 'common.white', '& svg': { color: 'common.white' }}}>
             <HelpCircleOutline sx={{ mr: 2 }} />
             FAQ
           </Box>
         </MenuItem>
-        <Divider />
-        <MenuItem sx={{ py: 2 }} onClick={handleLogout}>
+        <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.2)' }} />
+        <MenuItem sx={{ py: 2, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }} onClick={handleLogout}>
           <LogoutVariant
             sx={{
               mr: 2,
               fontSize: '1.375rem',
-              color: 'text.secondary'
+              color: 'common.white'
             }}
           />
-          Logout
+          <Typography sx={{ color: 'common.white' }}>Logout</Typography>
         </MenuItem>
       </Menu>
     </Fragment>

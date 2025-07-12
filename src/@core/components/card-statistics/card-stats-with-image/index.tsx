@@ -1,64 +1,82 @@
+// ** React Imports
+import { ReactElement } from 'react'
+
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
+import { useTheme } from '@mui/material/styles'
 
 // ** Custom Components Imports
 import CustomChip from 'src/@core/components/mui/chip'
 
-// ** Types Imports
-import { CardStatsCharacterProps } from 'src/@core/components/card-statistics/types'
+// ** Types
+import { CardStatsCharacterProps } from './types'
 
-interface Props {
-  data: CardStatsCharacterProps
-}
+const CardStatisticsCharacter = (props: CardStatsCharacterProps) => {
+  // ** Props
+  const { title, src, stats, chipText, chipColor, trendNumber, trend } = props
 
-// ** Styled component for the image
-const Img = styled('img')({
-  right: 7,
-  bottom: 0,
-  height: 177,
-  position: 'absolute'
-})
-
-const CardStatsCharacter = ({ data }: Props) => {
-  // ** Vars
-  const { title, chipColor, chipText, src, stats, trend, trendNumber } = data
+  // ** Hook
+  const theme = useTheme()
 
   return (
-    <Card sx={{ overflow: 'visible', position: 'relative' }}>
-      <CardContent>
-        <Typography sx={{ mb: 6.5, fontWeight: 600 }}>{title}</Typography>
-        <Box sx={{ mb: 1.5, rowGap: 1, width: '55%', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          <Typography variant='h5' sx={{ mr: 1.5 }}>
-            {stats}
-          </Typography>
-          <Typography
-            component='sup'
-            variant='caption'
-            sx={{ color: trend === 'negative' ? 'error.main' : 'success.main' }}
-          >
-            {trendNumber}
-          </Typography>
+    <Card sx={{
+      overflow: 'hidden',
+      position: 'relative',
+      background: theme.palette.customColors.primaryGradient,
+      color: 'common.white',
+      transition: 'transform 0.3s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.02)'
+      }
+    }}>
+      <CardContent sx={{ p: theme => `${theme.spacing(6.75, 5, 6.25)} !important` }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography sx={{ mb: 1.5, fontWeight: 600, whiteSpace: 'nowrap', color: 'common.white' }}>
+              {title}
+            </Typography>
+            <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'center' }}>
+              <Typography variant='h5' sx={{ fontWeight: 600, whiteSpace: 'nowrap', color: 'common.white' }}>
+                {stats}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', color: 'common.white' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography
+                    variant='caption'
+                    sx={{
+                      fontWeight: 600,
+                      lineHeight: 1.5,
+                      color: trend === 'negative' ? 'error.main' : 'success.main'
+                    }}
+                  >
+                    {trendNumber}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+            <CustomChip
+              skin='light'
+              size='small'
+              label={chipText}
+              color={chipColor}
+              sx={{
+                height: 20,
+                fontWeight: 600,
+                fontSize: '0.75rem',
+                '& .MuiChip-label': { px: 2.5 }
+              }}
+            />
+          </Box>
+          <Box sx={{ lineHeight: 1 }}>
+            <img src={src} alt={title} width={130} height={130} />
+          </Box>
         </Box>
-        <CustomChip
-          size='small'
-          skin='light'
-          label={chipText}
-          color={chipColor}
-          sx={{ height: 20, fontWeight: 500, fontSize: '0.75rem', '& .MuiChip-label': { lineHeight: '1.25rem' } }}
-        />
-        <Img src={src} alt={title} />
       </CardContent>
     </Card>
   )
 }
 
-export default CardStatsCharacter
-
-CardStatsCharacter.defaultProps = {
-  trend: 'positive',
-  chipColor: 'primary'
-}
+export default CardStatisticsCharacter

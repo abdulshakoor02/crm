@@ -72,11 +72,19 @@ const data: DataType[] = [
 
 const CrmMeetingSchedule = () => {
   return (
-    <Card>
+    <Card sx={{
+      background: (theme) => theme.palette.customColors.primaryGradient,
+      color: 'common.white',
+      transition: 'transform 0.3s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.02)'
+      }
+    }}>
       <CardHeader
         title='Meeting Schedule'
+        titleTypographyProps={{ color: 'common.white' }}
         action={
-          <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'text.secondary' }}>
+          <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'common.white' }}>
             <DotsVertical />
           </IconButton>
         }
@@ -104,15 +112,15 @@ const CrmMeetingSchedule = () => {
               >
                 <Box sx={{ mr: 2, display: 'flex', mb: 0.4, flexDirection: 'column' }}>
                   <Typography
-                    sx={{ fontWeight: 500, lineHeight: 1.71, letterSpacing: '0.22px', fontSize: '0.875rem !important' }}
+                    sx={{ fontWeight: 500, lineHeight: 1.71, letterSpacing: '0.22px', fontSize: '0.875rem !important', color: 'common.white' }}
                   >
                     {item.title}
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <CalendarBlankOutline
-                      sx={{ mr: 1, fontSize: '0.875rem', color: 'text.secondary', verticalAlign: 'middle' }}
+                      sx={{ mr: 1, fontSize: '0.875rem', color: 'common.white', verticalAlign: 'middle' }}
                     />
-                    <Typography variant='caption'>{item.subtitle}</Typography>
+                    <Typography variant='caption' sx={{ color: 'common.white' }}>{item.subtitle}</Typography>
                   </Box>
                 </Box>
                 <CustomChip
@@ -120,7 +128,7 @@ const CrmMeetingSchedule = () => {
                   size='small'
                   label={item.chipText}
                   color={item.chipColor}
-                  sx={{ height: 20, mt: 0.4, fontSize: '0.75rem', fontWeight: 600 }}
+                  sx={{ height: 20, mt: 0.4, fontSize: '0.75rem', fontWeight: 600, color: 'common.white', borderColor: 'common.white' }}
                 />
               </Box>
             </Box>
