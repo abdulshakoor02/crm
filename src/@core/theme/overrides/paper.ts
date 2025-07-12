@@ -2,7 +2,7 @@ export default {
   MuiPaper: {
     styleOverrides: {
       root: {
-        backgroundImage: 'none'
+        // backgroundImage: 'none' // Removed to allow gradients
       }
     }
   }

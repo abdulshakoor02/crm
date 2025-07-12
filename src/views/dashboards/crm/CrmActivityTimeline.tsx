@@ -27,10 +27,17 @@ const Timeline = styled(MuiTimeline)<TimelineProps>({
 
 const CrmActivityTimeline = () => {
   return (
-    <Card>
+    <Card sx={{
+      background: (theme) => theme.palette.customColors.primaryGradient,
+      color: 'common.white',
+      transition: 'transform 0.3s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.02)'
+      }
+    }}>
       <CardHeader
         title='Activity Timeline'
-        titleTypographyProps={{ sx: { lineHeight: '2rem !important', letterSpacing: '0.15px !important' } }}
+        titleTypographyProps={{ sx: { lineHeight: '2rem !important', letterSpacing: '0.15px !important', color: 'common.white' } }}
       />
       <CardContent>
         <Timeline sx={{ my: 0, py: 0 }}>
@@ -49,17 +56,17 @@ const CrmActivityTimeline = () => {
                   justifyContent: 'space-between'
                 }}
               >
-                <Typography sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}>
+                <Typography sx={{ mr: 2, fontWeight: 600, color: 'common.white' }}>
                   8 Invoices have been paid
                 </Typography>
-                <Typography variant='caption' sx={{ color: 'text.disabled' }}>
+                <Typography variant='caption' sx={{ color: 'rgba(255,255,255,0.7)' }}>
                   Wednesday
                 </Typography>
               </Box>
-              <Typography variant='body2'>Invoices have been paid to the company.</Typography>
+              <Typography variant='body2' sx={{ color: 'rgba(255,255,255,0.9)' }}>Invoices have been paid to the company.</Typography>
               <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
                 <img width={24} height={24} alt='invoice.pdf' src='/images/icons/file-icons/pdf.png' />
-                <Typography variant='subtitle2' sx={{ ml: 2, fontWeight: 600 }}>
+                <Typography variant='subtitle2' sx={{ ml: 2, fontWeight: 600, color: 'common.white' }}>
                   bookingCard.pdf
                 </Typography>
               </Box>
@@ -81,19 +88,19 @@ const CrmActivityTimeline = () => {
                   justifyContent: 'space-between'
                 }}
               >
-                <Typography sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}>
+                <Typography sx={{ mr: 2, fontWeight: 600, color: 'common.white' }}>
                   Create a new project for client 😎
                 </Typography>
-                <Typography variant='caption' sx={{ color: 'text.disabled' }}>
+                <Typography variant='caption' sx={{ color: 'rgba(255,255,255,0.7)' }}>
                   April, 18
                 </Typography>
               </Box>
-              <Typography variant='body2' sx={{ mb: 2 }}>
+              <Typography variant='body2' sx={{ mb: 2, color: 'rgba(255,255,255,0.9)' }}>
                 Invoices have been paid to the company.
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Avatar src='/images/avatars/1.png' sx={{ mr: 2.5, width: 24, height: 24 }} />
-                <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>John Doe (Client)</Typography>
+                <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: 'common.white' }}>John Doe (Client)</Typography>
               </Box>
             </TimelineContent>
           </TimelineItem>
@@ -113,14 +120,14 @@ const CrmActivityTimeline = () => {
                   justifyContent: 'space-between'
                 }}
               >
-                <Typography sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}>
+                <Typography sx={{ mr: 2, fontWeight: 600, color: 'common.white' }}>
                   Order #37745 from September
                 </Typography>
-                <Typography variant='caption' sx={{ color: 'text.disabled' }}>
+                <Typography variant='caption' sx={{ color: 'rgba(255,255,255,0.7)' }}>
                   January, 10
                 </Typography>
               </Box>
-              <Typography variant='body2'>Invoices have been paid to the company.</Typography>
+              <Typography variant='body2' sx={{ color: 'rgba(255,255,255,0.9)' }}>Invoices have been paid to the company.</Typography>
             </TimelineContent>
           </TimelineItem>
 
@@ -137,8 +144,8 @@ const CrmActivityTimeline = () => {
                   justifyContent: 'space-between'
                 }}
               >
-                <Typography sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}>Public Meeting</Typography>
-                <Typography variant='caption' sx={{ color: 'text.disabled' }}>
+                <Typography sx={{ mr: 2, fontWeight: 600, color: 'common.white' }}>Public Meeting</Typography>
+                <Typography variant='caption' sx={{ color: 'rgba(255,255,255,0.7)' }}>
                   September, 30
                 </Typography>
               </Box>

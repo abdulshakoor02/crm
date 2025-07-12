@@ -153,7 +153,6 @@ const Countries = () => {
     try {
       let result
 
-      console.log('form values', formValues, selectedRow?.id)
       if (modalMode === 'edit') {
         result = await dispatch(
           updateCountryData({ where: { id: selectedRow.id }, data: { ...formValues, id: selectedRow.id } })

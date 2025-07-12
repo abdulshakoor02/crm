@@ -58,8 +58,8 @@ const renderStats = () => {
           {item.icon}
         </CustomAvatar>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography variant='caption'>{item.title}</Typography>
-          <Typography variant='h6'>{item.stats}</Typography>
+          <Typography variant='caption' sx={{ color: 'common.white' }}>{item.title}</Typography>
+          <Typography variant='h6' sx={{ color: 'common.white' }}>{item.stats}</Typography>
         </Box>
       </Box>
     </Grid>
@@ -68,17 +68,24 @@ const renderStats = () => {
 
 const CrmStatisticsCard = () => {
   return (
-    <Card>
+    <Card sx={{ 
+      background: theme => theme.palette.customColors.primaryGradient, 
+      color: 'white',
+      transition: 'transform 0.3s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.02)'
+      }
+    }}>
       <CardHeader
         title='Statistics Card'
         action={
-          <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'text.secondary' }}>
+          <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'common.white' }}>
             <DotsVertical />
           </IconButton>
         }
         subheader={
-          <Typography variant='body2'>
-            <Box component='span' sx={{ fontWeight: 600, color: 'text.primary' }}>
+          <Typography variant='body2' sx={{ color: 'common.white' }}>
+            <Box component='span' sx={{ fontWeight: 600, color: 'common.white' }}>
               Total 48.5% growth
             </Box>{' '}
             😎 this month

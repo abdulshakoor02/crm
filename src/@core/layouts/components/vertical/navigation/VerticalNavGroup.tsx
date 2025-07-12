@@ -207,55 +207,21 @@ const VerticalNavGroup = (props: Props) => {
   const menuGroupCollapsedStyles = navCollapsed && !navHover ? { opacity: 0 } : { opacity: 1 }
 
   const conditionalColor = () => {
-    if (skin === 'semi-dark' && theme.palette.mode === 'light') {
-      return {
-        color: `rgba(${theme.palette.customColors.dark}, 0.68) !important`
-      }
-    } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
-      return {
-        color: `rgba(${theme.palette.customColors.light}, 0.68) !important`
-      }
-    } else {
-      return {
-        color: `${theme.palette.text.secondary} !important`
-      }
+    return {
+      color: `${theme.palette.common.white} !important`
     }
   }
 
   const conditionalBgColor = () => {
-    if (skin === 'semi-dark' && theme.palette.mode === 'light') {
-      return {
-        color: `rgba(${theme.palette.customColors.dark}, 0.87)`,
+    return {
+      color: `rgba(${theme.palette.common.white}, 0.87)`,
+      '&:hover': {
+        backgroundColor: `rgba(${theme.palette.common.white}, 0.1)`
+      },
+      '&.Mui-selected': {
+        backgroundColor: `rgba(${theme.palette.common.white}, 0.2)`,
         '&:hover': {
-          backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.04)`
-        },
-        '&.Mui-selected': {
-          backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.08)`,
-          '&:hover': {
-            backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.12)`
-          }
-        }
-      }
-    } else if (skin === 'semi-dark' && theme.palette.mode === 'dark') {
-      return {
-        color: `rgba(${theme.palette.customColors.light}, 0.87)`,
-        '&:hover': {
-          backgroundColor: `rgba(${theme.palette.customColors.light}, 0.04)`
-        },
-        '&.Mui-selected': {
-          backgroundColor: `rgba(${theme.palette.customColors.light}, 0.08)`,
-          '&:hover': {
-            backgroundColor: `rgba(${theme.palette.customColors.light}, 0.12)`
-          }
-        }
-      }
-    } else {
-      return {
-        '&.Mui-selected': {
-          backgroundColor: theme.palette.action.hover,
-          '&:hover': {
-            backgroundColor: theme.palette.action.hover
-          }
+          backgroundColor: `rgba(${theme.palette.common.white}, 0.25)`
         }
       }
     }

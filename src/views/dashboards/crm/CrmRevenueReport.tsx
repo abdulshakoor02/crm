@@ -46,7 +46,10 @@ const CrmRevenueReport = () => {
     },
     legend: {
       offsetY: 8,
-      markers: { radius: 15 }
+      markers: { radius: 15 },
+      labels: {
+        colors: theme.palette.common.white
+      }
     },
     stroke: {
       width: 2,
@@ -88,16 +91,24 @@ const CrmRevenueReport = () => {
   }
 
   return (
-    <Card>
+    <Card sx={{ 
+      background: theme => theme.palette.customColors.primaryGradient, 
+      color: 'white',
+      transition: 'transform 0.3s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.02)'
+      }
+    }}>
       <CardHeader
         title='Revenue Report'
         action={
-          <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'text.secondary' }}>
+          <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'common.white' }}>
             <DotsVertical />
           </IconButton>
         }
         titleTypographyProps={{
           sx: {
+            color: 'common.white',
             fontSize: '1rem !important',
             fontWeight: '600 !important',
             lineHeight: '1.5rem !important',

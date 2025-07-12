@@ -30,13 +30,16 @@ const VerticalLayoutWrapper = styled('div')({
   display: 'flex'
 })
 
-const MainContentWrapper = styled(Box)<BoxProps>({
+const MainContentWrapper = styled(Box)<BoxProps & { navCollapsed: boolean; navHover: boolean }>(({ theme, navCollapsed, navHover }) => ({
   flexGrow: 1,
   minWidth: 0,
   display: 'flex',
   minHeight: '100vh',
-  flexDirection: 'column'
-})
+  flexDirection: 'column',
+  backgroundColor: '#c3a2ff', // Very light grey
+  paddingLeft: navCollapsed && !navHover ? theme.spacing(8) : theme.spacing(themeConfig.navigationSize / 8),
+  transition: 'padding-left .25s ease-in-out',
+}))
 
 const ContentWrapper = styled('main')(({ theme }) => ({
   flexGrow: 1,
@@ -72,8 +75,8 @@ const VerticalLayout = (props: LayoutProps) => {
       <VerticalLayoutWrapper className='layout-wrapper'>
         {/* Navigation Menu */}
         {navHidden &&
-        themeConfig.layout === 'vertical' &&
-        !(navHidden && settings.lastLayout === 'horizontal') ? null : (
+          themeConfig.layout === 'vertical' &&
+          !(navHidden && settings.lastLayout === 'horizontal') ? null : (
           <Navigation
             navWidth={navWidth}
             navHover={navHover}

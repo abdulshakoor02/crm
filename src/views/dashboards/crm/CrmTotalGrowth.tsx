@@ -49,7 +49,7 @@ const CrmTotalGrowth = () => {
             {
               offset: 0,
               opacity: 0.3,
-              color: theme.palette.success.main
+              color: theme.palette.common.white
             },
             {
               offset: 100,
@@ -65,7 +65,7 @@ const CrmTotalGrowth = () => {
         enabled: true,
         shadeTo: 'light',
         shadeIntensity: 1,
-        color: theme.palette.success.main
+        color: theme.palette.common.white
       }
     },
     xaxis: {
@@ -78,11 +78,18 @@ const CrmTotalGrowth = () => {
   }
 
   return (
-    <Card>
+    <Card sx={{ 
+      background: theme => theme.palette.customColors.primaryGradient, 
+      color: 'white',
+      transition: 'transform 0.3s ease-in-out',
+      '&:hover': {
+        transform: 'scale(1.02)'
+      }
+    }}>
       <CardContent>
         <Typography variant='h6'>42.5k</Typography>
         <ReactApexcharts type='area' height={103} options={options} series={series} />
-        <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'center', color: 'text.primary' }}>
+        <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'center', color: 'common.white' }}>
           Total Growth
         </Typography>
       </CardContent>

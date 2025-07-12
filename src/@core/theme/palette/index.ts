@@ -10,17 +10,17 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
 
   const primaryGradient = () => {
     if (themeColor === 'primary') {
-      return '#C6A7FE'
+      return 'linear-gradient(90deg, rgba(145,85,253,1) 0%, rgba(182,133,255,1) 100%)'
     } else if (themeColor === 'secondary') {
-      return '#9C9FA4'
+      return 'linear-gradient(90deg, rgba(138,141,147,1) 0%, rgba(182,185,190,1) 100%)'
     } else if (themeColor === 'success') {
-      return '#93DD5C'
+      return 'linear-gradient(90deg, rgba(86,202,0,1) 0%, rgba(147,221,92,1) 100%)'
     } else if (themeColor === 'error') {
-      return '#FF8C90'
+      return 'linear-gradient(90deg, rgba(255,76,81,1) 0%, rgba(255,140,144,1) 100%)'
     } else if (themeColor === 'warning') {
-      return '#FFCF5C'
+      return 'linear-gradient(90deg, rgba(255,180,0,1) 0%, rgba(255,207,92,1) 100%)'
     } else {
-      return '#6ACDFF'
+      return 'linear-gradient(90deg, rgba(22,177,255,1) 0%, rgba(106,205,255,1) 100%)'
     }
   }
 
