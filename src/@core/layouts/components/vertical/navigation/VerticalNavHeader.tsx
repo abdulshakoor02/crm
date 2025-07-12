@@ -123,7 +123,7 @@ const VerticalNavHeader = (props: Props) => {
       ) : (
         <Link href='/' passHref>
           <StyledLink>
-            <Image src='/images/apple-touch-icon.png' alt='WeCrm' width={90} height={60} />
+            <Image src='/images/logo/logo.jpeg' alt='WeCrm' width={120} height={80} />
           </StyledLink>
         </Link>
       )}
