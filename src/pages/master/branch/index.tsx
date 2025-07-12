@@ -175,7 +175,6 @@ const BranchComponent = () => {
   const branch = useSelector((state: any) => state.branch)
   const countries = useSelector((state: any) => state.country)
   const region = useSelector((state: any) => state.region)
-  console.log(branch)
 
   useEffect(() => {
     dispatch(
@@ -240,7 +239,6 @@ const BranchComponent = () => {
 
   const handlePaste = (event: any) => {
     const pasteText = event.clipboardData.getData('text')
-    console.log('pastedText', pasteText)
 
     setFormValues({ ...formValues, address: formValues.address + pasteText }) // Append pasted content to current value
     event.preventDefault() // Prevent default paste behavior if needed
@@ -302,7 +300,6 @@ const BranchComponent = () => {
       delete formValues.id
       formValues.tax = Number(formValues.tax)
       data.push(formValues)
-      console.log(data)
       const res = await dispatch(createBranchData(data))
       if (res.error) {
         toast.error(`failed to create branch Try Again!`)

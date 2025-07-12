@@ -117,8 +117,6 @@ const InvoicePage = () => {
     }
   }, [router.isReady, router.query.ref, router])
 
-  console.log(tenant)
-
   useEffect(() => {
     if (tenant?.rows?.length > 0) {
       axios.post(`${process.env.baseUrl}/fileDownload`, { url: tenant.rows[0].logo }, { responseType: 'blob' }).then((res) => {

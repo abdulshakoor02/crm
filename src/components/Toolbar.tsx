@@ -29,8 +29,6 @@ interface ToolbarProps {
   add: boolean
 }
 
-console.log('toolbar ')
-
 const Toolbar: React.FC<ToolbarProps> = ({
   searchValue,
   onSearchChange,
