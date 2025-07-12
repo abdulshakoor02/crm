@@ -27,10 +27,11 @@ import { getSingleInvoiceData } from 'src/store/apps/invoice'
 import { getTenantData } from 'src/store/apps/tenant'
 
 const MUITableCell = styled(TableCell)<TableCellBaseProps>(({ theme }) => ({
-  borderBottom: `1px solid ${theme.palette.divider}`,
+  borderBottom: `1px solid rgba(255,255,255,0.2)`,
   padding: `${theme.spacing(2)} !important`,
   fontSize: '0.95rem',
-  fontWeight: 500
+  fontWeight: 500,
+  color: 'common.white'
 }))
 
 const CalcWrapper = styled(Box)(({ theme }) => ({
@@ -46,10 +47,11 @@ const CalcWrapper = styled(Box)(({ theme }) => ({
 const StyledCard = styled(Card)(({ theme }) => ({
   boxShadow: theme.palette.mode === 'dark' ? '0 8px 32px rgba(0, 0, 0, 0.4)' : '0 8px 32px rgba(0, 0, 0, 0.12)',
   borderRadius: theme.spacing(2),
-  background: theme.palette.mode === 'dark'
-    ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
-    : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-  border: `1px solid ${theme.palette.divider}`,
+  background: '#f8f8f8',
+  border: `3px solid transparent`,
+  backgroundClip: 'padding-box, border-box',
+  backgroundOrigin: 'padding-box, border-box',
+  backgroundImage: `linear-gradient(#f8f8f8, #f8f8f8), ${theme.palette.customColors.darkBorderGradient}`,
   overflow: 'hidden'
 }))
 
@@ -168,7 +170,7 @@ const InvoicePage = () => {
     <>
       {/* Header with Invoice Title and Download Button */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <InvoiceTitle variant="h3">
+        <InvoiceTitle variant="h3" sx={{ background: theme => theme.palette.customColors.primaryGradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           {'Invoice'}
         </InvoiceTitle>
         <Button
@@ -180,7 +182,7 @@ const InvoicePage = () => {
             </svg>
           }
           sx={{
-            background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+            background: theme => theme.palette.customColors.primaryGradient,
             color: 'white',
             fontWeight: 600,
             fontSize: '0.95rem',
@@ -199,28 +201,34 @@ const InvoicePage = () => {
                 <Box sx={{
                   mb: 6,
                   p: 3,
-                  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#f8fafc',
+                  background: theme.palette.customColors.primaryGradient,
                   borderRadius: 2,
-                  border: `1px solid ${theme.palette.divider}`
+                  border: `3px solid transparent`,
+                  backgroundClip: 'padding-box, border-box',
+                  backgroundOrigin: 'padding-box, border-box',
+                  backgroundImage: `linear-gradient(${theme.palette.customColors.primaryGradient}), ${theme.palette.customColors.darkBorderGradient}`,
                 }}>
-                  <SectionTitle variant='h5' sx={{ color: theme.palette.text.primary, mb: 2 }}>
+                  <SectionTitle variant='h5' sx={{ color: 'common.white', mb: 2 }}>
                     {invoice?.data?.reciept?.branch_name}
                   </SectionTitle>
-                  <InfoText>{invoice?.data?.reciept?.branch_address}</InfoText>
-                  <InfoText sx={{ fontWeight: 600, color: theme.palette.primary.main }}>{invoice?.data?.reciept?.branch_mobile}</InfoText>
+                  <InfoText sx={{ color: 'common.white' }}>{invoice?.data?.reciept?.branch_address}</InfoText>
+                  <InfoText sx={{ fontWeight: 600, color: 'common.white' }}>{invoice?.data?.reciept?.branch_mobile}</InfoText>
                 </Box>
                 {invoice && (
                   <Box sx={{
                     p: 3,
-                    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#f1f5f9',
+                    background: theme.palette.customColors.primaryGradient,
                     borderRadius: 2,
-                    border: `1px solid ${theme.palette.divider}`
+                    border: `3px solid transparent`,
+                    backgroundClip: 'padding-box, border-box',
+                    backgroundOrigin: 'padding-box, border-box',
+                    backgroundImage: `linear-gradient(${theme.palette.customColors.primaryGradient}), ${theme.palette.customColors.darkBorderGradient}`,
                   }}>
-                    <SectionTitle sx={{ mb: 2 }}>Bill To:</SectionTitle>
-                    <InfoText sx={{ fontWeight: 600, fontSize: '1rem', color: theme.palette.text.primary, mb: 1 }}>
+                    <SectionTitle sx={{ mb: 2, color: 'common.white' }}>Bill To:</SectionTitle>
+                    <InfoText sx={{ fontWeight: 600, fontSize: '1rem', color: 'common.white', mb: 1 }}>
                       {invoice?.data?.reciept?.lead_name}
                     </InfoText>
-                    <InfoText sx={{ color: theme.palette.primary.main }}>{invoice?.data?.reciept?.lead_email}</InfoText>
+                    <InfoText sx={{ color: 'common.white' }}>{invoice?.data?.reciept?.lead_email}</InfoText>
                   </Box>
                 )}
               </Box>
@@ -234,25 +242,31 @@ const InvoicePage = () => {
               <Box sx={{
                 mb: 4,
                 p: 3,
-                backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+
+                background: theme.palette.customColors.primaryGradient,
                 borderRadius: 2,
                 color: 'white',
                 minWidth: '280px',
-                boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)'
+                boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
+                border: `3px solid transparent`,
+                backgroundClip: 'padding-box, border-box',
+                backgroundOrigin: 'padding-box, border-box',
+                backgroundImage: `linear-gradient(135deg,${theme.palette.customColors.primaryGradient}) 0%, ${theme.palette.customColors.darkBorderGradient} 100%`,
               }}>
                 <Typography variant='h4' sx={{
                   mb: 3,
                   fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+                  color: 'common.white'
                 }}>
                   Reciept No: {invoice?.data?.reciept?.reciept_no}
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant='body2' sx={{ fontWeight: 600, opacity: 0.9 }}>
+                    <Typography variant='body2' sx={{ fontWeight: 600, opacity: 0.9, color: 'common.white' }}>
                       Date Issued:
                     </Typography>
-                    <Typography variant='body2' sx={{ fontWeight: 500 }}>
+                    <Typography variant='body2' sx={{ fontWeight: 500, color: 'common.white' }}>
                       {invoice?.data?.reciept?.created_at ? new Date(invoice?.data?.reciept?.created_at).toLocaleDateString() : new Date().toLocaleDateString()}
                     </Typography>
                   </Box>
@@ -264,18 +278,21 @@ const InvoicePage = () => {
           <Divider sx={{ my: theme => `${theme.spacing(6)} !important` }} />
 
           <TableContainer sx={{
-            backgroundColor: theme.palette.background.paper,
+            background: theme.palette.customColors.primaryGradient,
             borderRadius: 2,
-            border: `1px solid ${theme.palette.divider}`,
+            border: `3px solid transparent`,
+            backgroundClip: 'padding-box, border-box',
+            backgroundOrigin: 'padding-box, border-box',
+            backgroundImage: `linear-gradient(${theme.palette.customColors.primaryGradient}), ${theme.palette.customColors.darkBorderGradient}`,
             overflow: 'hidden'
           }}>
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#f8fafc' }}>
+                <TableRow sx={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
                   <TableCell sx={{
                     fontWeight: 700,
                     fontSize: '1rem',
-                    color: theme.palette.text.primary,
+                    color: 'common.white',
                     fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
                   }}>
                     Item
@@ -283,7 +300,7 @@ const InvoicePage = () => {
                   <TableCell sx={{
                     fontWeight: 700,
                     fontSize: '1rem',
-                    color: theme.palette.text.primary,
+                    color: 'common.white',
                     fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
                   }}>
                     Description
@@ -291,7 +308,7 @@ const InvoicePage = () => {
                   <TableCell sx={{
                     fontWeight: 700,
                     fontSize: '1rem',
-                    color: theme.palette.text.primary,
+                    color: 'common.white',
                     fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
                   }}>
                     Qty
@@ -299,7 +316,7 @@ const InvoicePage = () => {
                   <TableCell sx={{
                     fontWeight: 700,
                     fontSize: '1rem',
-                    color: theme.palette.text.primary,
+                    color: 'common.white',
                     fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
                   }}>
                     Price
@@ -328,23 +345,26 @@ const InvoicePage = () => {
                 width: '350px',
                 mt: 8,
                 p: 3,
-                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#f8fafc',
+                background: theme.palette.customColors.primaryGradient,
                 borderRadius: 2,
-                border: `1px solid ${theme.palette.divider}`,
-                boxShadow: theme.palette.mode === 'dark' ? '0 4px 16px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.08)'
+                border: `3px solid transparent`,
+                backgroundClip: 'padding-box, border-box',
+                backgroundOrigin: 'padding-box, border-box',
+                backgroundImage: `linear-gradient(${theme.palette.customColors.primaryGradient}), ${theme.palette.customColors.darkBorderGradient}`,
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)'
               }}
             >
               <CalcWrapper>
                 <Typography sx={{
                   fontWeight: 600,
-                  color: theme.palette.text.secondary,
+                  color: 'common.white',
                   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
                 }}>
                   Subtotal:
                 </Typography>
                 <Typography sx={{
                   fontWeight: 600,
-                  color: theme.palette.text.primary,
+                  color: 'common.white',
                   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
                 }}>
                   {invoice?.data?.reciept?.currency} {subtotal}
@@ -353,14 +373,14 @@ const InvoicePage = () => {
               <CalcWrapper>
                 <Typography sx={{
                   fontWeight: 600,
-                  color: theme.palette.text.secondary,
+                  color: 'common.white',
                   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
                 }}>
                   Discount:
                 </Typography>
                 <Typography sx={{
                   fontWeight: 600,
-                  color: theme.palette.text.primary,
+                  color: 'common.white',
                   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
                 }}>
                   {invoice?.data?.reciept?.currency} {discount}
@@ -369,73 +389,79 @@ const InvoicePage = () => {
               <CalcWrapper>
                 <Typography sx={{
                   fontWeight: 600,
-                  color: theme.palette.text.secondary,
+                  color: 'common.white',
                   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
                 }}>
                   Tax ({invoice?.data?.reciept?.tax}%):
                 </Typography>
                 <Typography sx={{
                   fontWeight: 600,
-                  color: theme.palette.text.primary,
+                  color: 'common.white',
                   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
                 }}>
                   {invoice?.data?.reciept?.currency} {tax}
                 </Typography>
               </CalcWrapper>
-              <Divider sx={{ my: 2, backgroundColor: theme.palette.divider }} />
+              <Divider sx={{ my: 2, backgroundColor: 'rgba(255,255,255,0.2)' }} />
               <CalcWrapper sx={{
                 p: 2,
-                backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'rgba(255,255,255,0.2)',
                 borderRadius: 1,
                 color: 'white'
               }}>
                 <Typography variant='h6' sx={{
                   fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+                  color: 'common.white'
                 }}>
                   Total:
                 </Typography>
                 <Typography variant='h5' sx={{
                   fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+                  color: 'common.white'
                 }}>
                   {invoice?.data?.reciept?.currency} {total}
                 </Typography>
               </CalcWrapper>
               <CalcWrapper sx={{
                 p: 2,
-                backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'rgba(255,255,255,0.2)',
                 borderRadius: 1,
                 color: 'white'
               }}>
                 <Typography variant='h6' sx={{
                   fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+                  color: 'common.white'
                 }}>
                   Amount Paid:
                 </Typography>
                 <Typography variant='h5' sx={{
                   fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+                  color: 'common.white'
                 }}>
                   {invoice?.data?.reciept?.currency} {invoice?.data?.reciept?.amount_paid}
                 </Typography>
               </CalcWrapper>
               <CalcWrapper sx={{
                 p: 2,
-                backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'rgba(255,255,255,0.2)',
                 borderRadius: 1,
                 color: 'white'
               }}>
                 <Typography variant='h6' sx={{
                   fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+                  color: 'common.white'
                 }}>
                   Pending Amount:
                 </Typography>
                 <Typography variant='h5' sx={{
                   fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
+                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+                  color: 'common.white'
                 }}>
                   {invoice?.data?.reciept?.currency} {total - invoice?.data?.reciept?.amount_paid}
                 </Typography>

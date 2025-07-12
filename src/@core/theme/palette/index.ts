@@ -42,6 +42,7 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin, themeColor: ThemeColor) =
       darkBg: '#28243D',
       lightBg: '#F4F5FA',
       primaryGradient: primaryGradient(),
+      darkBorderGradient: 'linear-gradient(to right, #000, #333)',
       bodyBg: mode === 'light' ? '#F4F5FA' : '#28243D', // Same as palette.background.default but doesn't consider bordered skin
       tableHeaderBg: mode === 'light' ? '#F9FAFC' : '#3D3759'
     },
