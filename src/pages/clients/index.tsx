@@ -1041,6 +1041,18 @@ const ClientComponent = () => {
                     type="number"
                     value={invoiceData.discount}
                     onChange={e => {
+                      const prods = new Map();
+                      for (const p of product?.rows) {
+                        prods.set(p.id, p.price);
+                      }
+                      let total = 0;
+                      for (const val of selectedLead?.product_ids) {
+                        total += prods.get(val);
+                      }
+                      const selectedBranch = branch.rows?.find((p: any) => p.id === selectedLead?.branch_id)
+                      total = total - Number(e.target.value);
+                      const tax = 1 + selectedBranch.tax / 100
+                      setTotalWithVat(total * tax)
                       setInvoiceData({ ...invoiceData, discount: e.target.value })
                     }}
                     error={!!invoiceErrors.discount}
@@ -1086,7 +1098,7 @@ const ClientComponent = () => {
               </Grid>
               {totalWithVat > 0 && (
                 <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
-                  Total to be paid including vat is: {totalWithVat - invoiceData.discount}
+                  Total to be paid including vat is: {totalWithVat}
                 </Typography>
               )
               }
