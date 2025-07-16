@@ -445,27 +445,33 @@ const InvoicePage = () => {
                   {invoice?.data?.reciept?.currency} {invoice?.data?.reciept?.amount_paid}
                 </Typography>
               </CalcWrapper>
-              <CalcWrapper sx={{
-                p: 2,
-                background: 'rgba(255,255,255,0.2)',
-                borderRadius: 1,
-                color: 'white'
-              }}>
-                <Typography variant='h6' sx={{
-                  fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-                  color: 'common.white'
-                }}>
-                  Pending Amount:
-                </Typography>
-                <Typography variant='h5' sx={{
-                  fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-                  color: 'common.white'
-                }}>
-                  {invoice?.data?.reciept?.currency} {total - invoice?.data?.reciept?.amount_paid}
-                </Typography>
-              </CalcWrapper>
+              {
+                total - invoice?.data?.reciept?.amount_paid !== 0 && (
+                  <>
+                    <CalcWrapper sx={{
+                      p: 2,
+                      background: 'rgba(255,255,255,0.2)',
+                      borderRadius: 1,
+                      color: 'white'
+                    }}>
+                      <Typography variant='h6' sx={{
+                        fontWeight: 700,
+                        fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+                        color: 'common.white'
+                      }}>
+                        Pending Amount:
+                      </Typography>
+                      <Typography variant='h5' sx={{
+                        fontWeight: 700,
+                        fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+                        color: 'common.white'
+                      }}>
+                        {invoice?.data?.reciept?.currency} {total - invoice?.data?.reciept?.amount_paid}
+                      </Typography>
+                    </CalcWrapper>
+                  </>
+                )
+              }
             </Box>
           </Box>
         </CardContent>

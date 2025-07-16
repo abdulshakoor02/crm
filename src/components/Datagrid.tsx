@@ -73,7 +73,7 @@ const DataGridTable = React.memo(
     const actionColumn = {
       field: 'actions',
       headerName: 'Actions',
-      flex: 0.1,
+      flex: 0.15,
       minWidth: 200,
       renderCell: (params: GridRenderCellParams) => (
         <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
