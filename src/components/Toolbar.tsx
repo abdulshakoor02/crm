@@ -10,13 +10,17 @@ import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
 import { Box } from '@mui/material'
 import { ExportVariant } from 'mdi-material-ui'
+import { useTheme } from '@mui/material/styles'
 
 const StyledGridToolbarContainer = styled(GridToolbarContainer)(({ theme }) => ({
-  padding: theme.spacing(2, 0, 0, 2),
+  padding: theme.spacing(2),
   display: 'flex',
   flexWrap: 'wrap',
   alignItems: 'center',
-  justifyContent: 'space-between'
+  justifyContent: 'space-between',
+  gap: theme.spacing(2),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  backgroundColor: theme.palette.background.paper,
 }))
 
 interface ToolbarProps {
@@ -38,51 +42,71 @@ const Toolbar: React.FC<ToolbarProps> = ({
   add,
   disableExport = false
 }) => {
+  const theme = useTheme()
   return (
-    <StyledGridToolbarContainer sx={{ mx: '0px', my: '15px', p: '0px' }}>
+    <StyledGridToolbarContainer>
       {/* Left Section: Export Button (Optional) */}
       {!disableExport && (
-        <GridToolbarContainer>
-          <GridToolbarExport
-            startIcon={<ExportVariant />}
-            sx={{
-              backgroundColor: 'transparent',
-              color: 'primary.main',
-              padding: '8px 16px',
-              borderRadius: '4px',
-              border: '1px solid',
-              borderColor: 'primary.main',
-              fontWeight: 'bold',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.04)' // Light gray hover effect (standard for MUI outlined buttons)
-              }
-            }}
-          />
-        </GridToolbarContainer>
+        <GridToolbarExport
+          startIcon={<ExportVariant />}
+          sx={{
+            backgroundColor: 'transparent',
+            color: 'primary.main',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            border: `1px solid ${theme.palette.primary.main}`,
+            fontWeight: 500,
+            fontSize: '0.875rem',
+            textTransform: 'none',
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.04)',
+              borderColor: theme.palette.primary.dark,
+            }
+          }}
+        />
       )}
 
-      <Box>
-        {/* Middle Section: Search Field */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        {/* Search Field */}
         <TextField
-          variant='standard'
+          variant='outlined'
+          size='small'
           value={searchValue}
           onChange={onSearchChange}
-          placeholder='Search'
+          placeholder='Search...'
           InputProps={{
             onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {
               if (event.key === 'Enter') {
                 onSearch()
               }
             },
-            startAdornment: <Magnify fontSize='small' />,
+            startAdornment: <Magnify fontSize='small' sx={{ mr: 1, color: 'text.secondary' }} />,
             endAdornment: (
               <>
                 {searchValue && (
-                  <IconButton size='small' title='Clear' aria-label='Clear' onClick={onClearSearch}>
+                  <IconButton 
+                    size='small' 
+                    title='Clear' 
+                    aria-label='Clear' 
+                    onClick={onClearSearch}
+                    sx={{ mr: 0.5 }}
+                  >
                     <Close fontSize='small' />
                   </IconButton>
                 )}
-                <IconButton size='small' title='Search' aria-label='Search' onClick={onSearch}>
+                <IconButton 
+                  size='small' 
+                  title='Search' 
+                  aria-label='Search' 
+                  onClick={onSearch}
+                  sx={{
+                    backgroundColor: 'primary.main',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'primary.dark',
+                    }
+                  }}
+                >
                   <ArrowForwardIcon fontSize='small' />
                 </IconButton>
               </>
@@ -90,23 +114,28 @@ const Toolbar: React.FC<ToolbarProps> = ({
           }}
           sx={{
             width: {
-              xs: 1,
-              sm: 'auto'
+              xs: 200,
+              sm: 300
             },
-            margin: theme => theme.spacing(1, 0.5, 1.5),
-            '& .MuiSvgIcon-root': {
-              marginRight: 0.5
-            },
-            '& .MuiInput-underline:before': {
-              borderBottom: 1,
-              borderColor: 'divider'
+            '& .MuiOutlinedInput-root': {
+              backgroundColor: 'background.paper',
             }
           }}
         />
 
-        {/* Right Section: Add Row (Optional) */}
+        {/* Add Row Button */}
         {add && (
-          <Button variant='contained' color='primary' startIcon={<AddIcon />} onClick={onAddRow} sx={{ mx: 2 }}>
+          <Button 
+            variant='contained' 
+            color='primary' 
+            startIcon={<AddIcon />} 
+            onClick={onAddRow}
+            sx={{ 
+              textTransform: 'none',
+              fontWeight: 500,
+              fontSize: '0.875rem',
+            }}
+          >
             Add Row
           </Button>
         )}

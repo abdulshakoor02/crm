@@ -13,6 +13,7 @@ import { Visibility, Edit, Delete } from '@mui/icons-material'
 import Box from '@mui/material/Box'
 import { DeleteOutline, EyeOutline, PencilOutline } from 'mdi-material-ui'
 import React from 'react'
+import DataGridSkeleton from './DataGridSkeleton'
 
 const DataGridTable = React.memo(
   ({
@@ -67,6 +68,15 @@ const DataGridTable = React.memo(
   }) => {
     const theme = useTheme()
 
+    if (loading) {
+      return (
+        <DataGridSkeleton 
+          rowCount={Math.min(pageSize, 5)} 
+          columnCount={columns.length + (view || edit || del || customActions.length > 0 ? 1 : 0)} 
+        />
+      )
+    }
+
     // const { } = props
 
     // Add an action column with optional buttons
@@ -74,85 +84,71 @@ const DataGridTable = React.memo(
       field: 'actions',
       headerName: 'Actions',
       flex: 0.15,
-      minWidth: 200,
+      minWidth: 160,
+      sortable: false,
       renderCell: (params: GridRenderCellParams) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           {view && (
             <Tooltip title='View Details'>
-              <Box
+              <IconButton
+                onClick={() => onView?.(params.row.id)}
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '50%',
-                  width: 32,
-                  height: 32,
-                  mx: 0.5,
-                  background: theme.palette.customColors.primaryGradient,
+                  color: theme.palette.primary.main,
+                  padding: theme.spacing(0.75),
+                  backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                  borderRadius: theme.spacing(1),
                   '&:hover': {
-                    filter: 'brightness(1.2)',
-                  }
+                    color: theme.palette.primary.contrastText,
+                    backgroundColor: theme.palette.primary.main,
+                    transform: 'scale(1.1)',
+                  },
+                  transition: 'all 0.2s ease',
                 }}
               >
-                <IconButton
-                  onClick={() => onView?.(params.row.id)}
-                  sx={{ color: theme.palette.common.white }}
-                >
-                  <EyeOutline fontSize='small' />
-                </IconButton>
-              </Box>
+                <EyeOutline fontSize='small' />
+              </IconButton>
             </Tooltip>
           )}
           {edit && (
             <Tooltip title='Edit Item'>
-              <Box
+              <IconButton
+                onClick={() => onEdit?.(params.row.id)}
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '50%',
-                  width: 32,
-                  height: 32,
-                  mx: 0.5,
-                  background: theme.palette.customColors.primaryGradient,
+                  color: theme.palette.warning.main,
+                  padding: theme.spacing(0.75),
+                  backgroundColor: alpha(theme.palette.warning.main, 0.08),
+                  borderRadius: theme.spacing(1),
                   '&:hover': {
-                    filter: 'brightness(1.2)',
-                  }
+                    color: theme.palette.warning.contrastText,
+                    backgroundColor: theme.palette.warning.main,
+                    transform: 'scale(1.1)',
+                  },
+                  transition: 'all 0.2s ease',
                 }}
               >
-                <IconButton
-                  onClick={() => onEdit?.(params.row.id)}
-                  sx={{ color: theme.palette.common.white }}
-                >
-                  <PencilOutline fontSize='small' />
-                </IconButton>
-              </Box>
+                <PencilOutline fontSize='small' />
+              </IconButton>
             </Tooltip>
           )}
           {del && (
             <Tooltip title='Delete Item'>
-              <Box
+              <IconButton
+                onClick={() => onDelete?.(params.row.id)}
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '50%',
-                  width: 32,
-                  height: 32,
-                  mx: 0.5,
-                  background: theme.palette.customColors.primaryGradient,
+                  color: theme.palette.error.main,
+                  padding: theme.spacing(0.75),
+                  backgroundColor: alpha(theme.palette.error.main, 0.08),
+                  borderRadius: theme.spacing(1),
                   '&:hover': {
-                    filter: 'brightness(1.2)',
-                  }
+                    color: theme.palette.error.contrastText,
+                    backgroundColor: theme.palette.error.main,
+                    transform: 'scale(1.1)',
+                  },
+                  transition: 'all 0.2s ease',
                 }}
               >
-                <IconButton
-                  onClick={() => onDelete?.(params.row.id)}
-                  sx={{ color: theme.palette.common.white }}
-                >
-                  <DeleteOutline fontSize='small' />
-                </IconButton>
-              </Box>
+                <DeleteOutline fontSize='small' />
+              </IconButton>
             </Tooltip>
           )}
           {customActions.map((action, index) => {
@@ -160,25 +156,23 @@ const DataGridTable = React.memo(
 
             return shouldShow ? (
               <Tooltip key={index} title={action.tooltip}>
-                <Box
+                <IconButton
+                  onClick={() => action.onClick(params.row.id, params.row)}
                   sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '50%',
-                    width: 32,
-                    height: 32,
-                    mx: 0.5,
-                    background: theme.palette.customColors.primaryGradient,
+                    color: theme.palette.secondary.main,
+                    padding: theme.spacing(0.75),
+                    backgroundColor: alpha(theme.palette.secondary.main, 0.08),
+                    borderRadius: theme.spacing(1),
                     '&:hover': {
-                      filter: 'brightness(1.2)',
-                    }
+                      color: theme.palette.secondary.contrastText,
+                      backgroundColor: theme.palette.secondary.main,
+                      transform: 'scale(1.1)',
+                    },
+                    transition: 'all 0.2s ease',
                   }}
                 >
-                  <IconButton onClick={() => action.onClick(params.row.id, params.row)} sx={{ color: theme.palette.common.white }}>
-                    {action.icon}
-                  </IconButton>
-                </Box>
+                  {action.icon}
+                </IconButton>
               </Tooltip>
             ) : null
           })}
@@ -207,26 +201,48 @@ const DataGridTable = React.memo(
         columns={columnsWithActions}
         rowCount={total}
         sx={{
-          // color: theme.palette.primary.main, // Example, can be removed or adjusted
+          border: `1px solid ${theme.palette.divider}`,
+          borderRadius: theme.spacing(1.5),
           boxShadow: theme.shadows[2],
-          border: 0, // Or `1px solid ${theme.palette.divider}`
-          padding: theme.spacing(1),
+          background: theme.palette.background.paper,
           minHeight: 300,
-          background: theme.palette.customColors.primaryGradient,
-          transition: 'transform 0.3s ease-in-out',
-          '&:hover': {
-            transform: 'scale(1.005)'
-          },
+          overflow: 'hidden',
           '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: 'rgba(255,255,255,0.2)',
-            color: 'common.white',
+            backgroundColor: alpha(theme.palette.primary.main, 0.08),
+            color: theme.palette.primary.main,
+            fontWeight: 600,
+            borderBottom: `2px solid ${theme.palette.primary.main}`,
+            fontSize: '0.875rem',
+            letterSpacing: '0.01em',
+          },
+          '& .MuiDataGrid-columnHeaderTitle': {
+            fontWeight: 600,
           },
           '& .MuiDataGrid-cell': {
-            borderBottom: `1px solid rgba(255,255,255,0.2)`,
-            color: 'common.white',
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            color: theme.palette.text.primary,
+            padding: theme.spacing(1.5, 2),
+            fontSize: '0.875rem',
           },
-
-          // Custom scrollbar styles are in globals.css, but you can add fallbacks or specific overrides here
+          '& .MuiDataGrid-row:nth-of-type(even)': {
+            backgroundColor: alpha(theme.palette.grey[100], 0.5),
+          },
+          '& .MuiDataGrid-row:hover': {
+            backgroundColor: alpha(theme.palette.primary.main, 0.08),
+            transform: 'translateY(-1px)',
+            transition: 'all 0.2s ease',
+          },
+          '& .MuiDataGrid-row.Mui-selected': {
+            backgroundColor: alpha(theme.palette.primary.main, 0.12),
+            borderLeft: `3px solid ${theme.palette.primary.main}`,
+          },
+          '& .MuiDataGrid-row.Mui-selected:hover': {
+            backgroundColor: alpha(theme.palette.primary.main, 0.18),
+          },
+          '& .MuiDataGrid-footerContainer': {
+            backgroundColor: alpha(theme.palette.grey[50], 0.8),
+            borderTop: `1px solid ${theme.palette.divider}`,
+          },
         }}
         components={{ Toolbar }}
         componentsProps={{

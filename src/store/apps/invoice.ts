@@ -73,14 +73,6 @@ export const invoiceslice = createSlice({
   },
   reducers: {},
   extraReducers: builders => {
-    builders.addCase(getInvoiceData.fulfilled, (state: any, action: any) => {
-      state.rows = action.payload.data
-      state.count = action.payload.count
-      state.loading = false
-    })
-    builders.addCase(getInvoiceData.pending, (state: any, action: any) => {
-      state.loading = true
-    })
     builders.addCase(getSingleInvoiceData.fulfilled, (state: any, action: any) => {
       state.data = action.payload
       state.loading = false

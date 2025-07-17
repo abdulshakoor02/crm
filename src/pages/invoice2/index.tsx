@@ -14,6 +14,7 @@ import CardContent from '@mui/material/CardContent'
 import { styled, useTheme } from '@mui/material/styles'
 import TableContainer from '@mui/material/TableContainer'
 import TableCell, { TableCellBaseProps } from '@mui/material/TableCell'
+import Skeleton from '@mui/material/Skeleton'
 import { usePDF } from 'react-to-pdf'
 import { useRouter } from 'next/router'
 import axios from 'src/store/axios'
@@ -27,11 +28,10 @@ import { getSingleInvoiceData } from 'src/store/apps/invoice'
 import { getTenantData } from 'src/store/apps/tenant'
 
 const MUITableCell = styled(TableCell)<TableCellBaseProps>(({ theme }) => ({
-  borderBottom: `1px solid rgba(255,255,255,0.2)`,
-  padding: `${theme.spacing(2)} !important`,
-  fontSize: '0.95rem',
-  fontWeight: 500,
-  color: 'common.white'
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  padding: `${theme.spacing(1.5, 2)} !important`,
+  fontSize: '0.875rem',
+  color: theme.palette.text.primary
 }))
 
 const CalcWrapper = styled(Box)(({ theme }) => ({
@@ -40,48 +40,47 @@ const CalcWrapper = styled(Box)(({ theme }) => ({
   justifyContent: 'space-between',
   padding: theme.spacing(1, 0),
   '&:not(:last-of-type)': {
-    marginBottom: theme.spacing(1)
+    marginBottom: theme.spacing(0.5)
   }
 }))
 
 const StyledCard = styled(Card)(({ theme }) => ({
-  boxShadow: theme.palette.mode === 'dark' ? '0 8px 32px rgba(0, 0, 0, 0.4)' : '0 8px 32px rgba(0, 0, 0, 0.12)',
-  borderRadius: theme.spacing(2),
-  background: '#f8f8f8',
-  border: `3px solid transparent`,
-  backgroundClip: 'padding-box, border-box',
-  backgroundOrigin: 'padding-box, border-box',
-  backgroundImage: `linear-gradient(#f8f8f8, #f8f8f8), ${theme.palette.customColors.darkBorderGradient}`,
+  boxShadow: theme.shadows[1],
+  borderRadius: theme.spacing(1),
+  background: theme.palette.background.paper,
+  border: `1px solid ${theme.palette.divider}`,
   overflow: 'hidden'
 }))
 
-
-
 const InvoiceTitle = styled(Typography)(({ theme }) => ({
-  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
   fontWeight: 700,
-  fontSize: '2rem',
-  background: 'linear-gradient(45deg, #667eea, #764ba2)',
-  backgroundClip: 'text',
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-  textAlign: 'center',
-  marginBottom: theme.spacing(1)
+  fontSize: '1.75rem',
+  color: theme.palette.text.primary,
+  marginBottom: theme.spacing(0.5)
 }))
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
-  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
   fontWeight: 600,
-  fontSize: '1.1rem',
-  color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.main,
+  fontSize: '1rem',
+  color: theme.palette.text.primary,
   marginBottom: theme.spacing(1)
 }))
 
 const InfoText = styled(Typography)(({ theme }) => ({
-  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-  fontSize: '0.9rem',
-  lineHeight: 1.6,
+  fontSize: '0.875rem',
+  lineHeight: 1.5,
   color: theme.palette.text.secondary
+}))
+
+const StatusBadge = styled(Box)(({ theme }) => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  padding: theme.spacing(0.5, 1),
+  borderRadius: theme.spacing(1),
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  textTransform: 'uppercase',
+  letterSpacing: '0.5px'
 }))
 
 const InvoicePage = () => {
@@ -93,7 +92,7 @@ const InvoicePage = () => {
   const tenant = useSelector((state: any) => state.tenant)
   const [img, setImg] = useState('');
   const user = window.localStorage.getItem('userData');
-
+  console.log(invoice)
   const { toPDF, targetRef } = usePDF({
     filename: `invoice.pdf`,
     page: { format: 'A4' }
@@ -134,349 +133,231 @@ const InvoicePage = () => {
   const tax = (subtotal - discount) * invoice?.data?.reciept?.tax / 100 // 8% tax
   const total = (subtotal - discount) + tax
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return { bg: '#e8f5e8', color: '#2e7d32' }
+      case 'pending':
+        return { bg: '#fff3e0', color: '#ef6c00' }
+      case 'overdue':
+        return { bg: '#ffebee', color: '#c62828' }
+      default:
+        return { bg: '#f5f5f5', color: '#424242' }
+    }
+  }
+
+  const status = total - invoice?.data?.reciept?.amount_paid === 0 ? 'paid' : 'pending'
+
   if (invoice.loading) {
     return (
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '70vh',
-        flexDirection: 'column',
-        gap: 2
-      }}>
-        <Box sx={{
-          width: 60,
-          height: 60,
-          border: `4px solid ${theme.palette.divider}`,
-          borderTop: `4px solid ${theme.palette.primary.main}`,
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-          '@keyframes spin': {
-            '0%': { transform: 'rotate(0deg)' },
-            '100%': { transform: 'rotate(360deg)' }
-          }
-        }} />
-        <Typography variant="h6" sx={{
-          color: theme.palette.text.secondary,
-          fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
-        }}>
-          Loading invoice...
-        </Typography>
+      <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
+        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+          <Skeleton variant="text" width={200} height={40} />
+          <Skeleton variant="rectangular" width={140} height={40} />
+        </Box>
+        <Card sx={{ p: 4 }}>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Skeleton variant="text" width={120} height={30} sx={{ mb: 2 }} />
+              <Skeleton variant="text" width={200} height={20} />
+              <Skeleton variant="text" width={150} height={20} />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Skeleton variant="text" width={120} height={30} sx={{ mb: 2 }} />
+              <Skeleton variant="text" width={180} height={20} />
+              <Skeleton variant="text" width={160} height={20} />
+            </Grid>
+          </Grid>
+          <Skeleton variant="rectangular" width="100%" height={200} sx={{ mt: 4 }} />
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4 }}>
+            <Skeleton variant="rectangular" width={300} height={200} />
+          </Box>
+        </Card>
       </Box>
     )
   }
 
   return (
-    <>
-      {/* Header with Invoice Title and Download Button */}
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <InvoiceTitle variant="h3" sx={{ background: theme => theme.palette.customColors.primaryGradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          {'Invoice'}
-        </InvoiceTitle>
-        <Button
-          variant='contained'
-          onClick={() => toPDF()}
-          startIcon={
-            <svg width='20' height='20' viewBox='0 0 24 24'>
-              <path fill='currentColor' d='M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z' />
-            </svg>
-          }
-          sx={{
-            background: theme => theme.palette.customColors.primaryGradient,
-            color: 'white',
-            fontWeight: 600,
-            fontSize: '0.95rem',
-            padding: '12px 24px',
-            borderRadius: '12px',
-          }}
-        >
-          Download PDF
-        </Button>
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+      {/* Header */}
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <InvoiceTitle variant="h3">
+            Invoice
+          </InvoiceTitle>
+          <Typography variant="body2" color="text.secondary">
+            Receipt #{invoice?.data?.reciept?.reciept_no}
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <StatusBadge sx={getStatusColor(status)}>
+            {status}
+          </StatusBadge>
+          <Button
+            variant="contained"
+            onClick={() => toPDF()}
+            startIcon={
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+              </svg>
+            }
+            sx={{
+              backgroundColor: 'primary.main',
+              color: 'white',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              padding: '8px 16px',
+              borderRadius: 1,
+              textTransform: 'none'
+            }}
+          >
+            Download PDF
+          </Button>
+        </Box>
       </Box>
-      <StyledCard ref={targetRef as any} sx={{ position: 'relative', minHeight: '95vh' }}>
-        <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={4} sx={{ mb: { sm: 0, xs: 4 } }}>
-              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{
-                  mb: 6,
-                  p: 3,
-                  background: theme.palette.customColors.primaryGradient,
-                  borderRadius: 2,
-                  border: `3px solid transparent`,
-                  backgroundClip: 'padding-box, border-box',
-                  backgroundOrigin: 'padding-box, border-box',
-                  backgroundImage: `linear-gradient(${theme.palette.customColors.primaryGradient}), ${theme.palette.customColors.darkBorderGradient}`,
-                }}>
-                  <SectionTitle variant='h5' sx={{ color: 'common.white', mb: 2 }}>
-                    {invoice?.data?.reciept?.branch_name}
-                  </SectionTitle>
-                  <InfoText sx={{ color: 'common.white' }}>{invoice?.data?.reciept?.branch_address}</InfoText>
-                  <InfoText sx={{ fontWeight: 600, color: 'common.white' }}>{invoice?.data?.reciept?.branch_mobile}</InfoText>
-                </Box>
-                {invoice && (
-                  <Box sx={{
-                    p: 3,
-                    background: theme.palette.customColors.primaryGradient,
-                    borderRadius: 2,
-                    border: `3px solid transparent`,
-                    backgroundClip: 'padding-box, border-box',
-                    backgroundOrigin: 'padding-box, border-box',
-                    backgroundImage: `linear-gradient(${theme.palette.customColors.primaryGradient}), ${theme.palette.customColors.darkBorderGradient}`,
-                  }}>
-                    <SectionTitle sx={{ mb: 2, color: 'common.white' }}>Bill To:</SectionTitle>
-                    <InfoText sx={{ fontWeight: 600, fontSize: '1rem', color: 'common.white', mb: 1 }}>
+
+      <StyledCard ref={targetRef as any}>
+        <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+          {/* Company and Customer Info */}
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={8}>
+              <Grid container spacing={4}>
+                <Grid item xs={12} sm={6}>
+                  <SectionTitle variant="h6">From</SectionTitle>
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                      {invoice?.data?.reciept?.branch_name}
+                    </Typography>
+                    <InfoText>{invoice?.data?.reciept?.branch_address}</InfoText>
+                    <InfoText>{invoice?.data?.reciept?.branch_mobile}</InfoText>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <SectionTitle variant="h6">Bill To</SectionTitle>
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                       {invoice?.data?.reciept?.lead_name}
-                    </InfoText>
-                    <InfoText sx={{ color: 'common.white' }}>{invoice?.data?.reciept?.lead_email}</InfoText>
+                    </Typography>
+                    <InfoText>{invoice?.data?.reciept?.lead_email}</InfoText>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-end' }, height: '100%' }}>
+                {img && (
+                  <Box sx={{ mb: 2 }}>
+                    <img width={120} height={90} src={img} alt="Company logo" style={{ objectFit: 'contain' }} />
                   </Box>
                 )}
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <Box sx={{ textAlign: 'center' }}>
-                <img width={200} height={150} src={img} alt="Base64 image" />
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: { xs: 'left', sm: 'flex-end' } }}>
-              <Box sx={{
-                mb: 4,
-                p: 3,
-
-                background: theme.palette.customColors.primaryGradient,
-                borderRadius: 2,
-                color: 'white',
-                minWidth: '280px',
-                boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
-                border: `3px solid transparent`,
-                backgroundClip: 'padding-box, border-box',
-                backgroundOrigin: 'padding-box, border-box',
-                backgroundImage: `linear-gradient(135deg,${theme.palette.customColors.primaryGradient}) 0%, ${theme.palette.customColors.darkBorderGradient} 100%`,
-              }}>
-                <Typography variant='h4' sx={{
-                  mb: 3,
-                  fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-                  color: 'common.white'
-                }}>
-                  Reciept No: {invoice?.data?.reciept?.reciept_no}
-                </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant='body2' sx={{ fontWeight: 600, opacity: 0.9, color: 'common.white' }}>
-                      Date Issued:
-                    </Typography>
-                    <Typography variant='body2' sx={{ fontWeight: 500, color: 'common.white' }}>
-                      {invoice?.data?.reciept?.created_at ? new Date(invoice?.data?.reciept?.created_at).toLocaleDateString() : new Date().toLocaleDateString()}
-                    </Typography>
-                  </Box>
+                <Box sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Invoice Date</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {invoice?.data?.reciept?.created_at ? new Date(invoice?.data?.reciept?.created_at).toLocaleDateString() : new Date().toLocaleDateString()}
+                  </Typography>
                 </Box>
               </Box>
             </Grid>
           </Grid>
 
-          <Divider sx={{ my: theme => `${theme.spacing(6)} !important` }} />
+          <Divider sx={{ my: 4 }} />
 
-          <TableContainer sx={{
-            background: theme.palette.customColors.primaryGradient,
-            borderRadius: 2,
-            border: `3px solid transparent`,
-            backgroundClip: 'padding-box, border-box',
-            backgroundOrigin: 'padding-box, border-box',
-            backgroundImage: `linear-gradient(${theme.palette.customColors.primaryGradient}), ${theme.palette.customColors.darkBorderGradient}`,
-            overflow: 'hidden'
-          }}>
-            <Table>
+          {/* Items Table */}
+          <TableContainer sx={{ mb: 4 }}>
+            <Table size="small">
               <TableHead>
-                <TableRow sx={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
-                  <TableCell sx={{
-                    fontWeight: 700,
-                    fontSize: '1rem',
-                    color: 'common.white',
-                    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
-                  }}>
-                    Item
-                  </TableCell>
-                  <TableCell sx={{
-                    fontWeight: 700,
-                    fontSize: '1rem',
-                    color: 'common.white',
-                    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
-                  }}>
-                    Description
-                  </TableCell>
-                  <TableCell sx={{
-                    fontWeight: 700,
-                    fontSize: '1rem',
-                    color: 'common.white',
-                    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
-                  }}>
-                    Qty
-                  </TableCell>
-                  <TableCell sx={{
-                    fontWeight: 700,
-                    fontSize: '1rem',
-                    color: 'common.white',
-                    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif'
-                  }}>
-                    Price
-                  </TableCell>
+                <TableRow sx={{ backgroundColor: 'grey.50' }}>
+                  <TableCell sx={{ fontWeight: 600, fontSize: '0.875rem' }}>Item</TableCell>
+                  <TableCell sx={{ fontWeight: 600, fontSize: '0.875rem' }}>Description</TableCell>
+                  <TableCell sx={{ fontWeight: 600, fontSize: '0.875rem', textAlign: 'center' }}>Qty</TableCell>
+                  <TableCell sx={{ fontWeight: 600, fontSize: '0.875rem', textAlign: 'right' }}>Price</TableCell>
+                  <TableCell sx={{ fontWeight: 600, fontSize: '0.875rem', textAlign: 'right' }}>Total</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {
-                  invoice?.data?.orders?.map((order: any) => (
-                    <TableRow key={order.id}>
-                      <MUITableCell>{order?.product_name}</MUITableCell>
-                      <MUITableCell>{order?.product_desc}</MUITableCell>
-                      <MUITableCell>{order?.quantity}</MUITableCell>
-                      <MUITableCell>{invoice?.data?.reciept?.currency} {order.product_price}</MUITableCell>
-                    </TableRow>
-                  ))
-
-                }
+                {invoice?.data?.orders?.map((order: any) => (
+                  <TableRow key={order.id}>
+                    <MUITableCell>{order?.product_name}</MUITableCell>
+                    <MUITableCell>{order?.product_desc}</MUITableCell>
+                    <MUITableCell sx={{ textAlign: 'center' }}>{order?.quantity}</MUITableCell>
+                    <MUITableCell sx={{ textAlign: 'right' }}>
+                      {invoice?.data?.reciept?.currency} {order.product_price}
+                    </MUITableCell>
+                    <MUITableCell sx={{ textAlign: 'right' }}>
+                      {invoice?.data?.reciept?.currency} {(order.quantity * order.product_price).toFixed(2)}
+                    </MUITableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
 
-          <Box sx={{ mt: 'auto', position: 'relative', display: 'flex', justifyContent: 'flex-end' }}>
-            <Box
-              sx={{
-                width: '350px',
-                mt: 8,
-                p: 3,
-                background: theme.palette.customColors.primaryGradient,
-                borderRadius: 2,
-                border: `3px solid transparent`,
-                backgroundClip: 'padding-box, border-box',
-                backgroundOrigin: 'padding-box, border-box',
-                backgroundImage: `linear-gradient(${theme.palette.customColors.primaryGradient}), ${theme.palette.customColors.darkBorderGradient}`,
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)'
-              }}
-            >
-              <CalcWrapper>
-                <Typography sx={{
-                  fontWeight: 600,
-                  color: 'common.white',
-                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
-                }}>
-                  Subtotal:
-                </Typography>
-                <Typography sx={{
-                  fontWeight: 600,
-                  color: 'common.white',
-                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
-                }}>
-                  {invoice?.data?.reciept?.currency} {subtotal}
-                </Typography>
-              </CalcWrapper>
-              <CalcWrapper>
-                <Typography sx={{
-                  fontWeight: 600,
-                  color: 'common.white',
-                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
-                }}>
-                  Discount:
-                </Typography>
-                <Typography sx={{
-                  fontWeight: 600,
-                  color: 'common.white',
-                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
-                }}>
-                  {invoice?.data?.reciept?.currency} {discount}
-                </Typography>
-              </CalcWrapper>
-              <CalcWrapper>
-                <Typography sx={{
-                  fontWeight: 600,
-                  color: 'common.white',
-                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
-                }}>
-                  Tax ({invoice?.data?.reciept?.tax}%):
-                </Typography>
-                <Typography sx={{
-                  fontWeight: 600,
-                  color: 'common.white',
-                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
-                }}>
-                  {invoice?.data?.reciept?.currency} {tax}
-                </Typography>
-              </CalcWrapper>
-              <Divider sx={{ my: 2, backgroundColor: 'rgba(255,255,255,0.2)' }} />
-              <CalcWrapper sx={{
-                p: 2,
-                background: 'rgba(255,255,255,0.2)',
-                borderRadius: 1,
-                color: 'white'
-              }}>
-                <Typography variant='h6' sx={{
-                  fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-                  color: 'common.white'
-                }}>
-                  Total:
-                </Typography>
-                <Typography variant='h5' sx={{
-                  fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-                  color: 'common.white'
-                }}>
-                  {invoice?.data?.reciept?.currency} {total}
-                </Typography>
-              </CalcWrapper>
-              <CalcWrapper sx={{
-                p: 2,
-                background: 'rgba(255,255,255,0.2)',
-                borderRadius: 1,
-                color: 'white'
-              }}>
-                <Typography variant='h6' sx={{
-                  fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-                  color: 'common.white'
-                }}>
-                  Amount Paid:
-                </Typography>
-                <Typography variant='h5' sx={{
-                  fontWeight: 700,
-                  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-                  color: 'common.white'
-                }}>
-                  {invoice?.data?.reciept?.currency} {invoice?.data?.reciept?.amount_paid}
-                </Typography>
-              </CalcWrapper>
-              {
-                total - invoice?.data?.reciept?.amount_paid !== 0 && (
-                  <>
-                    <CalcWrapper sx={{
-                      p: 2,
-                      background: 'rgba(255,255,255,0.2)',
-                      borderRadius: 1,
-                      color: 'white'
-                    }}>
-                      <Typography variant='h6' sx={{
-                        fontWeight: 700,
-                        fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-                        color: 'common.white'
-                      }}>
-                        Pending Amount:
-                      </Typography>
-                      <Typography variant='h5' sx={{
-                        fontWeight: 700,
-                        fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-                        color: 'common.white'
-                      }}>
-                        {invoice?.data?.reciept?.currency} {total - invoice?.data?.reciept?.amount_paid}
-                      </Typography>
-                    </CalcWrapper>
-                  </>
-                )
-              }
+          {/* Totals */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box sx={{ width: { xs: '100%', sm: '350px' } }}>
+              <Card sx={{ p: 3 }}>
+                <CalcWrapper>
+                  <Typography sx={{ fontWeight: 500 }}>Subtotal:</Typography>
+                  <Typography>
+                    {invoice?.data?.reciept?.currency} {subtotal}
+                  </Typography>
+                </CalcWrapper>
+                {discount > 0 && (
+                  <CalcWrapper>
+                    <Typography sx={{ fontWeight: 500 }}>Discount:</Typography>
+                    <Typography>
+                      {invoice?.data?.reciept?.currency} {discount}
+                    </Typography>
+                  </CalcWrapper>
+                )}
+                <CalcWrapper>
+                  <Typography sx={{ fontWeight: 500 }}>Tax ({invoice?.data?.reciept?.tax}%):</Typography>
+                  <Typography>
+                    {invoice?.data?.reciept?.currency} {tax}
+                  </Typography>
+                </CalcWrapper>
+                <Divider sx={{ my: 2 }} />
+                <CalcWrapper>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>Total:</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    {invoice?.data?.reciept?.currency} {total}
+                  </Typography>
+                </CalcWrapper>
+                <CalcWrapper>
+                  <Typography sx={{ fontWeight: 500 }}>Amount Paid:</Typography>
+                  <Typography>
+                    {invoice?.data?.reciept?.currency} {invoice?.data?.reciept?.amount_paid}
+                  </Typography>
+                </CalcWrapper>
+                {invoice?.data?.reciept?.invoice_amount_paid > invoice?.data?.reciept?.amount_paid && (
+                  <CalcWrapper>
+                    <Typography sx={{ fontWeight: 500 }}>Total Amount Paid:</Typography>
+                    <Typography>
+                      {invoice?.data?.reciept?.currency} {invoice?.data?.reciept?.invoice_amount_paid}
+                    </Typography>
+                  </CalcWrapper>
+                )}
+                {total - invoice?.data?.reciept?.invoice_amount_paid !== 0 && (
+                  <CalcWrapper>
+                    <Typography sx={{ fontWeight: 600 }}>Pending Amount:</Typography>
+                    <Typography sx={{ fontWeight: 600, color: 'error.main' }}>
+                      {invoice?.data?.reciept?.currency} {(total - invoice?.data?.reciept?.invoice_amount_paid).toFixed(2)}
+                    </Typography>
+                  </CalcWrapper>
+                )}
+              </Card>
             </Box>
+          </Box>
+
+          {/* Footer */}
+          <Box sx={{ mt: 4, pt: 3, borderTop: `1px solid ${theme.palette.divider}` }}>
+            <Typography variant="body2" color="text.secondary" align="center">
+              Thank you for your business. For questions about this invoice, please contact {invoice?.data?.reciept?.branch_mobile}
+            </Typography>
           </Box>
         </CardContent>
       </StyledCard>
-    </>
+    </Box>
   )
 }
 
