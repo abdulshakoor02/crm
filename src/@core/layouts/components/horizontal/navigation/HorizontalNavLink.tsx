@@ -41,19 +41,23 @@ interface Props {
 const ListItem = styled(MuiListItem)<ListItemProps & { component?: ElementType; target?: '_blank' | undefined }>(
   ({ theme }) => ({
     width: 'auto',
-    paddingTop: theme.spacing(2.5), // Updated padding
+    paddingTop: theme.spacing(2.5),
     color: theme.palette.text.primary,
-    paddingBottom: theme.spacing(2.5), // Updated padding
+    paddingBottom: theme.spacing(2.5),
+    borderRadius: 3,
+    transition: 'all 0.3s ease',
     '&:hover': {
-      backgroundColor: theme.palette.action.hover
+      backgroundColor: theme.palette.action.hover,
+      transform: 'translateY(-1px)',
+      boxShadow: theme.shadows[2]
     },
     '&.active, &.active:hover': {
-      backgroundColor: alpha(theme.palette.primary.main, 0.1), // Updated background for hasParent and base
-      '& .MuiTypography-root': { // Added for all active items
+      backgroundColor: alpha(theme.palette.primary.main, 0.15),
+      '& .MuiTypography-root': {
         fontWeight: theme.typography.fontWeightMedium
       }
     },
-    '&.active .MuiTypography-root, &.active .MuiListItemIcon-root': { // Existing color rule, still good for hasParent
+    '&.active .MuiTypography-root, &.active .MuiListItemIcon-root': {
       color: theme.palette.primary.main
     }
   })
@@ -102,6 +106,7 @@ const HorizontalNavLink = (props: Props) => {
                 e.stopPropagation()
               }
             }}
+            aria-current={isNavLinkActive() ? 'page' : undefined}
             sx={{
               ...(item.disabled ? { pointerEvents: 'none' } : { cursor: 'pointer' }),
               ...(!hasParent

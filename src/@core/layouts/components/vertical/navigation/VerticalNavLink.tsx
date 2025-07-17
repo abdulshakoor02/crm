@@ -46,19 +46,39 @@ const MenuNavLink = styled(ListItemButton)<
   ListItemButtonProps & { component?: ElementType; target?: '_blank' | undefined }
 >(({ theme }) => ({
   width: '100%',
-  borderTopRightRadius: 100,
-  borderBottomRightRadius: 100,
+  borderTopRightRadius: 12,
+  borderBottomRightRadius: 12,
   color: theme.palette.common.white,
-  transition: 'padding-left .25s ease-in-out',
-  '&:hover': {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+  transition: 'all 0.3s ease',
+  position: 'relative',
+  overflow: 'hidden',
+  '&:before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 3,
+    height: '100%',
+    backgroundColor: theme.palette.common.white,
+    transform: 'scaleY(0)',
+    transition: 'transform 0.3s ease',
   },
-  // Updated py padding is in the sx prop within the component, not here.
+  '&:hover': {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    transform: 'translateX(2px)',
+    '&:before': {
+      transform: 'scaleY(1)',
+    },
+  },
   '&.active': {
-    borderLeft: `3px solid ${theme.palette.common.white}`,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    transform: 'translateX(4px)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    '&:before': {
+      transform: 'scaleY(1)',
+    },
     '&, &:hover': {
-      backgroundColor: 'rgba(255,255,255,0.2)', // Ensure hover on active keeps the active background
+      backgroundColor: 'rgba(255,255,255,0.15)',
     },
     '& .MuiTypography-root, & .MuiListItemIcon-root': {
       color: `${theme.palette.common.white} !important`
@@ -146,13 +166,14 @@ const VerticalNavLink = ({
         disablePadding
         className='nav-link'
         disabled={item.disabled || false}
-        sx={{ mt: 1.5, px: '0 !important' }}
+        sx={{ mt: 0.5, mb: 0.5, px: '0 !important' }}
       >
         <Link passHref href={item.path === undefined ? '/' : `${item.path}`}>
           <MenuNavLink
             component={'a'}
             className={isNavLinkActive() ? 'active' : ''}
             {...(item.openInNewTab ? { target: '_blank' } : null)}
+            aria-current={isNavLinkActive() ? 'page' : undefined}
             onClick={e => {
               if (item.path === undefined) {
                 e.preventDefault()
@@ -163,11 +184,15 @@ const VerticalNavLink = ({
               }
             }}
             sx={{
-              py: theme.spacing(2.5), // Changed from 2.25
+              py: {
+                xs: theme.spacing(2),
+                md: theme.spacing(2.5)
+              },
               ...conditionalBgColor(),
               ...(item.disabled ? { pointerEvents: 'none' } : { cursor: 'pointer' }),
               pl: navCollapsed && !navHover ? (collapsedNavWidth - navigationBorderWidth - 24) / 8 : 5.5,
-              pr: navCollapsed && !navHover ? ((collapsedNavWidth - navigationBorderWidth - 24) / 2 - 5) / 4 : 3.5
+              pr: navCollapsed && !navHover ? ((collapsedNavWidth - navigationBorderWidth - 24) / 2 - 5) / 4 : 3.5,
+              minHeight: { xs: 44, md: 'auto' }
             }}
           >
             {isSubToSub ? null : (
@@ -175,8 +200,9 @@ const VerticalNavLink = ({
                 sx={{
                   color: 'text.primary',
                   transition: 'margin .25s ease-in-out',
+                  fontSize: '1.25rem',
                   ...(navCollapsed && !navHover ? { mr: 0 } : { mr: 2.5 }),
-                  ...(parent ? { ml: 1.25, mr: 3.75 } : {}) // This line should be after (navCollapsed && !navHover) condition for proper styling
+                  ...(parent ? { ml: 1.25, mr: 3.75 } : {})
                 }}
               >
                 <UserIcon
@@ -184,9 +210,8 @@ const VerticalNavLink = ({
                   componentType='vertical-menu'
                   iconProps={{
                     sx: {
-                      fontSize: '0.875rem',
-                      ...(!parent ? { fontSize: '1.5rem' } : {}),
-                      ...(parent && item.icon ? { fontSize: '0.875rem' } : {})
+                      fontSize: '1.25rem',
+                      ...(parent ? { fontSize: '1rem' } : {})
                     }
                   }}
                 />

@@ -151,10 +151,13 @@ const Navigation = (props: Props) => {
             <List
               className='nav-items'
               sx={{
-                pt: 0,
+                pt: 2,
                 transition: 'padding .25s ease',
                 '& > :first-child': { mt: '0' },
-                pr: !navCollapsed || (navCollapsed && navHover) ? 4.5 : 1.25
+                pr: !navCollapsed || (navCollapsed && navHover) ? 4.5 : 1.25,
+                '& .nav-link, & .nav-group': {
+                  mb: 0.5
+                }
               }}
             >
               <VerticalNavItems
