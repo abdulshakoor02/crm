@@ -92,7 +92,7 @@ const InvoicePage = () => {
   const tenant = useSelector((state: any) => state.tenant)
   const [img, setImg] = useState('');
   const user = window.localStorage.getItem('userData');
-  console.log(invoice)
+
   const { toPDF, targetRef } = usePDF({
     filename: `invoice.pdf`,
     page: { format: 'A4' }

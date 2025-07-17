@@ -135,8 +135,9 @@ const RecieptList = ({
     }))
     let vat = Number(res?.payload?.data?.[0]?.tax);
     setVat(vat)
-    vat = (vat / 100) + 1;
-    setVatMultiplier(row.pending_amount * vat);
+    vat = (vat / 100);
+    vat = row.total * vat;
+    setVatMultiplier(row.pending_amount + vat);
     setSelectedInvoice(row)
     setOpenGenerateInvoice(true)
   }
