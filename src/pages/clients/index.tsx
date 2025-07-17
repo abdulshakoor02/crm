@@ -227,7 +227,7 @@ const ClientComponent = () => {
   const comments = useSelector((state: any) => state.additionalInfo)
   const product = useSelector((state: any) => state.products)
   const invoiceList = useSelector((state: any) => state.invoiceList)
-  console.log(invoiceList)
+
   useEffect(() => {
     dispatch(
       getLeadData({

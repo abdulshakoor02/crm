@@ -45,6 +45,15 @@ export const createInvoiceData: any = createAsyncThunk(
   }
 )
 
+export const createRecieptData: any = createAsyncThunk(
+  'reciept/create',
+  async (data: any, { getState, dispatch }: Redux) => {
+    const response = await axios.post(`/api/backend/reciept/create`, data)
+
+    return response.data
+  }
+)
+
 export const updateInvoiceData: any = createAsyncThunk(
   'invoice/update',
   async (data: any, { getState, dispatch }: Redux) => {
