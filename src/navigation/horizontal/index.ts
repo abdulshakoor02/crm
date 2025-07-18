@@ -1,21 +1,27 @@
 // ** Icon imports
 import HomeOutline from 'mdi-material-ui/HomeOutline'
 import ShieldOutline from 'mdi-material-ui/ShieldOutline'
-import FileDocumentOutline from 'mdi-material-ui/FileDocumentOutline';
+import BullhornOutline from 'mdi-material-ui/BullhornOutline'
+import AccountMultipleOutline from 'mdi-material-ui/AccountMultipleOutline';
 
 // ** Type import
 import { HorizontalNavItemsType } from 'src/@core/layouts/types'
 
 const navigation = (): HorizontalNavItemsType => [
   {
-    title: 'Home',
+    title: 'Dashboard',
     icon: HomeOutline,
     path: '/home'
   },
   {
-    title: 'Second Page',
-    icon: FileDocumentOutline,
-    path: '/second-page'
+    title: 'Leads',
+    icon: BullhornOutline,
+    path: '/leads'
+  },
+  {
+    title: 'Clients',
+    icon: AccountMultipleOutline,
+    path: '/clients'
   },
   {
     title: 'Access Control',

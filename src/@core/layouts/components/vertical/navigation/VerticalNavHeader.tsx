@@ -42,7 +42,9 @@ const MenuHeaderWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   justifyContent: 'space-between',
   paddingRight: theme.spacing(4.5),
   transition: 'padding .25s ease-in-out',
-  minHeight: theme.mixins.toolbar.minHeight
+  minHeight: theme.mixins.toolbar.minHeight,
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  marginBottom: theme.spacing(1)
 }))
 
 const HeaderTitle = styled(Typography)<TypographyProps>(({ theme }) => ({

@@ -216,12 +216,15 @@ const VerticalNavGroup = (props: Props) => {
     return {
       color: `rgba(${theme.palette.common.white}, 0.87)`,
       '&:hover': {
-        backgroundColor: `rgba(${theme.palette.common.white}, 0.1)`
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        transform: 'translateX(2px)',
       },
       '&.Mui-selected': {
-        backgroundColor: `rgba(${theme.palette.common.white}, 0.2)`,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        transform: 'translateX(4px)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         '&:hover': {
-          backgroundColor: `rgba(${theme.palette.common.white}, 0.25)`
+          backgroundColor: 'rgba(255,255,255,0.2)',
         }
       }
     }
@@ -238,22 +241,29 @@ const VerticalNavGroup = (props: Props) => {
           disablePadding
           className='nav-group'
           onClick={handleGroupClick}
-          sx={{ mt: 1.5, px: '0 !important', flexDirection: 'column' }}
+          sx={{ mt: 0.5, mb: 0.5, px: '0 !important', flexDirection: 'column' }}
+          role="group"
         >
           <ListItemButton
             className={clsx({
               'Mui-selected': groupActive.includes(item.title) || currentActiveGroup.includes(item.title)
             })}
             sx={{
-              py: 2.25,
+              py: {
+                xs: theme.spacing(2),
+                md: theme.spacing(2.25)
+              },
               width: '100%',
               ...conditionalBgColor(),
-              borderTopRightRadius: 100,
-              borderBottomRightRadius: 100,
-              transition: 'padding-left .25s ease-in-out',
+              borderTopRightRadius: 12,
+              borderBottomRightRadius: 12,
+              transition: 'all 0.3s ease',
               pl: navCollapsed && !navHover ? (collapsedNavWidth - navigationBorderWidth - 24) / 8 : 5.5,
-              pr: navCollapsed && !navHover ? ((collapsedNavWidth - navigationBorderWidth - 24) / 2 - 5) / 4 : 3.5
+              pr: navCollapsed && !navHover ? ((collapsedNavWidth - navigationBorderWidth - 24) / 2 - 5) / 4 : 3.5,
+              minHeight: { xs: 44, md: 'auto' }
             }}
+            aria-expanded={groupActive.includes(item.title)}
+            aria-haspopup="true"
           >
             {isSubToSub ? null : (
               <ListItemIcon
@@ -268,7 +278,7 @@ const VerticalNavGroup = (props: Props) => {
                 <UserIcon
                   icon={IconTag}
                   componentType='vertical-menu'
-                  iconProps={{ sx: { ...(parent ? { fontSize: '0.875rem' } : {}) } }}
+                  iconProps={{ sx: { fontSize: '1.25rem', ...(parent ? { fontSize: '1rem' } : {}) } }}
                 />
               </ListItemIcon>
             )}

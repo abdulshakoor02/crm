@@ -72,7 +72,7 @@ const Modal = ({ isOpen, onClose, onSubmit, title, children, className, mode, wi
 
         {/* Modal Footer */}
         <Box display='flex' justifyContent='space-between' mt={3}>
-          {(mode.toLowerCase() == 'edit' || mode.toLowerCase() == 'add') && (
+          {(mode?.toLowerCase() == 'edit' || mode?.toLowerCase() == 'add') && (
             <Button variant='contained' onClick={onSubmit} sx={{ background: theme.palette.common.white, color: theme.palette.primary.main, '&:hover': { background: theme.palette.grey[200] } }}>
               Submit
             </Button>

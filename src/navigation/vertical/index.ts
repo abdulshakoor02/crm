@@ -2,6 +2,7 @@
 import HomeOutline from 'mdi-material-ui/HomeOutline'
 import ShieldOutline from 'mdi-material-ui/ShieldOutline'
 import AccountGroupOutline from 'mdi-material-ui/AccountGroupOutline';
+import AccountMultipleOutline from 'mdi-material-ui/AccountMultipleOutline';
 import BullhornOutline from 'mdi-material-ui/BullhornOutline';
 import FolderCogOutline from 'mdi-material-ui/FolderCogOutline'; // For Masters
 import Earth from 'mdi-material-ui/Earth'; // For Countries
@@ -19,15 +20,9 @@ import { VerticalNavItemsType } from 'src/@core/layouts/types'
 const navigation = (): VerticalNavItemsType => {
   return [
     {
-      title: 'Home',
+      title: 'Dashboard',
       icon: HomeOutline,
       path: '/home'
-    },
-    {
-      title: 'User',
-      icon: AccountGroupOutline,
-      path: '/user',
-      access: 'user'
     },
     {
       title: 'Leads',
@@ -37,18 +32,16 @@ const navigation = (): VerticalNavItemsType => {
     },
     {
       title: 'Clients',
-      icon: AccountGroupOutline,
+      icon: AccountMultipleOutline,
       path: '/clients',
       access: 'lead'
     },
-
-    // {
-    //   title: 'Access Control',
-    //   icon: ShieldOutline,
-    //   path: '/acl',
-    //   action: 'read',
-    //   subject: 'acl-page'
-    // },
+    {
+      title: 'Users',
+      icon: AccountGroupOutline,
+      path: '/user',
+      access: 'user'
+    },
     {
       title: 'Masters',
       icon: FolderCogOutline,
@@ -60,12 +53,6 @@ const navigation = (): VerticalNavItemsType => {
           path: '/master/countries',
           access: 'countries'
         },
-
-        // {
-        //   title: 'Tenant',
-        //   icon: OfficeBuildingOutline,
-        //   path: '/master/tenant'
-        // },
         {
           title: 'Region',
           icon: MapMarkerRadiusOutline,
@@ -84,12 +71,6 @@ const navigation = (): VerticalNavItemsType => {
           path: '/master/role',
           access: 'role'
         },
-
-        // {
-        //   title: 'Features',
-        //   icon: TuneVariant,
-        //   path: '/master/features'
-        // },
         {
           title: 'Products',
           icon: PackageVariantClosed,
@@ -97,7 +78,7 @@ const navigation = (): VerticalNavItemsType => {
           access: 'product'
         },
         {
-          title: 'LeadCategory',
+          title: 'Lead Category',
           icon: TagOutline,
           path: '/master/leadCategory',
           access: 'leadCategory'
