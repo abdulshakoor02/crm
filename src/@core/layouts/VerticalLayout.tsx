@@ -38,6 +38,8 @@ const MainContentWrapper = styled(Box)<BoxProps & { navCollapsed: boolean; navHo
   flexDirection: 'column',
   backgroundColor: '#c3a2ff', // Very light grey
   paddingLeft: navCollapsed && !navHover ? theme.spacing(8) : theme.spacing(themeConfig.navigationSize / 8),
+  // Remove left padding on small screens when nav is hidden to fix mobile layout
+  [theme.breakpoints.down('lg')]: { paddingLeft: 0 },
   transition: 'padding-left .25s ease-in-out',
 }))
 
