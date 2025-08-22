@@ -220,42 +220,38 @@ const InvoicePage = () => {
         <CardContent sx={{ p: { xs: 3, md: 4 } }}>
           {/* Company and Customer Info */}
           <Grid container spacing={4}>
-            <Grid item xs={12} md={8}>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={6}>
-                  <SectionTitle variant="h6">From</SectionTitle>
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                      {invoice?.data?.reciept?.branch_name}
-                    </Typography>
-                    <InfoText>{invoice?.data?.reciept?.branch_address}</InfoText>
-                    <InfoText>{invoice?.data?.reciept?.branch_mobile}</InfoText>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <SectionTitle variant="h6">Bill To</SectionTitle>
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                      {invoice?.data?.reciept?.lead_name}
-                    </Typography>
-                    <InfoText>{invoice?.data?.reciept?.lead_email}</InfoText>
-                  </Box>
-                </Grid>
-              </Grid>
+            <Grid item xs={12} md={4}>
+              <SectionTitle variant="h6">From</SectionTitle>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                  {invoice?.data?.reciept?.branch_name}
+                </Typography>
+                <InfoText>{invoice?.data?.reciept?.branch_address}</InfoText>
+                <InfoText>{invoice?.data?.reciept?.branch_mobile}</InfoText>
+              </Box>
             </Grid>
             <Grid item xs={12} md={4}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-end' }, height: '100%' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%' }}>
                 {img && (
                   <Box sx={{ mb: 2 }}>
                     <img width={120} height={90} src={img} alt="Company logo" style={{ objectFit: 'contain' }} />
                   </Box>
                 )}
-                <Box sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>Invoice Date</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {invoice?.data?.reciept?.created_at ? new Date(invoice?.data?.reciept?.created_at).toLocaleDateString() : new Date().toLocaleDateString()}
-                  </Typography>
-                </Box>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={4} sx={{ textAlign: 'right' }}>
+              <SectionTitle variant="h6">Bill To</SectionTitle>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                  {invoice?.data?.reciept?.lead_name}
+                </Typography>
+                <InfoText>{invoice?.data?.reciept?.lead_email}</InfoText>
+              </Box>
+              <Box sx={{ textAlign: 'right' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>Invoice Date</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {invoice?.data?.reciept?.created_at ? new Date(invoice?.data?.reciept?.created_at).toLocaleDateString() : new Date().toLocaleDateString()}
+                </Typography>
               </Box>
             </Grid>
           </Grid>
